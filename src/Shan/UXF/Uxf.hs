@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Shan.UXF.Uxf
   ( UMLType (..),
@@ -14,14 +15,15 @@ module Shan.UXF.Uxf
     sourceX,
     sourceY,
     targetX,
-    targetY,
+    targetY
   )
 where
 
 import Control.Lens (makeLenses)
-import Xeno.DOM (parse, children)
+import Xeno.DOM (parse, children, name, Node)
 import Data.ByteString (ByteString)
-import 
+import Data.ByteString qualified as BS
+import System.Directory (listDirectory)
 
 data UMLType
   = UMLSequenceAllInOne
@@ -68,8 +70,24 @@ makeLenses ''Relation
 parseUxf :: ByteString -> [Element]
 parseUxf bs = case parse bs of 
   Left _ -> []
-  Right node -> []
+  Right node -> nodeToElement <$> findChildrenByName "element" node
+
+nodeToElement :: Node -> Element
+nodeToElement = undefined
+
+nodeToBasic :: Node -> Basic
+nodeToBasic n = undefined
+
 
 parseUxfFile :: FilePath -> IO [Element]
 parseUxfFile p = do 
-  
+  c <- BS.readFile p
+  return $ parseUxf c
+
+parseUxfFolder :: FilePath -> IO [[Element]]
+parseUxfFolder p = do
+  files <- listDirectory p
+  traverse parseUxfFile files
+
+findChildrenByName :: ByteString -> Node -> [Node]
+findChildrenByName n parent = filter (\node -> name node == n) (children parent)

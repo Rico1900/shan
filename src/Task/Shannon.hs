@@ -1,4 +1,8 @@
-module Task.Shannon where
+module Task.Shannon (
+  runShannonTask
+) where
+
+import Shan.UXF.Uxf ()
 
 
 data Case = Case
@@ -6,5 +10,12 @@ data Case = Case
     path :: FilePath
   }
 
-printElementNames :: Case -> IO ()
-printElementNames c = 
+adcBugInt :: Case
+adcBugInt = Case {
+  name = "ADC-Bug-int",
+  path = "./cases/Shannon/ADC-Bug-int/adc_sd.uxf"
+}
+
+
+runShannonTask :: IO ()
+runShannonTask = print ""
