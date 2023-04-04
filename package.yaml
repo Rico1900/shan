@@ -26,6 +26,9 @@ dependencies:
 - bytestring
 - xeno
 - directory
+- split
+- filepath
+- text
 
 ghc-options:
 - -Wall
@@ -40,6 +43,8 @@ ghc-options:
 
 default-extensions:
 - ImportQualifiedPost
+- ScopedTypeVariables
+- OverloadedStrings
 
 library:
   source-dirs: src

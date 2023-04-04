@@ -2,7 +2,7 @@ module Task.Shannon (
   runShannonTask
 ) where
 
-import Shan.UXF.Uxf ()
+import Shan.UXF.Uxf (parseUxfFolder)
 
 
 data Case = Case
@@ -13,9 +13,11 @@ data Case = Case
 adcBugInt :: Case
 adcBugInt = Case {
   name = "ADC-Bug-int",
-  path = "./cases/Shannon/ADC-Bug-int/adc_sd.uxf"
+  path = "./cases/Shannon/ADC-Bug-int"
 }
 
-
 runShannonTask :: IO ()
-runShannonTask = print ""
+runShannonTask = do
+  elements <- parseUxfFolder (path adcBugInt)
+  let es = mconcat elements
+  mapM_ print es

@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Shan.UXF.HtmlProcessor
       Shan.UXF.Uxf
       Task.Shannon
   other-modules:
@@ -34,13 +35,18 @@ library
       src
   default-extensions:
       ImportQualifiedPost
+      ScopedTypeVariables
+      OverloadedStrings
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
     , bytestring
     , directory
+    , filepath
     , lens
     , megaparsec
+    , split
+    , text
     , xeno
   default-language: Haskell2010
 
@@ -52,14 +58,19 @@ executable shan-exe
       app
   default-extensions:
       ImportQualifiedPost
+      ScopedTypeVariables
+      OverloadedStrings
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , bytestring
     , directory
+    , filepath
     , lens
     , megaparsec
     , shan
+    , split
+    , text
     , xeno
   default-language: Haskell2010
 
@@ -72,13 +83,18 @@ test-suite shan-test
       test
   default-extensions:
       ImportQualifiedPost
+      ScopedTypeVariables
+      OverloadedStrings
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , bytestring
     , directory
+    , filepath
     , lens
     , megaparsec
     , shan
+    , split
+    , text
     , xeno
   default-language: Haskell2010
