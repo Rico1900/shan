@@ -15,7 +15,6 @@
 
 -.
 index&gt;=0
-valign=top
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -33,7 +32,6 @@ valign=top
 
 -.
 index&gt;=0
-valign=top
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -75,7 +73,6 @@ reset:index&gt;=0;index:=0</panel_attributes>
 
 -.
 index&gt;=0
-valign=top
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -140,7 +137,6 @@ init:;index:=0</panel_attributes>
 
 -.
 index&gt;=0
-valign=top
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -176,8 +172,7 @@ response</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(index&lt;=3)</panel_attributes>
+    <panel_attributes>index&lt;=3</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

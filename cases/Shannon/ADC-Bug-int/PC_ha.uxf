@@ -38,7 +38,6 @@ PC_init:;x:=3</panel_attributes>
 
 -.
 x&gt;=3
-valign=top
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -68,7 +67,6 @@ reset:;x:=3</panel_attributes>
 
 -.
 x&gt;=3
-valign=top
 </panel_attributes>
     <additional_attributes/>
   </element>

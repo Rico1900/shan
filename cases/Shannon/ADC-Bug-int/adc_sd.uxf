@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <help_text/>
   <zoom_level>10</zoom_level>
   <element>
@@ -24,8 +24,8 @@ c-&gt;&gt;&gt;b : response;
 
 
 combinedFragment=int (p=1)~int2
-a-&gt;&gt;&gt;b : send_data
-c-&gt;&gt;&gt;b : reset
+a-&gt;&gt;&gt;b : send_data;
+c-&gt;&gt;&gt;b : reset;
 --
 
 </panel_attributes>
@@ -39,20 +39,8 @@ c-&gt;&gt;&gt;b : reset
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Constraints
-(response-report)&gt;=5
-(reset-send_data)&gt;=2</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLNote</id>
-    <coordinates>
-      <x>760</x>
-      <y>310</y>
-      <w>200</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>Properties
+    <panel_attributes>(response-report)&gt;=5
+(reset-send_data)&gt;=2
 (response-report)&lt;9</panel_attributes>
     <additional_attributes/>
   </element>

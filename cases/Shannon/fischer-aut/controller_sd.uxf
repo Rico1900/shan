@@ -14,8 +14,8 @@ obj=P_1~a
 obj=P_2~b
 
 
-a-&gt;&gt;&gt;b : T-send;
-b-&gt;&gt;&gt;a : T-rec;
+a-&gt;&gt;&gt;b : T_send;
+b-&gt;&gt;&gt;a : T_rec;
 </panel_attributes>
     <additional_attributes/>
   </element>

@@ -26,6 +26,9 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Shan.AST.Diagram
+      Shan.AST.Diagram.Parser
+      Shan.Parser
       Shan.UXF.HtmlProcessor
       Shan.UXF.Uxf
       Task.Shannon
@@ -41,10 +44,13 @@ library
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , containers
     , directory
     , filepath
+    , hspec
     , lens
     , megaparsec
+    , parser-combinators
     , split
     , text
     , xeno
@@ -64,10 +70,13 @@ executable shan-exe
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , containers
     , directory
     , filepath
+    , hspec
     , lens
     , megaparsec
+    , parser-combinators
     , shan
     , split
     , text
@@ -89,10 +98,13 @@ test-suite shan-test
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , containers
     , directory
     , filepath
+    , hspec
     , lens
     , megaparsec
+    , parser-combinators
     , shan
     , split
     , text

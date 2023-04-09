@@ -2,6 +2,8 @@
 
 module Shan.UXF.Uxf
   ( UMLType (..),
+    DiagramType(..),
+    RawDiagram(..),
     Basic (..),
     Element (..),
     Relation (..),
@@ -18,6 +20,7 @@ module Shan.UXF.Uxf
     targetY,
     parseUxfFile,
     parseUxfFolder,
+    (=?)
   )
 where
 
@@ -28,14 +31,21 @@ import Data.ByteString qualified as BS
 import Data.ByteString.Char8 (pack, unpack)
 import Data.Foldable (find)
 import Data.List.Split (splitOn)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, catMaybes)
 import Data.Text (Text)
+import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Shan.UXF.HtmlProcessor (processHtmlEntries)
 import System.Directory (listDirectory)
-import System.FilePath ((</>))
+import System.FilePath ((</>), takeFileName)
 import Text.Read (readMaybe)
 import Xeno.DOM (Content (Text), Node, children, contents, name, parse)
+import Text.Megaparsec (Parsec, MonadParsec (eof), (<|>))
+import Data.Void (Void)
+import Text.Megaparsec.Char (string, letterChar, char)
+import Text.Megaparsec qualified as Mega
+import Control.Applicative.Combinators (many)
+import Control.Monad (void)
 
 data UMLType
   = UMLSequenceAllInOne
@@ -54,15 +64,28 @@ parseUMLType s = case s of
   "Relation" -> RelationType
   _ -> UMLNote
 
+data DiagramType
+  = SD | HA
+  deriving (Eq, Show)
+
+parseDiagramType :: String -> DiagramType
+parseDiagramType s
+    | s `elem` sds = SD
+    | s `elem` has = HA
+    | otherwise = error ("wrong diagram type: " ++ s)
+    where
+      sds = [a ++ b | a <- ["s", "S"], b <- ["d", "D"]]
+      has = [a ++ b | a <- ["h", "H"], b <- ["a", "A"]]
+
 data Element = BasicE Basic | RelationE Relation
   deriving (Eq, Show)
 
 data Basic = Basic
   { _elementType :: UMLType,
-    _x :: Int,
-    _y :: Int,
-    _w :: Int,
-    _h :: Int,
+    _x :: Double,
+    _y :: Double,
+    _w :: Double,
+    _h :: Double,
     _content :: Text
   }
   deriving (Eq, Show)
@@ -76,9 +99,19 @@ data Relation = Relation
   }
   deriving (Eq, Show)
 
+data RawDiagram
+  = RawDiagram Text DiagramType [Element]
+  deriving (Eq, Show)
+
 makeLenses ''Basic
 makeLenses ''Relation
 makeLenses ''Content
+
+(=?) :: Element -> UMLType -> Bool
+(BasicE b) =? t = (b ^. elementType) == t
+(RelationE r) =? t = (r ^. element . elementType) == t
+
+infixl 8 =?
 
 parseUxf :: ByteString -> [Element]
 parseUxf bs = case parse bs of
@@ -97,11 +130,12 @@ nodeToElement n =
                   (unpack . textContent)
                   (findChildByName "additional_attributes" n)
               al = splitOn ";" aa
+              len = length al
               parseR i = fromMaybe (error "parsing relation failed") . readMaybe $ al !! i
               sx :: Double = parseR 0
               sy :: Double = parseR 1
-              tx :: Double = parseR 2
-              ty :: Double = parseR 3
+              tx :: Double = parseR (len - 2)
+              ty :: Double = parseR (len - 1)
            in RelationE $ Relation b sx sy tx ty
 
 nodeToBasic :: Node -> Basic
@@ -117,10 +151,10 @@ nodeToBasic n =
         . textContent
         . fromMaybe (error ("no " ++ s))
         $ findChildByName (pack s) coord
-    xi :: Int = parseFromCoord "x"
-    yi :: Int = parseFromCoord "y"
-    wi :: Int = parseFromCoord "w"
-    hi :: Int = parseFromCoord "h"
+    xi :: Double = parseFromCoord "x"
+    yi :: Double = parseFromCoord "y"
+    wi :: Double = parseFromCoord "w"
+    hi :: Double = parseFromCoord "h"
     pa = maybe (error "no attributes") (processHtmlEntries . decodeUtf8 . textContent) (findChildByName "panel_attributes" n)
 
 findChildrenByName :: ByteString -> Node -> [Node]
@@ -130,19 +164,38 @@ findChildByName :: ByteString -> Node -> Maybe Node
 findChildByName n parent = find (\node -> name node == n) (children parent)
 
 textContent :: Node -> ByteString
-textContent node = mconcat (contents node ^.. folded . to text)
+textContent node = 
+  mconcat (contents node ^.. folded . to text)
   where
     text c = case c of
       Text t -> t
       _ -> ""
 
-parseUxfFile :: FilePath -> IO [Element]
-parseUxfFile p = do
-  c <- BS.readFile p
-  return $ parseUxf c
+type Parser a = Parsec Void String a
 
-parseUxfFolder :: FilePath -> IO [[Element]]
+parseFilename :: String -> Maybe (String, DiagramType)
+parseFilename s = 
+  let
+    fnParser :: Parser (String, DiagramType) 
+    fnParser = do
+      n <- many (letterChar <|> char '-') 
+      void (string "_") 
+      t <- parseDiagramType <$> many letterChar
+      void (string ".uxf")
+      eof
+      return (n, t)
+   in Mega.parseMaybe fnParser s 
+
+parseUxfFile :: FilePath -> IO (Maybe RawDiagram)
+parseUxfFile p =
+  let fname = takeFileName p
+      meta = parseFilename fname
+  in do
+    c <- BS.readFile p
+    return ((\(n, t) -> RawDiagram (T.pack n) t (parseUxf c)) <$> meta)
+  
+parseUxfFolder :: FilePath -> IO [RawDiagram]
 parseUxfFolder p = do
   files <- listDirectory p
   let absFiles = (p </>) <$> files
-  traverse parseUxfFile absFiles
+  catMaybes <$> traverse parseUxfFile absFiles

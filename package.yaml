@@ -22,13 +22,16 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - lens
+- containers
 - megaparsec
+- parser-combinators
 - bytestring
 - xeno
 - directory
 - split
 - filepath
 - text
+- hspec
 
 ghc-options:
 - -Wall
