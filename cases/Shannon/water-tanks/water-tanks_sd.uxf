@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLSequenceAllInOne</id>
@@ -9,7 +9,7 @@
       <w>350</w>
       <h>240</h>
     </coordinates>
-    <panel_attributes>title=water-tanks
+    <panel_attributes>title=water_tanks
 obj=Tank1~a
 obj=Tank2~b
 

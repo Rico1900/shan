@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLSpecialState</id>
@@ -34,11 +34,11 @@ valign=top
     <coordinates>
       <x>570</x>
       <y>110</y>
-      <w>150</w>
+      <w>160</w>
       <h>140</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-station_init:;x1:=0</panel_attributes>
+station_init:;[x1:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;120.0</additional_attributes>
   </element>
   <element>
@@ -50,7 +50,7 @@ station_init:;x1:=0</panel_attributes>
       <h>110</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-place:;x1:=0</panel_attributes>
+place:;[x1:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;90.0;100.0;90.0;100.0;10.0</additional_attributes>
   </element>
   <element>
@@ -61,8 +61,7 @@ place:;x1:=0</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(x1&gt;=0)</panel_attributes>
+    <panel_attributes>x1&gt;=0</panel_attributes>
     <additional_attributes/>
   </element>
   <element>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLState</id>
@@ -60,9 +60,8 @@ valign=top
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(time&lt;5)
-forall(acce&gt;=0)</panel_attributes>
+    <panel_attributes>time&lt;5
+acce&gt;=0</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -88,14 +87,14 @@ valign=top
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>660</x>
+      <x>650</x>
       <y>630</y>
-      <w>230</w>
+      <w>250</w>
       <h>160</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-Init:;time:=0,acce:=0,speed:=0</panel_attributes>
-    <additional_attributes>20.0;140.0;200.0;10.0</additional_attributes>
+Init:;[time:=0,acce:=0,speed:=0]</panel_attributes>
+    <additional_attributes>30.0;140.0;210.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
@@ -156,7 +155,7 @@ T1</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T2:;acce:=0</panel_attributes>
+T2:;[acce:=0]</panel_attributes>
     <additional_attributes>230.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
@@ -180,7 +179,7 @@ T4:acce==0;</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T5:;acce:=0</panel_attributes>
+T5:;[acce:=0]</panel_attributes>
     <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
   </element>
   <element>
@@ -200,11 +199,11 @@ T3:acce==0;</panel_attributes>
     <coordinates>
       <x>140</x>
       <y>330</y>
-      <w>130</w>
+      <w>140</w>
       <h>180</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T6:;acce:=0</panel_attributes>
+T6:;[acce:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;60.0;160.0</additional_attributes>
   </element>
   <element>
@@ -216,7 +215,7 @@ T6:;acce:=0</panel_attributes>
       <h>180</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T7:;acce:=0</panel_attributes>
+T7:;[acce:=0]</panel_attributes>
     <additional_attributes>290.0;10.0;10.0;160.0</additional_attributes>
   </element>
   <element>
@@ -228,7 +227,7 @@ T7:;acce:=0</panel_attributes>
       <h>210</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T8:;acce:=0</panel_attributes>
+T8:;[acce:=0]</panel_attributes>
     <additional_attributes>610.0;10.0;10.0;190.0</additional_attributes>
   </element>
   <element>
@@ -240,7 +239,7 @@ T8:;acce:=0</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-recovery:;speed:=0</panel_attributes>
+recovery:;[speed:=0]</panel_attributes>
     <additional_attributes>10.0;20.0;480.0;20.0</additional_attributes>
   </element>
   <element>

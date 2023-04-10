@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <help_text/>
   <zoom_level>10</zoom_level>
   <element>
@@ -40,20 +40,7 @@ c-&gt;&gt;&gt;b : reset;
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>
-(response-report)&gt;3</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLNote</id>
-    <coordinates>
-      <x>410</x>
-      <y>590</y>
-      <w>200</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>
-</panel_attributes>
+    <panel_attributes>(response-report)&gt;3</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

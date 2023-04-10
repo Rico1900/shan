@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLState</id>
@@ -40,7 +40,7 @@ valign=top
       <h>90</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-processor_init:;u:=0,v:=0,j:=0</panel_attributes>
+processor_init:;[u:=0,v:=0,j:=0]</panel_attributes>
     <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
   </element>
   <element>
@@ -102,7 +102,7 @@ receive</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-push:;v:=10</panel_attributes>
+push:;[v:=10]</panel_attributes>
     <additional_attributes>300.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
@@ -126,7 +126,7 @@ c1</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-c2:;j:=0</panel_attributes>
+c2:;[j:=0]</panel_attributes>
     <additional_attributes>10.0;20.0;300.0;20.0</additional_attributes>
   </element>
   <element>
@@ -138,7 +138,7 @@ c2:;j:=0</panel_attributes>
       <h>210</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-c3:;j:=0</panel_attributes>
+c3:;[j:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;280.0;190.0</additional_attributes>
   </element>
   <element>
@@ -173,8 +173,7 @@ c5</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(j&lt;=3)</panel_attributes>
+    <panel_attributes>j&lt;=3</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

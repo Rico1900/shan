@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLState</id>
@@ -120,11 +120,11 @@ valign=top
     <coordinates>
       <x>150</x>
       <y>110</y>
-      <w>190</w>
+      <w>200</w>
       <h>150</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-init:;x2:=0,y2:=0,z2:=0</panel_attributes>
+init:;[x2:=0,y2:=0,z2:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;130.0</additional_attributes>
   </element>
   <element>
@@ -146,8 +146,7 @@ init:;x2:=0,y2:=0,z2:=0</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(x2&lt;120)</panel_attributes>
+    <panel_attributes>x2&lt;120</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -159,7 +158,7 @@ forall(x2&lt;120)</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-Rrec:;x2:=0,y2:=0</panel_attributes>
+Rrec:;[x2:=0,y2:=0]</panel_attributes>
     <additional_attributes>10.0;20.0;460.0;20.0</additional_attributes>
   </element>
   <element>
@@ -171,7 +170,7 @@ Rrec:;x2:=0,y2:=0</panel_attributes>
       <h>270</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-recR:x2&gt;=20,z2&gt;=120;</panel_attributes>
+recR:x2&gt;=20&amp;&amp;z2&gt;=120;</panel_attributes>
     <additional_attributes>560.0;10.0;10.0;250.0</additional_attributes>
   </element>
   <element>
@@ -183,7 +182,7 @@ recR:x2&gt;=20,z2&gt;=120;</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-t7:x2&gt;=20,z2&lt;120;</panel_attributes>
+t7:x2&gt;=20&amp;&amp;z2&lt;120;</panel_attributes>
     <additional_attributes>10.0;20.0;360.0;20.0</additional_attributes>
   </element>
   <element>
@@ -195,7 +194,7 @@ t7:x2&gt;=20,z2&lt;120;</panel_attributes>
       <h>280</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-t9:;</panel_attributes>
+t9</panel_attributes>
     <additional_attributes>990.0;10.0;10.0;260.0</additional_attributes>
   </element>
   <element>
@@ -207,7 +206,7 @@ t9:;</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-t12:;x2:=0,z2:=0</panel_attributes>
+t12:;[x2:=0,z2:=0]</panel_attributes>
     <additional_attributes>10.0;20.0;460.0;20.0</additional_attributes>
   </element>
   <element>
@@ -219,7 +218,7 @@ t12:;x2:=0,z2:=0</panel_attributes>
       <h>300</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-t11:x2&gt;=20,y2&gt;=120;</panel_attributes>
+t11:x2&gt;=20&amp;&amp;y2&gt;=120;</panel_attributes>
     <additional_attributes>610.0;280.0;10.0;10.0</additional_attributes>
   </element>
   <element>
@@ -231,7 +230,7 @@ t11:x2&gt;=20,y2&gt;=120;</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-t8:x2&gt;=20,y2&lt;120;</panel_attributes>
+t8:x2&gt;=20&amp;&amp;y2&lt;120;</panel_attributes>
     <additional_attributes>10.0;20.0;360.0;20.0</additional_attributes>
   </element>
   <element>
@@ -243,7 +242,7 @@ t8:x2&gt;=20,y2&lt;120;</panel_attributes>
       <h>260</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-t10:;</panel_attributes>
+t10</panel_attributes>
     <additional_attributes>1050.0;240.0;10.0;10.0</additional_attributes>
   </element>
   <element>

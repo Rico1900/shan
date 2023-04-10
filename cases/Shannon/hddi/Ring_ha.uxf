@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLState</id>
@@ -89,11 +89,11 @@ valign=top
     <coordinates>
       <x>500</x>
       <y>130</y>
-      <w>90</w>
+      <w>100</w>
       <h>190</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-init:;x:=0</panel_attributes>
+init:;[x:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;170.0</additional_attributes>
   </element>
   <element>
@@ -104,8 +104,7 @@ init:;x:=0</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(x&gt;=0)</panel_attributes>
+    <panel_attributes>x&gt;=0</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -129,7 +128,7 @@ Rsend:x&lt;=0;</panel_attributes>
       <h>200</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-sendR:;x:=0</panel_attributes>
+sendR:;[x:=0]</panel_attributes>
     <additional_attributes>410.0;10.0;10.0;180.0</additional_attributes>
   </element>
   <element>
@@ -153,7 +152,7 @@ Rrec:x&lt;=0;</panel_attributes>
       <h>210</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-recR:;x:=0</panel_attributes>
+recR:;[x:=0]</panel_attributes>
     <additional_attributes>340.0;190.0;10.0;10.0</additional_attributes>
   </element>
   <element>

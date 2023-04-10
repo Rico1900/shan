@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>130</x>
-      <y>630</y>
+      <x>120</x>
+      <y>620</y>
       <w>20</w>
       <h>20</h>
     </coordinates>
@@ -15,15 +15,15 @@
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>460</x>
-      <y>290</y>
+      <x>450</x>
+      <y>280</y>
       <w>180</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>id4
+    <panel_attributes>id0
 --
-'x2=1
-'id2=0
+'x1=1
+'id1=0
 -.
 
 valign=top
@@ -33,30 +33,30 @@ valign=top
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1220</x>
-      <y>60</y>
+      <x>1210</x>
+      <y>50</y>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(x2&gt;=0)
-forall(id2&gt;=2)</panel_attributes>
+    <panel_attributes>x1&gt;=0
+id1&gt;=0
+id1&lt;=2</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>930</x>
-      <y>290</y>
+      <x>920</x>
+      <y>280</y>
       <w>180</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>id5
+    <panel_attributes>id1
 --
-'x2=1
-'id2=0
+'x1=1
+'id1=0
 -.
-x2&lt;=3
+x1&lt;=3
 valign=top
 </panel_attributes>
     <additional_attributes/>
@@ -64,15 +64,15 @@ valign=top
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>460</x>
-      <y>570</y>
+      <x>450</x>
+      <y>560</y>
       <w>180</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>id6
+    <panel_attributes>id2
 --
-'x2=1
-'id2=0
+'x1=1
+'id1=0
 -.
 
 valign=top
@@ -82,15 +82,15 @@ valign=top
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>930</x>
-      <y>560</y>
+      <x>920</x>
+      <y>550</y>
       <w>180</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>id7
+    <panel_attributes>id3
 --
-'x2=1
-'id2=0
+'x1=1
+'id1=0
 -.
 
 valign=top
@@ -100,73 +100,73 @@ valign=top
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>140</x>
-      <y>620</y>
+      <x>130</x>
+      <y>610</y>
       <w>340</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-init:;x2:=0,id2:=0</panel_attributes>
+init:;[x1:=0,id1:=0]</panel_attributes>
     <additional_attributes>10.0;20.0;320.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>630</x>
-      <y>390</y>
+      <x>620</x>
+      <y>380</y>
       <w>320</w>
       <h>250</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T21:id2==0;x2:=0</panel_attributes>
+T11:id1==0;[x1:=0]</panel_attributes>
     <additional_attributes>10.0;230.0;300.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>630</x>
-      <y>330</y>
+      <x>620</x>
+      <y>320</y>
       <w>320</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T22:x2&lt;=3;x2:=0,id2:=2</panel_attributes>
+T12:x1&lt;=3;[x1:=0,id1:=1]</panel_attributes>
     <additional_attributes>300.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>630</x>
-      <y>630</y>
+      <x>620</x>
+      <y>350</y>
       <w>320</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T-rec:;id2:=0</panel_attributes>
-    <additional_attributes>300.0;20.0;10.0;20.0</additional_attributes>
+T13:id1==0;[x1:=0]</panel_attributes>
+    <additional_attributes>10.0;20.0;300.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>630</x>
-      <y>380</y>
+      <x>620</x>
+      <y>370</y>
       <w>420</w>
       <h>200</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T-send:x2&gt;3,id2==2;</panel_attributes>
+T-send:x1&gt;3 &amp;&amp; id1==1;</panel_attributes>
     <additional_attributes>10.0;10.0;400.0;180.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>630</x>
-      <y>360</y>
+      <x>620</x>
+      <y>620</y>
       <w>320</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T23:id2==0;x2:=0</panel_attributes>
-    <additional_attributes>10.0;20.0;300.0;20.0</additional_attributes>
+T-rec:;[id1:=0]</panel_attributes>
+    <additional_attributes>300.0;20.0;10.0;20.0</additional_attributes>
   </element>
 </diagram>

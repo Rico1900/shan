@@ -21,7 +21,7 @@
       <h>120</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-tank2_init:;q2:=0,inq2:=0,outq2:=0</panel_attributes>
+tank2_init:;[q2:=0,inq2:=0,outq2:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
   </element>
   <element>
@@ -223,9 +223,9 @@ valign=top
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>forall(inq2&gt;=0)
-forall(outq2&gt;=0)
-forall(q2&lt;=100)</panel_attributes>
+    <panel_attributes>inq2&gt;=0
+outq2&gt;=0
+q2&lt;=100</panel_attributes>
     <additional_attributes/>
   </element>
   <element>

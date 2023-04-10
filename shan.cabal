@@ -26,9 +26,11 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Shan.Analysis
       Shan.AST.Diagram
       Shan.AST.Diagram.Parser
       Shan.Parser
+      Shan.Util
       Shan.UXF.HtmlProcessor
       Shan.UXF.Uxf
       Task.Shannon

@@ -15,7 +15,7 @@ import Control.Applicative.Combinators (many)
 import Control.Lens ((^.), _Just)
 import Control.Monad (void)
 import Control.Monad.Combinators ((<|>))
-import Control.Monad.Combinators.Expr (Operator (InfixL), makeExprParser)
+import Control.Monad.Combinators.Expr (Operator (InfixL, Prefix), makeExprParser)
 import Data.Functor.Identity (Identity)
 import Data.List (find)
 import Data.Map qualified as M
@@ -25,27 +25,27 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Void (Void)
 import Shan.AST.Diagram
-  ( Assignment (Assignment),
-    Automaton (Automaton),
-    Bound,
-    Differential (Differential),
-    Edge (Edge),
-    Expr (..),
-    Fragment (..),
-    Instance (Instance),
-    Item (ItemF, ItemM),
-    JudgeOp (..),
-    Judgement (AndJ, OrJ, SimpleJ),
-    Message (Message),
-    Name,
-    Node (..),
-    NodeType (..),
-    Priority,
-    SequenceDiagram (SequenceDiagram),
-    Variable (..),
-    extractDifferentialVariables,
-    extractJudgementVariables,
-  )
+    ( Assignment(Assignment),
+      Automaton(Automaton),
+      Bound,
+      Differential(Differential),
+      Edge(Edge),
+      Expr(..),
+      Fragment(..),
+      Instance(Instance),
+      Item(ItemF, ItemM),
+      JudgeOp(..),
+      Judgement(AndJ, OrJ, SimpleJ),
+      Message(Message),
+      Name,
+      Node(..),
+      NodeType(..),
+      Priority,
+      SequenceDiagram(SequenceDiagram),
+      Variable(..),
+      judgementVars,
+      differentialVars,
+      Expr(..), Dexpr (..) )
 import Shan.UXF.Uxf (Basic, DiagramType (..), Element (BasicE, RelationE), RawDiagram (..), Relation, UMLType (..), content, element, elementType, h, sourceX, sourceY, targetX, targetY, w, x, y, (=?))
 import Text.Megaparsec (MonadParsec (try, eof), anySingle, between, choice, manyTill, optional, parse, (<?>), single)
 import Text.Megaparsec qualified as Mega
@@ -172,8 +172,8 @@ nodeContentParser = do
   space
   void (symbolS "-.")
   judges <- manyTill judgementParser (optional nodeContentEnd <* eof)
-  let diffVars = S.unions (extractDifferentialVariables <$> diffs)
-  let judgeVars = S.unions (extractJudgementVariables <$> judges)
+  let diffVars = S.unions (differentialVars <$> diffs)
+  let judgeVars = S.unions (judgementVars <$> judges)
   return (T.pack title, S.union diffVars judgeVars, diffs, judges)
   where
     nodeContentEnd :: Parser Text
@@ -192,9 +192,9 @@ differentialParser = do
   void (symbolS "'")
   v <- variableParser
   op <- judgeOpParser
-  expr <- exprParser
+  dexpr <- dexprParser
   void newline <|> eof
-  return $ Differential v op expr
+  return $ Differential v op dexpr
 
 parseJudgement :: Text -> Judgement
 parseJudgement j = case parse judgementParser "" j of
@@ -405,6 +405,29 @@ assignmentParser = do
   expr <- exprParser
   return $ Assignment v expr
 
+dexprParser :: Parser Dexpr
+dexprParser = 
+  makeExprParser terms table <?> "dexpr"
+  where
+    terms =
+      choice
+        [ Dnumber <$> numberParser,
+          Nvar <$> variableParser,
+          Dvar <$> (symbolS "'" *> variableParser),
+          parens dexprParser
+        ]
+    table =
+      [ [ prefix "-" Dnegation,
+          prefix "+" id
+        ],
+        [ binary "*" Dmul,
+          binary "/" Ddiv
+        ],
+        [ binary "+" Dadd,
+          binary "-" Dsub
+        ]
+      ]
+
 exprParser :: Parser Expr
 exprParser =
   makeExprParser terms table <?> "expr"
@@ -416,7 +439,10 @@ exprParser =
           parens exprParser
         ]
     table =
-      [ [ binary "*" Mul,
+      [ [ prefix "-" Negation,
+          prefix "+" id
+        ],
+        [ binary "*" Mul,
           binary "/" Div
         ],
         [ binary "+" Add,
@@ -430,11 +456,20 @@ binary ::
   Operator (Mega.ParsecT Void Text Identity) a
 binary op f = InfixL (f <$ symbolS op)
 
+prefix ::
+  Text ->
+  (a -> a) ->
+  Operator (Mega.ParsecT Void Text Identity) a
+prefix op f = Prefix (f <$ symbolS op)
+
 symbolS :: Text -> Parser Text
 symbolS = symbol space
 
+symbolW :: Text -> Parser Text
+symbolW = symbol (void . many $ single ' ')
+
 parens :: Parser a -> Parser a
-parens = between (symbolS "(") (symbolS ")")
+parens = between (symbolW "(") (symbolW ")")
 
 variableParser :: Parser Variable
 variableParser = (do
@@ -493,7 +528,7 @@ findElementSD :: [Element] -> Basic
 findElementSD es = findBasicUnsafe es UMLSequenceAllInOne
 
 findElementNote :: [Element] -> Maybe Basic
-findElementNote es = 
+findElementNote es =
   find (=? UMLNote) es >>= elementToBasic
   where
     elementToBasic (BasicE b) = Just b

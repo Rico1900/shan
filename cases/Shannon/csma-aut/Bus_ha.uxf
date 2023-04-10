@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLSpecialState</id>
@@ -72,7 +72,7 @@ valign=top
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-init:;c3:=0</panel_attributes>
+init:;[c3:=0]</panel_attributes>
     <additional_attributes>10.0;20.0;460.0;20.0</additional_attributes>
   </element>
   <element>
@@ -80,11 +80,11 @@ init:;c3:=0</panel_attributes>
     <coordinates>
       <x>420</x>
       <y>490</y>
-      <w>260</w>
+      <w>270</w>
       <h>240</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-evt_send:c3&lt;26;c3:=0</panel_attributes>
+evt_send:c3&lt;26;[c3:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;170.0;220.0</additional_attributes>
   </element>
   <element>
@@ -96,7 +96,7 @@ evt_send:c3&lt;26;c3:=0</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-send_2:c3&lt;26;c3:=0</panel_attributes>
+send_2:c3&lt;26;[c3:=0]</panel_attributes>
     <additional_attributes>410.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
@@ -120,7 +120,7 @@ rec_2:c3&gt;=26;</panel_attributes>
       <h>270</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-cbusy_2:;c3:=0</panel_attributes>
+cbusy_2:;[c3:=0]</panel_attributes>
     <additional_attributes>340.0;10.0;10.0;250.0</additional_attributes>
   </element>
   <element>
@@ -128,11 +128,11 @@ cbusy_2:;c3:=0</panel_attributes>
     <coordinates>
       <x>760</x>
       <y>490</y>
-      <w>360</w>
+      <w>380</w>
       <h>290</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-broadcast:;c3:=0</panel_attributes>
+broadcast:;[c3:=0]</panel_attributes>
     <additional_attributes>10.0;270.0;340.0;270.0;340.0;10.0</additional_attributes>
   </element>
   <element>
@@ -143,8 +143,7 @@ broadcast:;c3:=0</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(c3&gt;=0)</panel_attributes>
+    <panel_attributes>c3&gt;=0</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -156,7 +155,7 @@ forall(c3&gt;=0)</panel_attributes>
       <h>220</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-cbusy_1:;c3:=0</panel_attributes>
+cbusy_1:;[c3:=0]</panel_attributes>
     <additional_attributes>270.0;10.0;10.0;200.0</additional_attributes>
   </element>
   <element>
@@ -180,7 +179,7 @@ rec_1:c3&gt;=26;</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-send_1:c3&lt;26;c3:=0</panel_attributes>
+send_1:c3&lt;26;[c3:=0]</panel_attributes>
     <additional_attributes>410.0;20.0;10.0;20.0</additional_attributes>
   </element>
 </diagram>

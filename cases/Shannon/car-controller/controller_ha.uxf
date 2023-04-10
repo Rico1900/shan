@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLNote</id>
@@ -9,8 +9,7 @@
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(unit&gt;=0)</panel_attributes>
+    <panel_attributes>unit&gt;=0</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -65,11 +64,11 @@ valign=top
     <coordinates>
       <x>690</x>
       <y>180</y>
-      <w>110</w>
+      <w>120</w>
       <h>150</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-Init:;unit:=0</panel_attributes>
+Init:;[unit:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;130.0</additional_attributes>
   </element>
   <element>

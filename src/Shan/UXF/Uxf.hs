@@ -42,7 +42,7 @@ import Text.Read (readMaybe)
 import Xeno.DOM (Content (Text), Node, children, contents, name, parse)
 import Text.Megaparsec (Parsec, MonadParsec (eof), (<|>))
 import Data.Void (Void)
-import Text.Megaparsec.Char (string, letterChar, char)
+import Text.Megaparsec.Char (string, letterChar, char, alphaNumChar)
 import Text.Megaparsec qualified as Mega
 import Control.Applicative.Combinators (many)
 import Control.Monad (void)
@@ -178,8 +178,8 @@ parseFilename s =
   let
     fnParser :: Parser (String, DiagramType) 
     fnParser = do
-      n <- many (letterChar <|> char '-') 
-      void (string "_") 
+      n <- many (alphaNumChar <|> char '-') 
+      void (string "_")
       t <- parseDiagramType <$> many letterChar
       void (string ".uxf")
       eof

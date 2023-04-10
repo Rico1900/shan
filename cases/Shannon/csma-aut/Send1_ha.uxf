@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLState</id>
@@ -34,11 +34,11 @@ valign=top
     <coordinates>
       <x>500</x>
       <y>240</y>
-      <w>100</w>
+      <w>110</w>
       <h>160</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-init:;c1:=0</panel_attributes>
+init:;[c1:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;140.0</additional_attributes>
   </element>
   <element>
@@ -80,11 +80,11 @@ valign=top
     <coordinates>
       <x>500</x>
       <y>500</y>
-      <w>190</w>
+      <w>200</w>
       <h>270</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-busy_1:;c1:=0</panel_attributes>
+busy_1:;[c1:=0]</panel_attributes>
     <additional_attributes>140.0;250.0;10.0;10.0</additional_attributes>
   </element>
   <element>
@@ -96,7 +96,7 @@ busy_1:;c1:=0</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-send_1:c1&lt;52;c1:=0</panel_attributes>
+send_1:c1&lt;52;[c1:=0]</panel_attributes>
     <additional_attributes>10.0;20.0;340.0;20.0</additional_attributes>
   </element>
   <element>
@@ -108,7 +108,7 @@ send_1:c1&lt;52;c1:=0</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-rec_1:;c1:=0</panel_attributes>
+rec_1:;[c1:=0]</panel_attributes>
     <additional_attributes>340.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
@@ -120,7 +120,7 @@ rec_1:;c1:=0</panel_attributes>
       <h>90</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-cd_1:;c1:=0</panel_attributes>
+cd_1:;[c1:=0]</panel_attributes>
     <additional_attributes>310.0;10.0;10.0;10.0;10.0;70.0;310.0;70.0</additional_attributes>
   </element>
   <element>
@@ -132,7 +132,7 @@ cd_1:;c1:=0</panel_attributes>
       <h>70</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-rcd_1:;c1:=0</panel_attributes>
+rcd_1:;[c1:=0]</panel_attributes>
     <additional_attributes>10.0;50.0;130.0;50.0;130.0;10.0;10.0;10.0</additional_attributes>
   </element>
   <element>
@@ -140,11 +140,11 @@ rcd_1:;c1:=0</panel_attributes>
     <coordinates>
       <x>810</x>
       <y>500</y>
-      <w>290</w>
+      <w>300</w>
       <h>230</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-cbusy_1:c1==808;c1:=0</panel_attributes>
+cbusy_1:c1==808;[c1:=0]</panel_attributes>
     <additional_attributes>200.0;10.0;10.0;210.0</additional_attributes>
   </element>
   <element>
@@ -156,7 +156,7 @@ cbusy_1:c1==808;c1:=0</panel_attributes>
       <h>200</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-rbusy_1:;c1:=0</panel_attributes>
+rbusy_1:;[c1:=0]</panel_attributes>
     <additional_attributes>10.0;180.0;190.0;10.0</additional_attributes>
   </element>
   <element>
@@ -167,8 +167,7 @@ rbusy_1:;c1:=0</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>Properties
-forall(c1&gt;=0)</panel_attributes>
+    <panel_attributes>c1&gt;=0</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

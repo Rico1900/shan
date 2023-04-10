@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLSequenceAllInOne</id>
@@ -15,7 +15,7 @@ obj=processor~b
 
 
 combinedFragment=loop(2,2)~loop1
-a-&gt;&gt;&gt;b: receive:u:=t
+a-&gt;&gt;&gt;b: receive[u:=t]
 --
 
 combinedFragment=int(p=1)(1,2) ~int1
@@ -23,30 +23,6 @@ b-&gt;&gt;&gt;a: push
 --
 
 
-</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLNote</id>
-    <coordinates>
-      <x>620</x>
-      <y>20</y>
-      <w>200</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>Constraints
-</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLNote</id>
-    <coordinates>
-      <x>620</x>
-      <y>250</y>
-      <w>200</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>Properties
 </panel_attributes>
     <additional_attributes/>
   </element>

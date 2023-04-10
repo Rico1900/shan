@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLState</id>
@@ -56,7 +56,7 @@ ready</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-reset:index&gt;=0;index:=0</panel_attributes>
+reset:index&gt;=0;[index:=0]</panel_attributes>
     <additional_attributes>320.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
@@ -85,7 +85,7 @@ index&gt;=0
       <h>250</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-send_data:index&gt;=0;index:=(index+1)</panel_attributes>
+send_data:index&gt;=0;[index:=(index+1)]</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;230.0</additional_attributes>
   </element>
   <element>
@@ -120,7 +120,7 @@ done</panel_attributes>
       <h>140</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-init:;index:=0</panel_attributes>
+init:;[index:=0]</panel_attributes>
     <additional_attributes>230.0;10.0;10.0;120.0</additional_attributes>
   </element>
   <element>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLSpecialState</id>
@@ -35,11 +35,11 @@ valign=top
     <coordinates>
       <x>540</x>
       <y>170</y>
-      <w>300</w>
+      <w>310</w>
       <h>160</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-warehouse_init:;warehouse_products:=0</panel_attributes>
+warehouse_init:;[warehouse_products:=0]</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;140.0</additional_attributes>
   </element>
   <element>
@@ -51,7 +51,7 @@ warehouse_init:;warehouse_products:=0</panel_attributes>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-store:;warehouse_products:=(warehouse_products+1)</panel_attributes>
+store:;[warehouse_products:=(warehouse_products+1)]</panel_attributes>
     <additional_attributes>400.0;10.0;10.0;10.0;10.0;60.0;400.0;60.0</additional_attributes>
   </element>
   <element>
@@ -59,11 +59,11 @@ store:;warehouse_products:=(warehouse_products+1)</panel_attributes>
     <coordinates>
       <x>630</x>
       <y>340</y>
-      <w>480</w>
+      <w>490</w>
       <h>70</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-retrieval:;warehouse_products:=(warehouse_products-1)</panel_attributes>
+retrieval:;[warehouse_products:=(warehouse_products-1)]</panel_attributes>
     <additional_attributes>10.0;10.0;80.0;10.0;80.0;50.0;10.0;50.0</additional_attributes>
   </element>
 </diagram>
