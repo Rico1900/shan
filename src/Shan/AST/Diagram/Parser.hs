@@ -45,7 +45,7 @@ import Shan.AST.Diagram
       Variable(..),
       judgementVars,
       differentialVars,
-      Expr(..), Dexpr (..) )
+      Expr(..), Dexpr (..), Event (..) )
 import Shan.UXF.Uxf (Basic, DiagramType (..), Element (BasicE, RelationE), RawDiagram (..), Relation, UMLType (..), content, element, elementType, h, sourceX, sourceY, targetX, targetY, w, x, y, (=?))
 import Text.Megaparsec (MonadParsec (try, eof), anySingle, between, choice, manyTill, optional, parse, (<?>), single)
 import Text.Megaparsec qualified as Mega
@@ -333,7 +333,7 @@ messageParser insMap = do
   void (symbolS "->>>")
   tv <- variableParser
   void (symbolS ":")
-  n <- nameParser
+  (n, sn, tn) <- nameTriple
   assigns <- assignmentsParser
   void (optional $ symbolS ";")
   void (many newline)
@@ -343,9 +343,19 @@ messageParser insMap = do
   let ti = case M.lookup tv insMap of
         Just i -> i
         Nothing -> missing (show sv)
-  return $ Message n si ti assigns
+  return $ Message n (Event sn si) (Event tn ti) assigns
   where
     missing s = error ("instance variable not declared: " ++ s)
+    nameTriple :: Parser (Name, Name, Name)
+    nameTriple = do
+      void (symbolW "(")
+      n <- nameParser
+      void (symbolW ",")
+      sn <- nameParser
+      void (symbolW ",")
+      tn <- nameParser
+      void (symbolW ")")
+      return (n, sn, tn)
 
 judgementsParser :: Parser [Judgement]
 judgementsParser = many judgementParser <?> "judgements"

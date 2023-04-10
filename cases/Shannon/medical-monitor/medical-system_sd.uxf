@@ -6,7 +6,7 @@
     <coordinates>
       <x>120</x>
       <y>20</y>
-      <w>350</w>
+      <w>560</w>
       <h>350</h>
     </coordinates>
     <panel_attributes>title=medical-system
@@ -15,11 +15,11 @@ obj=processor~b
 
 
 combinedFragment=loop(2,2)~loop1
-a-&gt;&gt;&gt;b: receive[u:=t]
+a-&gt;&gt;&gt;b: (receive,receive,receive)[u:=t]
 --
 
 combinedFragment=int(p=1)(1,2) ~int1
-b-&gt;&gt;&gt;a: push
+b-&gt;&gt;&gt;a: (push,push,push)
 --
 
 

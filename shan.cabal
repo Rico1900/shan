@@ -27,6 +27,7 @@ library
   exposed-modules:
       Lib
       Shan.Analysis
+      Shan.Analysis.Trace
       Shan.AST.Diagram
       Shan.AST.Diagram.Parser
       Shan.Parser

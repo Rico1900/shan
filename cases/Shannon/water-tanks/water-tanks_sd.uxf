@@ -6,7 +6,7 @@
     <coordinates>
       <x>150</x>
       <y>50</y>
-      <w>350</w>
+      <w>450</w>
       <h>240</h>
     </coordinates>
     <panel_attributes>title=water_tanks
@@ -16,7 +16,7 @@ obj=Tank2~b
 
 
 combinedFragment=loop(5,5)~loop1
-a-&gt;&gt;&gt;b : flowto;
+a-&gt;&gt;&gt;b : (flowto,flowto,flowto);
 --
 </panel_attributes>
     <additional_attributes/>

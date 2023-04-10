@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLSequenceAllInOne</id>
     <coordinates>
       <x>330</x>
       <y>260</y>
-      <w>320</w>
+      <w>460</w>
       <h>210</h>
     </coordinates>
     <panel_attributes>title=controller
@@ -14,8 +14,8 @@ obj=P_1~a
 obj=P_2~b
 
 
-a-&gt;&gt;&gt;b : T_send;
-b-&gt;&gt;&gt;a : T_rec;
+a-&gt;&gt;&gt;b : (T_send,T_send,T_send);
+b-&gt;&gt;&gt;a : (T_rec,T_rec,T_rec);
 </panel_attributes>
     <additional_attributes/>
   </element>

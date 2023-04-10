@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
     <id>UMLSequenceAllInOne</id>
     <coordinates>
       <x>60</x>
       <y>30</y>
-      <w>350</w>
+      <w>540</w>
       <h>550</h>
     </coordinates>
     <panel_attributes>title=car-controller
@@ -15,20 +15,20 @@ obj=sensor~b
 
 
 combinedFragment=loop(5,5)~loop1
-a-&gt;&gt;&gt;b: T1;
+a-&gt;&gt;&gt;b: (T1,T1,T1);
 --
 
 
 combinedFragment=int(p=1)~int1
-a-&gt;&gt;&gt;b: recovery;
+a-&gt;&gt;&gt;b: (recovery,recovery,recovery);
 --
 
 combinedFragment=int(p=2)~int2
-a-&gt;&gt;&gt;b: T3;
+a-&gt;&gt;&gt;b: (T3,T3,T3);
 --
 
 combinedFragment=int(p=2)~int3
-a-&gt;&gt;&gt;b: T4;
+a-&gt;&gt;&gt;b: (T4,T4,T4);
 --
 
 </panel_attributes>

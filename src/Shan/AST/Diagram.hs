@@ -12,6 +12,7 @@ module Shan.AST.Diagram
     Assignment(..),
     Differential(..),
     Instance(..),
+    Event(..),
     Message(..),
     Item(..),
     Fragment(..),
@@ -87,8 +88,12 @@ data Instance
   = Instance Name Variable 
   deriving (Eq, Show)
 
+data Event
+  = Event Name Instance
+  deriving (Eq, Show)
+
 data Message 
-  = Message Name Instance Instance [Assignment]
+  = Message Name Event Event [Assignment]
   deriving (Eq, Show)
 
 data Item 

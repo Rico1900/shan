@@ -7,7 +7,7 @@
     <coordinates>
       <x>100</x>
       <y>90</y>
-      <w>510</w>
+      <w>900</w>
       <h>490</h>
     </coordinates>
     <panel_attributes>title=ADC
@@ -17,16 +17,16 @@ obj=PC~c
 
 
 combinedFragment=loop(5,5) ~loop1
-b-&gt;&gt;&gt;c : report;
-c-&gt;&gt;&gt;b : response;
+b-&gt;&gt;&gt;c : (report, report,report);
+c-&gt;&gt;&gt;b : (response,response,response);
 --
 
 combinedFragment=int (p=2)~int1
-a-&gt;&gt;&gt;b : send_data;
+a-&gt;&gt;&gt;b : (send_data,send_data,send_data);
 --
 
 combinedFragment=int (p=1)~int2
-c-&gt;&gt;&gt;b : reset;
+c-&gt;&gt;&gt;b : (reset,reset,reset);
 --
 
 </panel_attributes>
