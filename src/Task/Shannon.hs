@@ -5,7 +5,7 @@ where
 
 import System.FilePath ((</>))
 import Shan.Util (Case (..))
-import Shan.Analysis (analyzeCases, analyzeCase)
+import Shan.Analysis (analyzeCases)
 
 basePath :: FilePath
 basePath = "./cases/Shannon"
