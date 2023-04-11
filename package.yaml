@@ -32,6 +32,7 @@ dependencies:
 - filepath
 - text
 - hspec
+- universe-base
 
 ghc-options:
 - -Wall
@@ -48,6 +49,7 @@ default-extensions:
 - ImportQualifiedPost
 - ScopedTypeVariables
 - OverloadedStrings
+- TupleSections
 
 library:
   source-dirs: src

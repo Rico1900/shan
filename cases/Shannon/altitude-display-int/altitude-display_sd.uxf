@@ -9,7 +9,7 @@
       <w>930</w>
       <h>860</h>
     </coordinates>
-    <panel_attributes>title=altitude-display
+    <panel_attributes>title=altitude_display
 obj=PC~a
 obj=IO~b
 

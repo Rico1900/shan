@@ -20,7 +20,7 @@
       "ghciCmd": "stack ghci --with-ghc=ghci-dap --test --no-load --no-build --main-is TARGET",
       "ghciEnv": {},
       "logFile": "${workspaceFolder}/.vscode/phoityne.log",
-      "logLevel": "WARNING",
+      "logLevel": "INFO",
       "forceInspect": false
     },
     {

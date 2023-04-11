@@ -16,17 +16,17 @@ obj=warehouse~c
 obj=manipulator~d
 
 
-combinedFragment=loop(10,10)~loop1
+combinedFragment=loop(2,3)~loop1
 b-&gt;&gt;&gt;a : (place,place,place);
 a-&gt;&gt;&gt;d : (take,take,take)[d1:=belt_products];
 --
 
-combinedFragment=int (p=2)(1,5)~int2
+combinedFragment=int (p=2)(1,2)~int2
 b-&gt;&gt;&gt;a : (produce,produce,produce);
 a-&gt;&gt;&gt;c : (store,store,store);
 --
 
-combinedFragment=int (p=1)(1,5)~int2
+combinedFragment=int (p=1)(1,2)~int2
 c-&gt;&gt;&gt;a : (retrieval,retrieval,retrieval);
 a-&gt;&gt;&gt;d : (consume,consume,consume);
 --</panel_attributes>

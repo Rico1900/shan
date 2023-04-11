@@ -16,6 +16,7 @@ module Shan.AST.Diagram
     Message(..),
     Item(..),
     Fragment(..),
+    IntFragment(..),
     NodeType(..),
     Node(..),
     Edge(..),
@@ -24,15 +25,17 @@ module Shan.AST.Diagram
     Diagram(..),
     neg,
     differentialVars,
-    judgementVars
+    judgementVars,
+    splitSequenceDiagram
   )
 where
 
 import Data.Text (Text)
 import Data.Set (Set)
 import Data.Set qualified as S
+import Data.Maybe (mapMaybe, fromMaybe)
 
-data JudgeOp 
+data JudgeOp
   = Ge | Gt | Le | Lt | Eq | Neq
   deriving (Eq, Show)
 
@@ -44,7 +47,7 @@ type Priority = Int
 
 type Bound = Int
 
-data Variable 
+data Variable
   = SimpleVariable Name
   | ScopedVariable [Scope] Name
   deriving (Eq, Show, Ord)
@@ -84,19 +87,19 @@ data Differential
   = Differential Variable JudgeOp Dexpr
   deriving (Eq, Show)
 
-data Instance 
-  = Instance Name Variable 
+data Instance
+  = Instance Name Variable
   deriving (Eq, Show)
 
 data Event
   = Event Name Instance
   deriving (Eq, Show)
 
-data Message 
+data Message
   = Message Name Event Event [Assignment]
   deriving (Eq, Show)
 
-data Item 
+data Item
   = ItemM Message
   | ItemF Fragment
   deriving (Eq, Show)
@@ -104,8 +107,12 @@ data Item
 data Fragment
   = Block [Item]
   | AltF [Item] [Item]
-  | IntF Priority Bound Bound [Item]
+  | IntF IntFragment
   | LoopF Bound Bound (Maybe Double) (Maybe Double) [Item]
+  deriving (Eq, Show)
+
+data IntFragment
+  = IntFragment Priority Bound Bound [Item]
   deriving (Eq, Show)
 
 data NodeType
@@ -114,7 +121,7 @@ data NodeType
 
 data Node
   = Node NodeType Name (Set Variable) [Differential] [Judgement]
-  deriving (Eq, Show) 
+  deriving (Eq, Show)
 
 data Edge
   = Edge Name Node Node (Maybe Judgement) [Assignment]
@@ -179,3 +186,29 @@ judgementVars :: Judgement -> Set Variable
 judgementVars (SimpleJ e1 _ e2) = S.union (exprVars e1) (exprVars e2)
 judgementVars (AndJ j1 j2) = S.union (judgementVars j1) (judgementVars j2)
 judgementVars (OrJ j1 j2) = S.union (judgementVars j1) (judgementVars j2)
+
+splitSequenceDiagram :: SequenceDiagram -> (Fragment, [IntFragment])
+splitSequenceDiagram (SequenceDiagram _ _ frag _) = (fromMaybe (Block []) (clean frag), ints frag)
+    
+clean :: Fragment -> Maybe Fragment
+clean (Block items) = Just $ Block (mapMaybe noInt items)
+clean (AltF items1 items2) = Just $ AltF (mapMaybe noInt items1) (mapMaybe noInt items2)
+clean (IntF {}) = Nothing
+clean (LoopF l h s i items) = Just $ LoopF l h s i (mapMaybe noInt items)
+
+noInt :: Item -> Maybe Item
+noInt i@(ItemM _) = Just i
+noInt (ItemF frag) = ItemF <$> clean frag
+
+ints :: Fragment -> [IntFragment]
+ints (Block items) = onlyInt items
+ints (AltF items1 items2) = onlyInt items1 ++ onlyInt items2
+ints (IntF i) = [i]
+ints (LoopF _ _ _ _ items) = onlyInt items
+
+onlyInt :: [Item] -> [IntFragment]
+onlyInt = concatMap onlyInt'
+
+onlyInt' :: Item -> [IntFragment]
+onlyInt' (ItemM _) = []
+onlyInt' (ItemF frag) = ints frag

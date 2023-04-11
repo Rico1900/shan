@@ -9,7 +9,7 @@
       <w>540</w>
       <h>550</h>
     </coordinates>
-    <panel_attributes>title=car-controller
+    <panel_attributes>title=car_controller
 obj=controller~a
 obj=sensor~b
 

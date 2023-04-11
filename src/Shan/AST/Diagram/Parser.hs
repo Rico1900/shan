@@ -45,7 +45,7 @@ import Shan.AST.Diagram
       Variable(..),
       judgementVars,
       differentialVars,
-      Expr(..), Dexpr (..), Event (..) )
+      Expr(..), Dexpr (..), Event (..), IntFragment (IntFragment) )
 import Shan.UXF.Uxf (Basic, DiagramType (..), Element (BasicE, RelationE), RawDiagram (..), Relation, UMLType (..), content, element, elementType, h, sourceX, sourceY, targetX, targetY, w, x, y, (=?))
 import Text.Megaparsec (MonadParsec (try, eof), anySingle, between, choice, manyTill, optional, parse, (<?>), single)
 import Text.Megaparsec qualified as Mega
@@ -285,7 +285,7 @@ intFragmentParer insMap = do
   items <- itemsParser insMap
   void (symbolS "--")
   void (many newline)
-  return $ IntF p lower upper items
+  return $ IntF $ IntFragment p lower upper items
   where
     intHeader :: Parser (Priority, Bound, Bound)
     intHeader = do
