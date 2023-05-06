@@ -1,3 +1,13 @@
+# macOS
 .DS_Store
+
+# Haskell stack
 .stack-work/
 *~
+
+# IDE 
+# fleet
+.fleet
+
+# vscode
+.vscode
