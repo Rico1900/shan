@@ -35,7 +35,7 @@ library
       Shan.Util
       Shan.UXF.HtmlProcessor
       Shan.UXF.Uxf
-      Task.Shannon
+      Task.Shan
   other-modules:
       Paths_shan
   hs-source-dirs:

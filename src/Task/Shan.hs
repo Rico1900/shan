@@ -1,5 +1,5 @@
-module Task.Shannon
-  ( runShannonTask,
+module Task.Shan
+  ( runShanTask,
   )
 where
 
@@ -66,7 +66,7 @@ benchmark =
     waterTanks
   ]
 
-runShannonTask :: IO ()
-runShannonTask = example
--- runShannonTask = analyzeCases benchmark
--- runShannonTask = analyzeCase altitudeDisplayInt
+runShanTask :: IO ()
+runShanTask = example
+-- runShanTask = analyzeCases benchmark
+-- runShanTask = analyzeCase altitudeDisplayInt
