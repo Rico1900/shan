@@ -31,6 +31,7 @@ library
       Shan.AST.Diagram
       Shan.AST.Diagram.Parser
       Shan.Parser
+      Shan.SMT.Lib
       Shan.Util
       Shan.UXF.HtmlProcessor
       Shan.UXF.Uxf
@@ -55,6 +56,7 @@ library
     , lens
     , megaparsec
     , parser-combinators
+    , sbv
     , split
     , text
     , universe-base
@@ -83,6 +85,7 @@ executable shan-exe
     , lens
     , megaparsec
     , parser-combinators
+    , sbv
     , shan
     , split
     , text
@@ -113,6 +116,7 @@ test-suite shan-test
     , lens
     , megaparsec
     , parser-combinators
+    , sbv
     , shan
     , split
     , text

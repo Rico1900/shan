@@ -33,6 +33,7 @@ dependencies:
 - text
 - hspec
 - universe-base
+- sbv
 
 ghc-options:
 - -Wall

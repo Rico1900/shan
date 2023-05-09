@@ -6,6 +6,7 @@ where
 import System.FilePath ((</>))
 import Shan.Util (Case (..))
 import Shan.Analysis (analyzeCases, analyzeCase)
+import Shan.SMT.Lib (example)
 
 basePath :: FilePath
 basePath = "./cases/Shannon"
@@ -66,5 +67,6 @@ benchmark =
   ]
 
 runShannonTask :: IO ()
-runShannonTask = analyzeCases benchmark
+runShannonTask = example
+-- runShannonTask = analyzeCases benchmark
 -- runShannonTask = analyzeCase altitudeDisplayInt
