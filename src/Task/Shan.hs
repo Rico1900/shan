@@ -1,5 +1,6 @@
 module Task.Shan
   ( runShanTask,
+    altitudeDisplayInt,
   )
 where
 

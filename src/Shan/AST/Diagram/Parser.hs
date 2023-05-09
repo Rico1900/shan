@@ -25,29 +25,34 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Void (Void)
 import Shan.AST.Diagram
-    ( Assignment(Assignment),
-      Automaton(Automaton),
-      Bound,
-      Differential(Differential),
-      Edge(Edge),
-      Expr(..),
-      Fragment(..),
-      Instance(Instance),
-      Item(ItemF, ItemM),
-      JudgeOp(..),
-      Judgement(AndJ, OrJ, SimpleJ),
-      Message(Message),
-      Name,
-      Node(..),
-      NodeType(..),
-      Priority,
-      SequenceDiagram(SequenceDiagram),
-      Variable(..),
-      judgementVars,
-      differentialVars,
-      Expr(..), Dexpr (..), Event (..), IntFragment (IntFragment) )
+  ( Assignment (Assignment),
+    Automaton (Automaton),
+    Bound,
+    Dexpr (..),
+    Differential (Differential),
+    Edge (Edge),
+    Event (..),
+    Expr (..),
+    Fragment (..),
+    Instance (Instance),
+    IntFragment (IntFragment),
+    Item (ItemF, ItemM),
+    JudgeOp (..),
+    Judgement (AndJ, OrJ, SimpleJ),
+    Message (Message),
+    Name,
+    Node (..),
+    NodeType (..),
+    Priority,
+    Property (..),
+    Reachability (..),
+    SequenceDiagram (SequenceDiagram),
+    Variable (..),
+    differentialVars,
+    judgementVars,
+  )
 import Shan.UXF.Uxf (Basic, DiagramType (..), Element (BasicE, RelationE), RawDiagram (..), Relation, UMLType (..), content, element, elementType, h, sourceX, sourceY, targetX, targetY, w, x, y, (=?))
-import Text.Megaparsec (MonadParsec (try, eof), anySingle, between, choice, manyTill, optional, parse, (<?>), single)
+import Text.Megaparsec (MonadParsec (eof, try), anySingle, between, choice, manyTill, optional, parse, single, (<?>))
 import Text.Megaparsec qualified as Mega
 import Text.Megaparsec.Char (alphaNumChar, char, letterChar, newline, space, string)
 import Text.Megaparsec.Char.Lexer (decimal, float, lexeme, symbol)
@@ -68,7 +73,7 @@ parseSequenceDiagram (RawDiagram _ _ es) =
   let sd = findElementSD es ^. content
       note = findElementNote es ^. _Just . content
       (n, ins, f) = parseSDBody sd
-      props = parseProperties note
+      props = parseConstraints note
    in SequenceDiagram n ins f props
 
 parseSDBody :: Text -> (Name, [Instance], Fragment)
@@ -76,10 +81,15 @@ parseSDBody s = case parse sdBodyParser "" s of
   Left e -> error ("parse sequence diagram failed: " ++ Mega.errorBundlePretty e)
   Right res -> res
 
-parseProperties :: Text -> [Judgement]
-parseProperties note = case parse judgementsParser "" note of
+parseConstraints :: Text -> [Judgement]
+parseConstraints s = case parse judgementsParser "" s of
+  Left e -> error ("parse constraints failed: " ++ Mega.errorBundlePretty e)
+  Right res -> res
+
+parseProperties :: Text -> [Property]
+parseProperties note = case parse propertiesParser "" note of
   Left e -> error ("parse properties failed: " ++ Mega.errorBundlePretty e)
-  Right judgements -> judgements
+  Right properties -> properties
 
 parseAutomaton :: RawDiagram -> Automaton
 parseAutomaton (RawDiagram title _ es) =
@@ -127,18 +137,18 @@ searchSource :: [(Location, Node)] -> Relation -> Node
 searchSource locs r =
   let sx = (r ^. element . x) + (r ^. sourceX)
       sy = (r ^. element . y) + (r ^. sourceY)
-  in case searchNode locs (sx, sy) of
-      Nothing -> error ("search source node failed: " ++ T.unpack (r ^. element . content))
-      Just n -> n
+   in case searchNode locs (sx, sy) of
+        Nothing -> error ("search source node failed: " ++ T.unpack (r ^. element . content))
+        Just n -> n
 
 searchTarget :: [(Location, Node)] -> Relation -> Node
 searchTarget locs r =
   let tx = (r ^. element . x) + (r ^. targetX)
       ty = (r ^. element . y) + (r ^. targetY)
-  in case searchNode locs (tx, ty) of
-      -- Nothing -> error ("search target node failed: " ++ T.unpack (r ^. element . content))
-      Nothing -> error ("search target node failed: " ++ show locs ++ show r)
-      Just n -> n
+   in case searchNode locs (tx, ty) of
+        -- Nothing -> error ("search target node failed: " ++ T.unpack (r ^. element . content))
+        Nothing -> error ("search target node failed: " ++ show locs ++ show r)
+        Just n -> n
 
 searchNode :: [(Location, Node)] -> (Double, Double) -> Maybe Node
 searchNode locs loc = snd <$> find (\(l, _) -> inSquare l loc) locs
@@ -357,6 +367,25 @@ messageParser insMap = do
       void (symbolW ")")
       return (n, sn, tn)
 
+propertiesParser :: Parser [Property]
+propertiesParser = many propertyParser <?> "properties"
+
+propertyParser :: Parser Property
+propertyParser = do
+  void (symbolW "(")
+  n <- nameParser
+  void (symbolW ",")
+  r <- reachabilityParser
+  void (symbolS ")")
+  return $ Property n r
+
+reachabilityParser :: Parser Reachability
+reachabilityParser = 
+  choice 
+    [ Reachable <$ symbolS "reachable",
+      Unreachable <$ symbolS "unreachable"
+    ] <?> "reachability"
+
 judgementsParser :: Parser [Judgement]
 judgementsParser = many judgementParser <?> "judgements"
 
@@ -384,7 +413,8 @@ judgeOpParser =
       try (Eq <$ symbolS "=="),
       Eq <$ symbolS "=",
       Neq <$ symbolS "!="
-    ] <?> "judgement operations"
+    ]
+    <?> "judgement operations"
 
 assignmentsParser :: Parser [Assignment]
 assignmentsParser = do
@@ -416,7 +446,7 @@ assignmentParser = do
   return $ Assignment v expr
 
 dexprParser :: Parser Dexpr
-dexprParser = 
+dexprParser =
   makeExprParser terms table <?> "dexpr"
   where
     terms =
@@ -472,9 +502,11 @@ prefix ::
   Operator (Mega.ParsecT Void Text Identity) a
 prefix op f = Prefix (f <$ symbolS op)
 
+-- match all tailing blank symbols
 symbolS :: Text -> Parser Text
 symbolS = symbol space
 
+-- match tailing spaces
 symbolW :: Text -> Parser Text
 symbolW = symbol (void . many $ single ' ')
 
@@ -482,13 +514,16 @@ parens :: Parser a -> Parser a
 parens = between (symbolW "(") (symbolW ")")
 
 variableParser :: Parser Variable
-variableParser = (do
-  space
-  fstName <- nameParser
-  ts <- many tailParser
-  if null ts
-    then return $ SimpleVariable fstName
-    else return $ ScopedVariable (fstName : init ts) (last ts)) <?> "variable"
+variableParser =
+  ( do
+      space
+      fstName <- nameParser
+      ts <- many tailParser
+      if null ts
+        then return $ SimpleVariable fstName
+        else return $ ScopedVariable (fstName : init ts) (last ts)
+  )
+    <?> "variable"
   where
     tailParser :: Parser Name
     tailParser = do
@@ -543,7 +578,6 @@ findElementNote es =
   where
     elementToBasic (BasicE b) = Just b
     elementToBasic (RelationE _) = Nothing
-
 
 findInitialNode :: [Element] -> Basic
 findInitialNode es = findBasicUnsafe es UMLSpecialState

@@ -52,7 +52,6 @@ library
     , containers
     , directory
     , filepath
-    , hspec
     , lens
     , megaparsec
     , parser-combinators
@@ -81,7 +80,6 @@ executable shan-exe
     , containers
     , directory
     , filepath
-    , hspec
     , lens
     , megaparsec
     , parser-combinators
@@ -95,8 +93,9 @@ executable shan-exe
 
 test-suite shan-test
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: Main.hs
   other-modules:
+      ParseSpec
       Paths_shan
   hs-source-dirs:
       test
@@ -112,13 +111,13 @@ test-suite shan-test
     , containers
     , directory
     , filepath
-    , hspec
     , lens
     , megaparsec
     , parser-combinators
     , sbv
     , shan
     , split
+    , sydtest
     , text
     , universe-base
     , xeno

@@ -1,6 +1,8 @@
 module Lib
-    ( someFunc
+    ( entry
     ) where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+import Task.Shan (runShanTask, altitudeDisplayInt)
+
+entry :: IO ()
+entry = runShanTask

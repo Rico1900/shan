@@ -6,7 +6,8 @@ module Shan.Analysis(
 import Shan.Util (Case (..))
 import Shan.Parser (parseShan)
 import Data.Either (partitionEithers)
-import Shan.Analysis.Trace (traces, showTrace)
+import Shan.Analysis.Trace (traces, showTrace, Trace)
+import Shan.AST.Diagram (Automaton)
 
 analyzeCases :: [Case] -> IO ()
 analyzeCases = mapM_ analyzeCase
@@ -16,7 +17,11 @@ analyzeCase c = do
   putStrLn (name c)
   diagrams <- parseShan (path c)
   let (sds, automata) = partitionEithers diagrams
-  -- mapM_ print sds
   let ts = concatMap traces sds
-  print ("length: " ++ show (length ts))
-  mapM_ (putStrLn . showTrace) ts
+  analyzeHanGuidedByTraces automata ts
+
+analyzeHanGuidedByTraces :: [Automaton] -> [Trace] -> IO ()
+analyzeHanGuidedByTraces = undefined
+
+analyzeHanGuidedByTrace :: [Automaton] -> Trace -> IO ()
+analyzeHanGuidedByTrace = undefined

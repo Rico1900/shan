@@ -21,8 +21,9 @@ module Shan.AST.Diagram
     Node(..),
     Edge(..),
     SequenceDiagram(..),
+    Reachability(..),
+    Property(..),
     Automaton(..),
-    Diagram(..),
     neg,
     differentialVars,
     judgementVars,
@@ -34,6 +35,7 @@ import Data.Text (Text)
 import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Maybe (mapMaybe, fromMaybe)
+
 
 data JudgeOp
   = Ge | Gt | Le | Lt | Eq | Neq
@@ -131,21 +133,17 @@ data SequenceDiagram
   = SequenceDiagram Name [Instance] Fragment [Judgement]
   deriving (Eq, Show)
 
-data Automaton
-  = Automaton Name Node [Node] [Edge] [Judgement]
+data Reachability
+  = Reachable | Unreachable
   deriving (Eq, Show)
 
-class Diagram a where
-  title :: a -> Name
-  properties :: a -> [Judgement]
+data Property
+  = Property Name Reachability
+  deriving (Eq, Show)
 
-instance Diagram SequenceDiagram where
-  title (SequenceDiagram n _ _ _) = n
-  properties (SequenceDiagram _ _ _ ps) = ps
-
-instance Diagram Automaton where
-  title (Automaton n _ _ _ _) = n
-  properties (Automaton _ _ _ _ ps) = ps
+data Automaton
+  = Automaton Name Node [Node] [Edge] [Property]
+  deriving (Eq, Show)
 
 negateOp :: JudgeOp -> JudgeOp
 negateOp Eq = Neq

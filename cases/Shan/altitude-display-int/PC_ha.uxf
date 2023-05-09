@@ -85,7 +85,7 @@ cal:=((2*pre)-penu)]</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>(cal-truth)&lt;=5 || (truth-cal)&lt;=5</panel_attributes>
+    <panel_attributes>(error, unreachable)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -145,5 +145,38 @@ d_display: truth&gt;=1000;
 pre:=cal,
 cal:=((2*pre)-penu)]</panel_attributes>
     <additional_attributes>10.0;150.0;10.0;20.0;340.0;20.0;60.0;200.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>1070</x>
+      <y>100</y>
+      <w>180</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>error
+--
+'penu=0
+'pre=0
+'cal=0
+'truth=0
+-.
+truth&gt;=1000
+truth&lt;=2000
+valign=top
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>630</x>
+      <y>160</y>
+      <w>460</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+error_t:(cal-truth)&lt;=5 || (truth-cal)&lt;=5;</panel_attributes>
+    <additional_attributes>10.0;100.0;440.0;10.0</additional_attributes>
   </element>
 </diagram>

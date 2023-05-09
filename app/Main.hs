@@ -1,7 +1,6 @@
 module Main (main) where
 
-import Task.Shan (runShanTask)
-
+import Lib (entry)
 
 main :: IO ()
-main = runShanTask
+main = entry

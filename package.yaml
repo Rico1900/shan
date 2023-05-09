@@ -31,7 +31,6 @@ dependencies:
 - split
 - filepath
 - text
-- hspec
 - universe-base
 - sbv
 
@@ -68,7 +67,7 @@ executables:
 
 tests:
   shan-test:
-    main:                Spec.hs
+    main:                Main.hs
     source-dirs:         test
     ghc-options:
     - -threaded
@@ -76,3 +75,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - shan
+    - sydtest
