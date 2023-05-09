@@ -9,7 +9,7 @@ import Shan.Analysis (analyzeCases, analyzeCase)
 import Shan.SMT.Lib (example)
 
 basePath :: FilePath
-basePath = "./cases/Shannon"
+basePath = "./cases/Shan"
 
 constructCase :: String -> Case
 constructCase n =
