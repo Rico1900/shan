@@ -1,7 +1,7 @@
 module Main (main) where
 
-import Task.Shannon (runShannonTask)
+import Task.Shan (runShanTask)
 
 
 main :: IO ()
-main = runShannonTask
+main = runShanTask
