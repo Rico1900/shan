@@ -3,6 +3,7 @@
 
 # Haskell stack
 .stack-work/
+dist-newstyle
 *~
 
 # IDE 
