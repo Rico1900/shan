@@ -12,45 +12,48 @@ import Shan.SMT.Lib (example)
 basePath :: FilePath
 basePath = "./cases/Shan"
 
-constructCase :: String -> Case
-constructCase n =
-  Case
-    { name = n,
-      path = basePath </> n
-    }
+constructCase :: String -> Int -> Case
+constructCase n bound =
+  if bound <= 0
+    then error "invalid bound"
+    else  Case
+      { name = n,
+        path = basePath </> n
+      }
+  
 
 adcBugDInt :: Case
-adcBugDInt = constructCase "ADC-Bug-d-int"
+adcBugDInt = constructCase "ADC-Bug-d-int" 3
 
 adcBugInt :: Case
-adcBugInt = constructCase "ADC-Bug-int"
+adcBugInt = constructCase "ADC-Bug-int" 3
 
 altitudeDisplay :: Case
-altitudeDisplay = constructCase "altitude-display"
+altitudeDisplay = constructCase "altitude-display" 3
 
 altitudeDisplayInt :: Case
-altitudeDisplayInt = constructCase "altitude-display-int"
+altitudeDisplayInt = constructCase "altitude-display-int" 3
 
 carController :: Case
-carController = constructCase "car-controller"
+carController = constructCase "car-controller" 3
 
 csmaAut :: Case
-csmaAut = constructCase "csma-aut"
+csmaAut = constructCase "csma-aut" 3
 
 fischerAut :: Case
-fischerAut = constructCase "fischer-aut"
+fischerAut = constructCase "fischer-aut" 3
 
 hddi :: Case
-hddi = constructCase "hddi"
+hddi = constructCase "hddi" 3
 
 learningFactory :: Case
-learningFactory = constructCase "learning-factory"
+learningFactory = constructCase "learning-factory" 3
 
 medicalMonitor :: Case
-medicalMonitor = constructCase "medical-monitor"
+medicalMonitor = constructCase "medical-monitor" 3
 
 waterTanks :: Case
-waterTanks = constructCase "water-tanks"
+waterTanks = constructCase "water-tanks" 3
 
 benchmark :: [Case]
 benchmark = 
