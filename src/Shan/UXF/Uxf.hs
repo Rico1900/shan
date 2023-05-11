@@ -35,7 +35,7 @@ import Data.Maybe (fromMaybe, catMaybes)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
-import Shan.UXF.HtmlProcessor (processHtmlEntries)
+import Shan.Uxf.HtmlProcessor (processHtmlEntries)
 import System.Directory (listDirectory)
 import System.FilePath ((</>), takeFileName)
 import Text.Read (readMaybe)

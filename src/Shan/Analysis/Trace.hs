@@ -14,7 +14,7 @@ import Data.Text qualified as T
 import Data.Map ((!))
 import Data.Map qualified as M
 import Data.Universe.Helpers (cartesianProduct)
-import Shan.Ast.Diagram (Fragment (..), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, splitSequenceDiagram, Automaton, Event, Assignment)
+import Shan.Ast.Diagram (Fragment (..), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, splitSequenceDiagram, Automaton)
 
 type Trace = [Message]
 
@@ -22,7 +22,7 @@ data Direction
   = Sending | Receiving
   deriving (Eq, Show)
 
-type LMessage = (Event, Direction, [Assignment])
+type LMessage = (Message, Direction)
 
 type LTrace = [LMessage]
 
@@ -35,7 +35,6 @@ traces sd =
    in if null intSeqs
         then fst <$> cleanTraces
         else fst <$> concatMap (interrupts cleanTraces) intSeqs
-
 
 intTraces :: [IntFragment] -> [[([Trace], Priority)]]
 intTraces ints = cartesianProductList (intTrace <$> ints)

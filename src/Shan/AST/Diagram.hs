@@ -26,9 +26,13 @@ module Shan.Ast.Diagram
     Automaton(..),
     Diagrams,
     neg,
+    vname,
+    mname,
     differentialVars,
     judgementVars,
-    splitSequenceDiagram
+    splitSequenceDiagram,
+    messages,
+    judgements
   )
 where
 
@@ -36,7 +40,6 @@ import Data.Text (Text)
 import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Maybe (mapMaybe, fromMaybe)
-
 
 data JudgeOp
   = Ge | Gt | Le | Lt | Eq | Neq
@@ -161,6 +164,13 @@ neg (SimpleJ e1 op e2) = SimpleJ e1 (negateOp op) e2
 neg (AndJ j1 j2) = OrJ (neg j1) (neg j2)
 neg (OrJ j1 j2) = AndJ (neg j1) (neg j2)
 
+vname :: Variable -> Name
+vname (SimpleVariable n) = n
+vname (ScopedVariable _ n) = n
+
+mname :: Message -> Name 
+mname (Message n _ _ _) = n
+
 exprVars :: Expr -> Set Variable
 exprVars (Number _) = S.empty
 exprVars (Var v) = S.singleton v
@@ -190,7 +200,7 @@ judgementVars (OrJ j1 j2) = S.union (judgementVars j1) (judgementVars j2)
 
 splitSequenceDiagram :: SequenceDiagram -> (Fragment, [IntFragment])
 splitSequenceDiagram (SequenceDiagram _ _ frag _) = (fromMaybe (Block []) (clean frag), ints frag)
-    
+
 clean :: Fragment -> Maybe Fragment
 clean (Block items) = Just $ Block (mapMaybe noInt items)
 clean (AltF items1 items2) = Just $ AltF (mapMaybe noInt items1) (mapMaybe noInt items2)
@@ -213,3 +223,20 @@ onlyInt = concatMap onlyInt'
 onlyInt' :: Item -> [IntFragment]
 onlyInt' (ItemM _) = []
 onlyInt' (ItemF frag) = ints frag
+
+messages :: SequenceDiagram -> [Message]
+messages (SequenceDiagram _ _ frag _) =
+  msgOfFrag frag
+  where
+    msgOfFrag :: Fragment -> [Message]
+    msgOfFrag (Block items) = msgOfItems items
+    msgOfFrag (AltF ifs elses) = msgOfItems (ifs ++ elses)
+    msgOfFrag (IntF (IntFragment _ _ _ items)) = msgOfItems items
+    msgOfFrag (LoopF _ _ _ _ items) = msgOfItems items
+    msgOfItem :: Item -> [Message]
+    msgOfItem (ItemM m) = [m]
+    msgOfItem (ItemF f) = msgOfFrag f
+    msgOfItems = concatMap msgOfItem
+
+judgements :: SequenceDiagram -> [Judgement]
+judgements (SequenceDiagram _ _ _ js) = js
