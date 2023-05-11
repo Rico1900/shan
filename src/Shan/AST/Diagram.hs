@@ -5,7 +5,7 @@ module Shan.Ast.Diagram
     Scope,
     Priority,
     Bound,
-    Variable(..),
+    Variable,
     Expr(..),
     Dexpr(..),
     Judgement(..),
@@ -26,8 +26,8 @@ module Shan.Ast.Diagram
     Automaton(..),
     Diagrams,
     neg,
-    vname,
     mname,
+    ename,
     differentialVars,
     judgementVars,
     splitSequenceDiagram,
@@ -53,10 +53,12 @@ type Priority = Int
 
 type Bound = Int
 
-data Variable
-  = SimpleVariable Name
-  | ScopedVariable [Scope] Name
-  deriving (Eq, Show, Ord)
+type Variable = Name
+
+-- data Variable
+--   = SimpleVariable Name
+--   | ScopedVariable [Scope] Name
+--   deriving (Eq, Show, Ord)
 
 data Expr
   = Number Double
@@ -164,12 +166,11 @@ neg (SimpleJ e1 op e2) = SimpleJ e1 (negateOp op) e2
 neg (AndJ j1 j2) = OrJ (neg j1) (neg j2)
 neg (OrJ j1 j2) = AndJ (neg j1) (neg j2)
 
-vname :: Variable -> Name
-vname (SimpleVariable n) = n
-vname (ScopedVariable _ n) = n
-
 mname :: Message -> Name 
 mname (Message n _ _ _) = n
+
+ename :: Edge -> Name
+ename (Edge n _ _ _ _) = n
 
 exprVars :: Expr -> Set Variable
 exprVars (Number _) = S.empty

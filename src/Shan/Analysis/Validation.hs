@@ -5,7 +5,7 @@ where
 
 import Data.Set ((\\))
 import Data.Set qualified as S
-import Shan.Ast.Diagram (Automaton, Diagrams, SequenceDiagram (SequenceDiagram), judgementVars, judgements, messages, mname, vname)
+import Shan.Ast.Diagram (Automaton, Diagrams, SequenceDiagram (SequenceDiagram), judgementVars, judgements, messages, mname)
 import Text.Printf (printf)
 
 validateDiagrams :: Diagrams -> Either (IO ()) Diagrams
@@ -35,7 +35,7 @@ messageNameNoCollision sd@(SequenceDiagram name _ _ _) =
 checkMessageNamesInConstraints :: SequenceDiagram -> Either (IO ()) SequenceDiagram
 checkMessageNamesInConstraints sd@(SequenceDiagram name _ _ _) =
   let nameSet = S.fromList (mname <$> messages sd)
-      nameInJudges = S.map vname (S.unions (judgementVars <$> judgements sd))
+      nameInJudges = S.unions (judgementVars <$> judgements sd)
    in if nameInJudges `S.isSubsetOf` nameSet
         then Right sd
         else

@@ -14,7 +14,8 @@ import Data.Text qualified as T
 import Data.Map ((!))
 import Data.Map qualified as M
 import Data.Universe.Helpers (cartesianProduct)
-import Shan.Ast.Diagram (Fragment (..), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, splitSequenceDiagram, Automaton)
+import Shan.Ast.Diagram (Fragment (..), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, splitSequenceDiagram, Automaton (Automaton), ename, Event (Event), Instance (Instance))
+import Data.Maybe (catMaybes, mapMaybe)
 
 type Trace = [Message]
 
@@ -120,4 +121,14 @@ showMessage :: Message -> String
 showMessage (Message n _ _ _) = T.unpack n
 
 projection :: Trace -> Automaton -> LTrace
-projection = undefined
+projection t (Automaton aname _ _ es _) =
+  mapMaybe projection' t
+  where
+    enames = ename <$> es
+    projection' :: Message -> Maybe LMessage
+    projection'
+      m@(Message _ (Event sname (Instance saname _)) (Event tname (Instance taname _)) _)
+      | saname == aname && sname `elem` enames = Just (m, Sending)
+      | taname == aname && tname `elem` enames = Just (m, Receiving)
+      | otherwise = Nothing
+
