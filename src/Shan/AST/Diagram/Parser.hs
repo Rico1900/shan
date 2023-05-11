@@ -2,7 +2,7 @@
 
 {-# HLINT ignore "Use <$>" #-}
 
-module Shan.AST.Diagram.Parser
+module Shan.Ast.Diagram.Parser
   ( parseDiagram,
     parseSequenceDiagram,
     parseAutomaton,
@@ -24,7 +24,7 @@ import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Void (Void)
-import Shan.AST.Diagram
+import Shan.Ast.Diagram
   ( Assignment (Assignment),
     Automaton (Automaton),
     Bound,

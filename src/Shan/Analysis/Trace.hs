@@ -1,7 +1,11 @@
 module Shan.Analysis.Trace
   ( Trace,
+    Direction(..),
+    LMessage,
+    LTrace,
     traces,
-    showTrace
+    showTrace,
+    projection
   )
 where
 
@@ -10,9 +14,17 @@ import Data.Text qualified as T
 import Data.Map ((!))
 import Data.Map qualified as M
 import Data.Universe.Helpers (cartesianProduct)
-import Shan.AST.Diagram (Fragment (..), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, splitSequenceDiagram)
+import Shan.Ast.Diagram (Fragment (..), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, splitSequenceDiagram, Automaton, Event, Assignment)
 
 type Trace = [Message]
+
+data Direction
+  = Sending | Receiving
+  deriving (Eq, Show)
+
+type LMessage = (Event, Direction, [Assignment])
+
+type LTrace = [LMessage]
 
 traces :: SequenceDiagram -> [Trace]
 traces sd =
@@ -107,3 +119,6 @@ showTrace (m:ms) = showMessage m ++ " -> " ++ showTrace ms
 
 showMessage :: Message -> String
 showMessage (Message n _ _ _) = T.unpack n
+
+projection :: Trace -> Automaton -> LTrace
+projection = undefined

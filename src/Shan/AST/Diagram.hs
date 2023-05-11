@@ -1,4 +1,4 @@
-module Shan.AST.Diagram
+module Shan.Ast.Diagram
   (
     JudgeOp(..),
     Name,
@@ -24,6 +24,7 @@ module Shan.AST.Diagram
     Reachability(..),
     Property(..),
     Automaton(..),
+    Diagrams,
     neg,
     differentialVars,
     judgementVars,
@@ -144,6 +145,8 @@ data Property
 data Automaton
   = Automaton Name Node [Node] [Edge] [Property]
   deriving (Eq, Show)
+
+type Diagrams = ([SequenceDiagram], [Automaton])
 
 negateOp :: JudgeOp -> JudgeOp
 negateOp Eq = Neq

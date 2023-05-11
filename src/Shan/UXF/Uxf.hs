@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Shan.UXF.Uxf
+module Shan.Uxf.Uxf
   ( UMLType (..),
     DiagramType(..),
     RawDiagram(..),

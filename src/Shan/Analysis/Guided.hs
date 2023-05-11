@@ -1,4 +1,4 @@
-module Shan.Analysis(
+module Shan.Analysis.Guided(
   analyzeCase,
   analyzeCases
 ) where
@@ -7,7 +7,7 @@ import Shan.Util (Case (..))
 import Shan.Parser (parseShan)
 import Data.Either (partitionEithers)
 import Shan.Analysis.Trace (traces, showTrace, Trace)
-import Shan.AST.Diagram (Automaton, Bound)
+import Shan.Ast.Diagram (Automaton, Bound)
 
 analyzeCases :: [Case] -> IO ()
 analyzeCases = mapM_ analyzeCase
@@ -25,3 +25,4 @@ analyzeHanGuidedByTraces = undefined
 
 analyzeHanGuidedByTrace :: Bound -> [Automaton] -> Trace -> IO ()
 analyzeHanGuidedByTrace = undefined
+

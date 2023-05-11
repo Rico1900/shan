@@ -26,15 +26,16 @@ source-repository head
 library
   exposed-modules:
       Lib
-      Shan.Analysis
+      Shan.Analysis.Guided
       Shan.Analysis.Trace
-      Shan.AST.Diagram
-      Shan.AST.Diagram.Parser
+      Shan.Analysis.Validation
+      Shan.Ast.Diagram
+      Shan.Ast.Diagram.Parser
       Shan.Parser
-      Shan.SMT.Lib
+      Shan.Smt.Lib
       Shan.Util
-      Shan.UXF.HtmlProcessor
-      Shan.UXF.Uxf
+      Shan.Uxf.HtmlProcessor
+      Shan.Uxf.Uxf
       Task.Shan
   other-modules:
       Paths_shan

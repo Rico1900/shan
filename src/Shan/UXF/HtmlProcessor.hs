@@ -1,4 +1,4 @@
-module Shan.UXF.HtmlProcessor(
+module Shan.Uxf.HtmlProcessor(
   processHtmlEntries
 ) where
 

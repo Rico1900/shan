@@ -1,4 +1,4 @@
-module Shan.SMT.Lib
+module Shan.Smt.Lib
   ( example,
   )
 where

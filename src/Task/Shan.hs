@@ -6,7 +6,7 @@ where
 
 import System.FilePath ((</>))
 import Shan.Util (Case (..))
-import Shan.Analysis (analyzeCases, analyzeCase)
+import Shan.Analysis.Guided (analyzeCases, analyzeCase)
 import Shan.SMT.Lib (example)
 
 basePath :: FilePath
