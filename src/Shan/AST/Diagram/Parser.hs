@@ -47,11 +47,11 @@ import Shan.Ast.Diagram
     Property (..),
     Reachability (..),
     SequenceDiagram (SequenceDiagram),
-    Variable (..),
+    Variable,
     differentialVars,
     judgementVars,
   )
-import Shan.UXF.Uxf (Basic, DiagramType (..), Element (BasicE, RelationE), RawDiagram (..), Relation, UMLType (..), content, element, elementType, h, sourceX, sourceY, targetX, targetY, w, x, y, (=?))
+import Shan.Uxf.Uxf (Basic, DiagramType (..), Element (BasicE, RelationE), RawDiagram (..), Relation, UMLType (..), content, element, elementType, h, sourceX, sourceY, targetX, targetY, w, x, y, (=?))
 import Text.Megaparsec (MonadParsec (eof, try), anySingle, between, choice, manyTill, optional, parse, single, (<?>))
 import Text.Megaparsec qualified as Mega
 import Text.Megaparsec.Char (alphaNumChar, char, letterChar, newline, space, string)
@@ -64,34 +64,34 @@ type Location = (Double, Double, Double, Double)
 keywords :: [String]
 keywords = ["valign"]
 
-parseDiagram :: RawDiagram -> Either SequenceDiagram Automaton
+parseDiagram :: RawDiagram -> Either Shan.Ast.Diagram.SequenceDiagram Shan.Ast.Diagram.Automaton
 parseDiagram d@(RawDiagram _ SD _) = Left $ parseSequenceDiagram d
 parseDiagram d@(RawDiagram _ HA _) = Right $ parseAutomaton d
 
-parseSequenceDiagram :: RawDiagram -> SequenceDiagram
+parseSequenceDiagram :: RawDiagram -> Shan.Ast.Diagram.SequenceDiagram
 parseSequenceDiagram (RawDiagram _ _ es) =
   let sd = findElementSD es ^. content
       note = findElementNote es ^. _Just . content
       (n, ins, f) = parseSDBody sd
       props = parseConstraints note
-   in SequenceDiagram n ins f props
+   in Shan.Ast.Diagram.SequenceDiagram n ins f props
 
-parseSDBody :: Text -> (Name, [Instance], Fragment)
+parseSDBody :: Text -> (Shan.Ast.Diagram.Name, [Shan.Ast.Diagram.Instance], Shan.Ast.Diagram.Fragment)
 parseSDBody s = case parse sdBodyParser "" s of
   Left e -> error ("parse sequence diagram failed: " ++ Mega.errorBundlePretty e)
   Right res -> res
 
-parseConstraints :: Text -> [Judgement]
+parseConstraints :: Text -> [Shan.Ast.Diagram.Judgement]
 parseConstraints s = case parse judgementsParser "" s of
   Left e -> error ("parse constraints failed: " ++ Mega.errorBundlePretty e)
   Right res -> res
 
-parseProperties :: Text -> [Property]
+parseProperties :: Text -> [Shan.Ast.Diagram.Property]
 parseProperties note = case parse propertiesParser "" note of
   Left e -> error ("parse properties failed: " ++ Mega.errorBundlePretty e)
   Right properties -> properties
 
-parseAutomaton :: RawDiagram -> Automaton
+parseAutomaton :: RawDiagram -> Shan.Ast.Diagram.Automaton
 parseAutomaton (RawDiagram title _ es) =
   let i@(_, initialNode) = parseInitial $ findInitialNode es
       locNodes = parseNode <$> findNodes es
@@ -100,23 +100,23 @@ parseAutomaton (RawDiagram title _ es) =
       relations = parseEdge locList <$> findRelations es
       note = findElementNote es ^. _Just . content
       props = parseProperties note
-   in Automaton title initialNode nodes relations props
+   in Shan.Ast.Diagram.Automaton title initialNode nodes relations props
 
-parseInitial :: Basic -> (Location, Node)
+parseInitial :: Basic -> (Location, Shan.Ast.Diagram.Node)
 parseInitial b =
   let loc = parseLocation b
-   in (loc, Node Initial "" S.empty [] [])
+   in (loc, Shan.Ast.Diagram.Node Shan.Ast.Diagram.Initial "" S.empty [] [])
 
-parseEdge :: [(Location, Node)] -> Relation -> Edge
+parseEdge :: [(Location, Shan.Ast.Diagram.Node)] -> Relation -> Shan.Ast.Diagram.Edge
 parseEdge locs r =
   let source = searchSource locs r
       target = searchTarget locs r
       (n, j, as) = case parse edgeParser "" (r ^. element . content) of
         Left e -> error ("parse edge failed: " ++ Mega.errorBundlePretty e)
         Right res -> res
-   in Edge n source target j as
+   in Shan.Ast.Diagram.Edge n source target j as
 
-edgeParser :: Parser (Name, Maybe Judgement, [Assignment])
+edgeParser :: Parser (Shan.Ast.Diagram.Name, Maybe Shan.Ast.Diagram.Judgement, [Shan.Ast.Diagram.Assignment])
 edgeParser = do
   space
   void (symbolS "lt" *> symbolS "=" *> symbolS "->")
@@ -125,7 +125,7 @@ edgeParser = do
   let (j, as) = fromMaybe (Nothing, []) res
   return (n, j, as)
   where
-    tailParser :: Parser (Maybe Judgement, [Assignment])
+    tailParser :: Parser (Maybe Shan.Ast.Diagram.Judgement, [Shan.Ast.Diagram.Assignment])
     tailParser = do
       space
       void (symbolS ":")
@@ -133,7 +133,7 @@ edgeParser = do
       as <- assignmentsParser
       return (j, as)
 
-searchSource :: [(Location, Node)] -> Relation -> Node
+searchSource :: [(Location, Shan.Ast.Diagram.Node)] -> Relation -> Shan.Ast.Diagram.Node
 searchSource locs r =
   let sx = (r ^. element . x) + (r ^. sourceX)
       sy = (r ^. element . y) + (r ^. sourceY)
@@ -141,7 +141,7 @@ searchSource locs r =
         Nothing -> error ("search source node failed: " ++ T.unpack (r ^. element . content))
         Just n -> n
 
-searchTarget :: [(Location, Node)] -> Relation -> Node
+searchTarget :: [(Location, Shan.Ast.Diagram.Node)] -> Relation -> Shan.Ast.Diagram.Node
 searchTarget locs r =
   let tx = (r ^. element . x) + (r ^. targetX)
       ty = (r ^. element . y) + (r ^. targetY)
@@ -150,7 +150,7 @@ searchTarget locs r =
         Nothing -> error ("search target node failed: " ++ show locs ++ show r)
         Just n -> n
 
-searchNode :: [(Location, Node)] -> (Double, Double) -> Maybe Node
+searchNode :: [(Location, Shan.Ast.Diagram.Node)] -> (Double, Double) -> Maybe Shan.Ast.Diagram.Node
 searchNode locs loc = snd <$> find (\(l, _) -> inSquare l loc) locs
 
 inSquare :: Location -> (Double, Double) -> Bool
@@ -160,20 +160,20 @@ inSquare (x1, x2, y1, y2) (dotx, doty) =
     && y1 <= doty
     && y2 >= doty
 
-parseNode :: Basic -> (Location, Node)
+parseNode :: Basic -> (Location, Shan.Ast.Diagram.Node)
 parseNode b =
   let loc = parseLocation b
       node = parseNodeContent (b ^. content)
    in (loc, node)
 
-parseNodeContent :: Text -> Node
+parseNodeContent :: Text -> Shan.Ast.Diagram.Node
 parseNodeContent s =
   let (n, vset, diffs, judges) = case parse nodeContentParser "" s of
         Left e -> error ("parse node content failed: " ++ Mega.errorBundlePretty e)
         Right res -> res
-   in Node Common n vset diffs judges
+   in Shan.Ast.Diagram.Node Shan.Ast.Diagram.Common n vset diffs judges
 
-nodeContentParser :: Parser (Name, S.Set Variable, [Differential], [Judgement])
+nodeContentParser :: Parser (Shan.Ast.Diagram.Name, S.Set Shan.Ast.Diagram.Variable, [Shan.Ast.Diagram.Differential], [Shan.Ast.Diagram.Judgement])
 nodeContentParser = do
   space
   title <- manyTill anySingle newline
@@ -182,8 +182,8 @@ nodeContentParser = do
   space
   void (symbolS "-.")
   judges <- manyTill judgementParser (optional nodeContentEnd <* eof)
-  let diffVars = S.unions (differentialVars <$> diffs)
-  let judgeVars = S.unions (judgementVars <$> judges)
+  let diffVars = S.unions (Shan.Ast.Diagram.differentialVars <$> diffs)
+  let judgeVars = S.unions (Shan.Ast.Diagram.judgementVars <$> judges)
   return (T.pack title, S.union diffVars judgeVars, diffs, judges)
   where
     nodeContentEnd :: Parser Text
@@ -197,32 +197,32 @@ parseLocation b =
       hv = b ^. h
    in (xv, xv + wv, yv, yv + hv)
 
-differentialParser :: Parser Differential
+differentialParser :: Parser Shan.Ast.Diagram.Differential
 differentialParser = do
   void (symbolS "'")
   v <- variableParser
   op <- judgeOpParser
   dexpr <- dexprParser
   void newline <|> eof
-  return $ Differential v op dexpr
+  return $ Shan.Ast.Diagram.Differential v op dexpr
 
-parseJudgement :: Text -> Judgement
+parseJudgement :: Text -> Shan.Ast.Diagram.Judgement
 parseJudgement j = case parse judgementParser "" j of
   Left e -> error ("parse judgement failed: " ++ Mega.errorBundlePretty e)
   Right judge -> judge
 
-sdBodyParser :: Parser (Name, [Instance], Fragment)
+sdBodyParser :: Parser (Shan.Ast.Diagram.Name, [Shan.Ast.Diagram.Instance], Shan.Ast.Diagram.Fragment)
 sdBodyParser = do
   space
   title <- titleParser
   void (many newline)
   ins <- many instanceParser
   void (many newline)
-  let insMap = M.fromList ((\i@(Instance _ v) -> (v, i)) <$> ins)
+  let insMap = M.fromList ((\i@(Shan.Ast.Diagram.Instance _ v) -> (v, i)) <$> ins)
   items <- itemsParser insMap
-  return (title, ins, Block items)
+  return (title, ins, Shan.Ast.Diagram.Block items)
 
-titleParser :: Parser Name
+titleParser :: Parser Shan.Ast.Diagram.Name
 titleParser = do
   space
   void (symbolS "title")
@@ -231,7 +231,7 @@ titleParser = do
   void (many newline)
   return n
 
-instanceParser :: Parser Instance
+instanceParser :: Parser Shan.Ast.Diagram.Instance
 instanceParser = do
   space
   void (symbolS "obj")
@@ -240,15 +240,15 @@ instanceParser = do
   void (symbolS "~")
   v <- nameParser
   void (many newline)
-  return $ Instance n (SimpleVariable v)
+  return $ Shan.Ast.Diagram.Instance n v
 
-itemsParser :: M.Map Variable Instance -> Parser [Item]
+itemsParser :: M.Map Shan.Ast.Diagram.Variable Shan.Ast.Diagram.Instance -> Parser [Shan.Ast.Diagram.Item]
 itemsParser insMap = many (itemParser insMap)
 
-itemParser :: M.Map Variable Instance -> Parser Item
-itemParser insMap = (ItemF <$> fragmentParser insMap) <|> (ItemM <$> messageParser insMap)
+itemParser :: M.Map Shan.Ast.Diagram.Variable Shan.Ast.Diagram.Instance -> Parser Shan.Ast.Diagram.Item
+itemParser insMap = (Shan.Ast.Diagram.ItemF <$> fragmentParser insMap) <|> (Shan.Ast.Diagram.ItemM <$> messageParser insMap)
 
-fragmentParser :: M.Map Variable Instance -> Parser Fragment
+fragmentParser :: M.Map Shan.Ast.Diagram.Variable Shan.Ast.Diagram.Instance -> Parser Shan.Ast.Diagram.Fragment
 fragmentParser insMap =
   choice
     [ try (loopFragmentParser insMap),
@@ -256,7 +256,7 @@ fragmentParser insMap =
       intFragmentParer insMap
     ]
 
-loopFragmentParser :: M.Map Variable Instance -> Parser Fragment
+loopFragmentParser :: M.Map Shan.Ast.Diagram.Variable Shan.Ast.Diagram.Instance -> Parser Shan.Ast.Diagram.Fragment
 loopFragmentParser insMap = do
   space
   void (symbolS "combinedFragment")
@@ -268,22 +268,22 @@ loopFragmentParser insMap = do
   items <- itemsParser insMap
   void (symbolS "--")
   void (many newline)
-  return (LoopF lower upper maybeStart maybeInterval items)
+  return (Shan.Ast.Diagram.LoopF lower upper maybeStart maybeInterval items)
   where
-    loopHeader :: Parser (Bound, Bound, Maybe Double, Maybe Double)
+    loopHeader :: Parser (Shan.Ast.Diagram.Bound, Shan.Ast.Diagram.Bound, Maybe Double, Maybe Double)
     loopHeader = do
       space
       void (symbolS "loop")
       (lower, upper) <- boundParser
       assigns <- assignmentsParser
-      let assignMap = M.fromList ((\(Assignment v e) -> (v, e)) <$> assigns)
-      let start = M.lookup (SimpleVariable "start") assignMap >>= exprToNumber
-      let interval = M.lookup (SimpleVariable "interval") assignMap >>= exprToNumber
+      let assignMap = M.fromList ((\(Shan.Ast.Diagram.Assignment v e) -> (v, e)) <$> assigns)
+      let start = M.lookup "start" assignMap >>= exprToNumber
+      let interval = M.lookup "interval" assignMap >>= exprToNumber
       return (lower, upper, start, interval)
-    exprToNumber (Number n) = Just n
+    exprToNumber (Shan.Ast.Diagram.Number n) = Just n
     exprToNumber _ = Nothing
 
-intFragmentParer :: M.Map Variable Instance -> Parser Fragment
+intFragmentParer :: M.Map Shan.Ast.Diagram.Variable Shan.Ast.Diagram.Instance -> Parser Shan.Ast.Diagram.Fragment
 intFragmentParer insMap = do
   space
   void (symbolS "combinedFragment")
@@ -295,9 +295,9 @@ intFragmentParer insMap = do
   items <- itemsParser insMap
   void (symbolS "--")
   void (many newline)
-  return $ IntF $ IntFragment p lower upper items
+  return $ Shan.Ast.Diagram.IntF $ Shan.Ast.Diagram.IntFragment p lower upper items
   where
-    intHeader :: Parser (Priority, Bound, Bound)
+    intHeader :: Parser (Shan.Ast.Diagram.Priority, Shan.Ast.Diagram.Bound, Shan.Ast.Diagram.Bound)
     intHeader = do
       space
       void (symbolS "int")
@@ -310,7 +310,7 @@ intFragmentParer insMap = do
       let (lower, upper) = fromMaybe (1, 1) maybeBound
       return (p, lower, upper)
 
-altFragmentParser :: M.Map Variable Instance -> Parser Fragment
+altFragmentParser :: M.Map Shan.Ast.Diagram.Variable Shan.Ast.Diagram.Instance -> Parser Shan.Ast.Diagram.Fragment
 altFragmentParser insMap = do
   space
   void (symbolS "combinedFragment")
@@ -325,9 +325,9 @@ altFragmentParser insMap = do
   altItems <- itemsParser insMap
   void (symbolS "--")
   void (many newline)
-  return $ AltF items altItems
+  return $ Shan.Ast.Diagram.AltF items altItems
 
-boundParser :: Parser (Bound, Bound)
+boundParser :: Parser (Shan.Ast.Diagram.Bound, Shan.Ast.Diagram.Bound)
 boundParser = do
   void (symbolS "(")
   lower <- lexeme space decimal
@@ -336,7 +336,7 @@ boundParser = do
   void (symbolS ")")
   return (lower, upper)
 
-messageParser :: M.Map Variable Instance -> Parser Message
+messageParser :: M.Map Shan.Ast.Diagram.Variable Shan.Ast.Diagram.Instance -> Parser Shan.Ast.Diagram.Message
 messageParser insMap = do
   space
   sv <- variableParser
@@ -353,10 +353,10 @@ messageParser insMap = do
   let ti = case M.lookup tv insMap of
         Just i -> i
         Nothing -> missing (show sv)
-  return $ Message n (Event sn si) (Event tn ti) assigns
+  return $ Shan.Ast.Diagram.Message n (Shan.Ast.Diagram.Event sn si) (Shan.Ast.Diagram.Event tn ti) assigns
   where
     missing s = error ("instance variable not declared: " ++ s)
-    nameTriple :: Parser (Name, Name, Name)
+    nameTriple :: Parser (Shan.Ast.Diagram.Name, Shan.Ast.Diagram.Name, Shan.Ast.Diagram.Name)
     nameTriple = do
       void (symbolW "(")
       n <- nameParser
@@ -367,29 +367,29 @@ messageParser insMap = do
       void (symbolW ")")
       return (n, sn, tn)
 
-propertiesParser :: Parser [Property]
+propertiesParser :: Parser [Shan.Ast.Diagram.Property]
 propertiesParser = many propertyParser <?> "properties"
 
-propertyParser :: Parser Property
+propertyParser :: Parser Shan.Ast.Diagram.Property
 propertyParser = do
   void (symbolW "(")
   n <- nameParser
   void (symbolW ",")
   r <- reachabilityParser
   void (symbolS ")")
-  return $ Property n r
+  return $ Shan.Ast.Diagram.Property n r
 
-reachabilityParser :: Parser Reachability
-reachabilityParser = 
-  choice 
-    [ Reachable <$ symbolS "reachable",
-      Unreachable <$ symbolS "unreachable"
+reachabilityParser :: Parser Shan.Ast.Diagram.Reachability
+reachabilityParser =
+  choice
+    [ Shan.Ast.Diagram.Reachable <$ symbolS "reachable",
+      Shan.Ast.Diagram.Unreachable <$ symbolS "unreachable"
     ] <?> "reachability"
 
-judgementsParser :: Parser [Judgement]
+judgementsParser :: Parser [Shan.Ast.Diagram.Judgement]
 judgementsParser = many judgementParser <?> "judgements"
 
-judgementParser :: Parser Judgement
+judgementParser :: Parser Shan.Ast.Diagram.Judgement
 judgementParser =
   (makeExprParser simple table <* space) <?> "judgement"
   where
@@ -397,26 +397,26 @@ judgementParser =
       l <- exprParser
       op <- judgeOpParser
       r <- exprParser
-      return $ SimpleJ l op r
+      return $ Shan.Ast.Diagram.SimpleJ l op r
     table =
-      [ [binary "&&" AndJ],
-        [binary "||" OrJ]
+      [ [binary "&&" Shan.Ast.Diagram.AndJ],
+        [binary "||" Shan.Ast.Diagram.OrJ]
       ]
 
-judgeOpParser :: Parser JudgeOp
+judgeOpParser :: Parser Shan.Ast.Diagram.JudgeOp
 judgeOpParser =
   choice
-    [ Ge <$ symbolS ">=",
-      Gt <$ symbolS ">",
-      Le <$ symbolS "<=",
-      Lt <$ symbolS "<",
-      try (Eq <$ symbolS "=="),
-      Eq <$ symbolS "=",
-      Neq <$ symbolS "!="
+    [ Shan.Ast.Diagram.Ge <$ symbolS ">=",
+      Shan.Ast.Diagram.Gt <$ symbolS ">",
+      Shan.Ast.Diagram.Le <$ symbolS "<=",
+      Shan.Ast.Diagram.Lt <$ symbolS "<",
+      try (Shan.Ast.Diagram.Eq <$ symbolS "=="),
+      Shan.Ast.Diagram.Eq <$ symbolS "=",
+      Shan.Ast.Diagram.Neq <$ symbolS "!="
     ]
     <?> "judgement operations"
 
-assignmentsParser :: Parser [Assignment]
+assignmentsParser :: Parser [Shan.Ast.Diagram.Assignment]
 assignmentsParser = do
   space
   leftB <- optional (symbolS "[")
@@ -432,61 +432,61 @@ assignmentsParser = do
       void (symbolS "]")
       return assigns
   where
-    tailParser :: Parser Assignment
+    tailParser :: Parser Shan.Ast.Diagram.Assignment
     tailParser = do
       void (symbolS ",")
       assignmentParser
 
-assignmentParser :: Parser Assignment
+assignmentParser :: Parser Shan.Ast.Diagram.Assignment
 assignmentParser = do
   space
   v <- variableParser
   void (symbolS ":=")
   expr <- exprParser
-  return $ Assignment v expr
+  return $ Shan.Ast.Diagram.Assignment v expr
 
-dexprParser :: Parser Dexpr
+dexprParser :: Parser Shan.Ast.Diagram.Dexpr
 dexprParser =
   makeExprParser terms table <?> "dexpr"
   where
     terms =
       choice
-        [ Dnumber <$> numberParser,
-          Nvar <$> variableParser,
-          Dvar <$> (symbolS "'" *> variableParser),
+        [ Shan.Ast.Diagram.Dnumber <$> numberParser,
+          Shan.Ast.Diagram.Nvar <$> variableParser,
+          Shan.Ast.Diagram.Dvar <$> (symbolS "'" *> variableParser),
           parens dexprParser
         ]
     table =
-      [ [ prefix "-" Dnegation,
+      [ [ prefix "-" Shan.Ast.Diagram.Dnegation,
           prefix "+" id
         ],
-        [ binary "*" Dmul,
-          binary "/" Ddiv
+        [ binary "*" Shan.Ast.Diagram.Dmul,
+          binary "/" Shan.Ast.Diagram.Ddiv
         ],
-        [ binary "+" Dadd,
-          binary "-" Dsub
+        [ binary "+" Shan.Ast.Diagram.Dadd,
+          binary "-" Shan.Ast.Diagram.Dsub
         ]
       ]
 
-exprParser :: Parser Expr
+exprParser :: Parser Shan.Ast.Diagram.Expr
 exprParser =
   makeExprParser terms table <?> "expr"
   where
     terms =
       choice
-        [ Number <$> numberParser,
-          Var <$> variableParser,
+        [ Shan.Ast.Diagram.Number <$> numberParser,
+          Shan.Ast.Diagram.Var <$> variableParser,
           parens exprParser
         ]
     table =
-      [ [ prefix "-" Negation,
+      [ [ prefix "-" Shan.Ast.Diagram.Negation,
           prefix "+" id
         ],
-        [ binary "*" Mul,
-          binary "/" Div
+        [ binary "*" Shan.Ast.Diagram.Mul,
+          binary "/" Shan.Ast.Diagram.Div
         ],
-        [ binary "+" Add,
-          binary "-" Sub
+        [ binary "+" Shan.Ast.Diagram.Add,
+          binary "-" Shan.Ast.Diagram.Sub
         ]
       ]
 
@@ -513,22 +513,13 @@ symbolW = symbol (void . many $ single ' ')
 parens :: Parser a -> Parser a
 parens = between (symbolW "(") (symbolW ")")
 
-variableParser :: Parser Variable
+variableParser :: Parser Shan.Ast.Diagram.Variable
 variableParser =
   ( do
       space
-      fstName <- nameParser
-      ts <- many tailParser
-      if null ts
-        then return $ SimpleVariable fstName
-        else return $ ScopedVariable (fstName : init ts) (last ts)
+      nameParser
   )
     <?> "variable"
-  where
-    tailParser :: Parser Name
-    tailParser = do
-      void (string ".")
-      nameParser
 
 nameParser :: Parser Text
 nameParser =

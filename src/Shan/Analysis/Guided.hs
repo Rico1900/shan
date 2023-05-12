@@ -20,7 +20,7 @@ analyzeCase c = do
   let (sds, automata) = partitionEithers diagrams
   let validationRes = validateDiagrams (sds, automata)
   case validationRes of 
-    Letf io -> io
+    Left io -> io
     Right _ -> let ts = concatMap traces sds
                 in analyzeHanGuidedByTraces (bound c) automata ts
 
