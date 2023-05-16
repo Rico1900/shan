@@ -5,7 +5,8 @@ module Shan.Analysis.Trace
     LTrace,
     traces,
     showTrace,
-    projection
+    projection,
+    selectEvent
   )
 where
 
@@ -15,7 +16,7 @@ import Data.Map ((!))
 import Data.Map qualified as M
 import Data.Universe.Helpers (cartesianProduct)
 import Shan.Ast.Diagram (Fragment (..), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, splitSequenceDiagram, Automaton (Automaton), ename, Event (Event), Instance (Instance))
-import Data.Maybe (catMaybes, mapMaybe)
+import Data.Maybe (mapMaybe)
 
 type Trace = [Message]
 
@@ -132,3 +133,6 @@ projection t (Automaton aname _ _ es _) =
       | taname == aname && tname `elem` enames = Just (m, Receiving)
       | otherwise = Nothing
 
+selectEvent :: LMessage -> Event
+selectEvent (Message _ s _ _, Sending) = s
+selectEvent (Message _ _ r _, Receiving) = r

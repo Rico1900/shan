@@ -7,7 +7,7 @@ where
 import System.FilePath ((</>))
 import Shan.Util (Case (..))
 import Shan.Analysis.Guided (analyzeCases, analyzeCase)
-import Shan.Smt.Lib (example)
+import Shan.Smt.Lib (example, unsatCoreExample)
 
 basePath :: FilePath
 basePath = "./cases/Shan"
@@ -18,7 +18,8 @@ constructCase n bound =
     then error "invalid bound"
     else  Case
       { name = n,
-        path = basePath </> n
+        path = basePath </> n,
+        bound = bound
       }
   
 
@@ -71,6 +72,6 @@ benchmark =
   ]
 
 runShanTask :: IO ()
-runShanTask = example
+runShanTask = unsatCoreExample
 -- runShanTask = analyzeCases benchmark
 -- runShanTask = analyzeCase altitudeDisplayInt

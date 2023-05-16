@@ -28,11 +28,15 @@ module Shan.Ast.Diagram
     neg,
     mname,
     ename,
+    aname,
     differentialVars,
     judgementVars,
     splitSequenceDiagram,
     messages,
-    judgements
+    judgements,
+    automatonVars,
+    automatonInitialEdges,
+    selectEdgeByName
   )
 where
 
@@ -40,6 +44,7 @@ import Data.Text (Text)
 import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Maybe (mapMaybe, fromMaybe)
+import Text.Printf (printf)
 
 data JudgeOp
   = Ge | Gt | Le | Lt | Eq | Neq
@@ -172,6 +177,9 @@ mname (Message n _ _ _) = n
 ename :: Edge -> Name
 ename (Edge n _ _ _ _) = n
 
+aname :: Automaton -> Name
+aname (Automaton n _ _ _ _) = n
+
 exprVars :: Expr -> Set Variable
 exprVars (Number _) = S.empty
 exprVars (Var v) = S.singleton v
@@ -198,6 +206,9 @@ judgementVars :: Judgement -> Set Variable
 judgementVars (SimpleJ e1 _ e2) = S.union (exprVars e1) (exprVars e2)
 judgementVars (AndJ j1 j2) = S.union (judgementVars j1) (judgementVars j2)
 judgementVars (OrJ j1 j2) = S.union (judgementVars j1) (judgementVars j2)
+
+assignmentVars :: Assignment -> Set Variable
+assignmentVars (Assignment v e) = S.insert v (exprVars e) 
 
 splitSequenceDiagram :: SequenceDiagram -> (Fragment, [IntFragment])
 splitSequenceDiagram (SequenceDiagram _ _ frag _) = (fromMaybe (Block []) (clean frag), ints frag)
@@ -241,3 +252,27 @@ messages (SequenceDiagram _ _ frag _) =
 
 judgements :: SequenceDiagram -> [Judgement]
 judgements (SequenceDiagram _ _ _ js) = js
+
+automatonVars :: Automaton -> Set Variable
+automatonVars (Automaton _ _ nodes edges _) = 
+  S.unions ((nodeVars <$> nodes) ++ (edgeVars <$> edges))
+  where
+    nodeVars (Node _ _ vars _  _) = vars
+    edgeVars (Edge _ _ _ _ as) = S.unions (assignmentVars <$> as)
+
+automatonInitialEdges :: Automaton -> [Edge]
+automatonInitialEdges (Automaton _ _ _ edges _) = 
+  filter isInitialEdge edges
+  where
+    isInitial (Node Initial _ _ _ _) = True
+    isInitial _ = False
+    isInitialEdge (Edge _ s _ _ _) = isInitial s
+
+selectEdgeByName :: Name -> Automaton -> Edge
+selectEdgeByName n (Automaton _ _ _ edges _) = 
+  let searchRes = filter (\(Edge n' _ _ _ _) -> n == n') edges
+   in case searchRes of
+        [] -> error (printf "No edge with name %s" n)
+        [e] -> e
+        _ -> error (printf "Multiple edges with name %s" n)
+        
