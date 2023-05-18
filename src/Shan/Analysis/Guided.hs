@@ -8,7 +8,7 @@ where
 import Control.Monad.State (MonadState (get, put), MonadTrans (lift), evalStateT)
 import Data.Either (partitionEithers)
 import Data.SBV (OrdSymbolic, SBool, SDouble, SymVal (literal), Symbolic, namedConstraint, runSMT, sDouble, sNot, sTrue, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||), sOr, sAnd, SWord8, sWord8)
-import Data.SBV.Control (CheckSatResult (..), SMTOption (ProduceUnsatCores), checkSat, getModel, getUnknownReason, getUnsatCore, query)
+import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getModel, getUnknownReason, getUnsatCore, query)
 import Data.SBV.Internals (SMTModel)
 import Data.Set (Set, (\\))
 import Data.Set qualified as S
@@ -61,6 +61,7 @@ querySmtVerificationResult :: Bound
 querySmtVerificationResult b ms t = do
   evalStateT (encodeAutomataWithProperties b ms t) (emptyMemo ms)
   setOption $ ProduceUnsatCores True
+  -- setOption $ OptionKeyword ":smt.core.minimize" ["true"]
   query $ do
     satRes <- checkSat
     case satRes of
