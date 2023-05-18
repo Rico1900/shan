@@ -14,7 +14,7 @@ basePath = "./cases/Shan"
 
 constructCase :: String -> Int -> Case
 constructCase n bound =
-  if bound <= 0
+  if bound < 0
     then error "invalid bound"
     else  Case
       { name = n,
@@ -30,7 +30,7 @@ adcBugInt :: Case
 adcBugInt = constructCase "ADC-Bug-int" 3
 
 altitudeDisplay :: Case
-altitudeDisplay = constructCase "altitude-display" 3
+altitudeDisplay = constructCase "altitude-display" 0
 
 altitudeDisplayInt :: Case
 altitudeDisplayInt = constructCase "altitude-display-int" 3
@@ -72,6 +72,6 @@ benchmark =
   ]
 
 runShanTask :: IO ()
-runShanTask = unsatCoreExample
+-- runShanTask = unsatCoreExample
 -- runShanTask = analyzeCases benchmark
--- runShanTask = analyzeCase altitudeDisplayInt
+runShanTask = analyzeCase altitudeDisplayInt

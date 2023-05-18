@@ -14,7 +14,7 @@ obj=PC~a
 obj=IO~b
 
 
-combinedFragment=loop(10,10)[interval:=1,start:=0]~loop1
+combinedFragment=loop(1,2)[interval:=1,start:=0]~loop1
 combinedFragment=alt~alt1
 b-&gt;&gt;&gt;a : (d_display,d_display,d_display)[truth:=altitude];
 ..
