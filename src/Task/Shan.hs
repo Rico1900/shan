@@ -30,10 +30,10 @@ adcBugInt :: Case
 adcBugInt = constructCase "ADC-Bug-int" 3
 
 altitudeDisplay :: Case
-altitudeDisplay = constructCase "altitude-display" 0
+altitudeDisplay = constructCase "altitude-display" 3
 
 altitudeDisplayInt :: Case
-altitudeDisplayInt = constructCase "altitude-display-int" 3
+altitudeDisplayInt = constructCase "altitude-display-int" 1
 
 carController :: Case
 carController = constructCase "car-controller" 3

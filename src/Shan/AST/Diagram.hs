@@ -29,6 +29,7 @@ module Shan.Ast.Diagram
     mname,
     ename,
     aname,
+    nname,
     differentialVars,
     judgementVars,
     splitSequenceDiagram,
@@ -36,7 +37,8 @@ module Shan.Ast.Diagram
     judgements,
     automatonVars,
     automatonInitialEdges,
-    selectEdgeByName
+    selectEdgeByName,
+    nonInitialEdges
   )
 where
 
@@ -180,6 +182,9 @@ ename (Edge n _ _ _ _) = n
 aname :: Automaton -> Name
 aname (Automaton n _ _ _ _) = n
 
+nname :: Node -> Name
+nname (Node _ n _ _ _) = n
+
 exprVars :: Expr -> Set Variable
 exprVars (Number _) = S.empty
 exprVars (Var v) = S.singleton v
@@ -275,4 +280,11 @@ selectEdgeByName n (Automaton _ _ _ edges _) =
         [] -> error (printf "No edge with name %s" n)
         [e] -> e
         _ -> error (printf "Multiple edges with name %s" n)
+
+nonInitialEdges :: [Edge] -> [Edge]
+nonInitialEdges es = filter (not . isInitialEdge) es
+  where
+    isInitial (Node Initial _ _ _ _) = True
+    isInitial _ = False
+    isInitialEdge (Edge _ s _ _ _) = isInitial s
         

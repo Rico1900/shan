@@ -27,6 +27,8 @@ library
   exposed-modules:
       Lib
       Shan.Analysis.Guided
+      Shan.Analysis.LocMap
+      Shan.Analysis.Memo
       Shan.Analysis.Pretty
       Shan.Analysis.Trace
       Shan.Analysis.UnsatCore

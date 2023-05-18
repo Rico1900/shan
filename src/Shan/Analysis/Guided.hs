@@ -5,77 +5,23 @@ module Shan.Analysis.Guided
   )
 where
 
-import Control.Monad.State (MonadState (get, put), MonadTrans (lift), StateT, evalStateT)
+import Control.Monad.State (MonadState (get, put), MonadTrans (lift), evalStateT)
 import Data.Either (partitionEithers)
-import Data.Map (Map)
-import Data.Map qualified as M
-import Data.SBV (OrdSymbolic, SBool, SDouble, SString, SymVal (literal), Symbolic, namedConstraint, runSMT, sDouble, sNot, sString, sTrue, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||), sOr, sAnd)
+import Data.SBV (OrdSymbolic, SBool, SDouble, SymVal (literal), Symbolic, namedConstraint, runSMT, sDouble, sNot, sTrue, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||), sOr, sAnd, SWord8, sWord8)
 import Data.SBV.Control (CheckSatResult (..), SMTOption (ProduceUnsatCores), checkSat, getModel, getUnknownReason, getUnsatCore, query)
 import Data.SBV.Internals (SMTModel)
 import Data.Set (Set, (\\))
 import Data.Set qualified as S
-import Data.Text (unpack)
 import Shan.Analysis.Pretty (modelValues)
 import Shan.Analysis.Trace (Direction (..), LMessage, LTrace, Trace, projection, selectEvent, traces, showTrace)
 import Shan.Analysis.Validation (validateDiagrams)
-import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, automatonVars, selectEdgeByName, automatonInitialEdges, aname)
+import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, automatonVars, selectEdgeByName, automatonInitialEdges, aname, nname, nonInitialEdges)
 import Shan.Parser (parseShan)
 import Shan.Util (Case (..))
 import Text.Printf (printf)
 import Shan.Analysis.UnsatCore (initialName, propertiesName, segmentName)
-
-type Index = Int
-
-data Memo = Memo
-  { durationMap :: Map (Name, Index) SDouble,
-    locationMap :: Map (Name, Index) SString,
-    variableMap :: Map (Name, Variable, Index) SDouble,
-    syncTimeMap :: Map (Name, Index) SDouble,
-    syncValueMap :: Map (Name, Index, Index) SDouble
-  }
-  deriving (Show)
-
-type SymMemo a = StateT Memo Symbolic a
-
-emptyMemo :: Memo
-emptyMemo = Memo M.empty M.empty M.empty M.empty M.empty
-
-lookupDuration :: Memo -> Name -> Index -> Maybe SDouble
-lookupDuration memo n index = M.lookup (n, index) (durationMap memo)
-
-insertDuration :: Memo -> Name -> Index -> SDouble -> Memo
-insertDuration memo n index value =
-  memo {durationMap = M.insert (n, index) value (durationMap memo)}
-
-lookupLocation :: Memo -> Name -> Index -> Maybe SString
-lookupLocation memo n index = M.lookup (n, index) (locationMap memo)
-
-insertLocation :: Memo -> Name -> Index -> SString -> Memo
-insertLocation memo n index value =
-  memo {locationMap = M.insert (n, index) value (locationMap memo)}
-
-lookupVariable :: Memo -> Name -> Variable -> Index -> Maybe SDouble
-lookupVariable memo n variable index =
-  M.lookup (n, variable, index) (variableMap memo)
-
-insertVariable :: Memo -> Name -> Variable -> Index -> SDouble -> Memo
-insertVariable memo n variable index value =
-  memo {variableMap = M.insert (n, variable, index) value (variableMap memo)}
-
-lookupSyncTime :: Memo -> Name -> Index -> Maybe SDouble
-lookupSyncTime memo n index = M.lookup (n, index) (syncTimeMap memo)
-
-insertSyncTime :: Memo -> Name -> Index -> SDouble -> Memo
-insertSyncTime memo n index value =
-  memo {syncTimeMap = M.insert (n, index) value (syncTimeMap memo)}
-
-lookupSyncValue :: Memo -> Name -> Index -> Index -> Maybe SDouble
-lookupSyncValue memo n index1 index2 =
-  M.lookup (n, index1, index2) (syncValueMap memo)
-
-insertSyncValue :: Memo -> Name -> Index -> Index -> SDouble -> Memo
-insertSyncValue memo n index1 index2 value =
-  memo {syncValueMap = M.insert (n, index1, index2) value (syncValueMap memo)}
+import Shan.Analysis.LocMap (LocMap, llookup)
+import Shan.Analysis.Memo (SymMemo, Index, Memo (locLiteralMap), lookupDuration, insertDuration, lookupLocation, insertLocation, lookupVariable, insertVariable, lookupSyncTime, insertSyncTime, lookupSyncValue, insertSyncValue, emptyMemo)
 
 analyzeCases :: [Case] -> IO ()
 analyzeCases = mapM_ analyzeCase
@@ -113,7 +59,7 @@ querySmtVerificationResult :: Bound
                            -> Trace 
                            -> Symbolic (Either [String] SMTModel)
 querySmtVerificationResult b ms t = do
-  evalStateT (encodeAutomataWithProperties b ms t) emptyMemo
+  evalStateT (encodeAutomataWithProperties b ms t) (emptyMemo ms)
   setOption $ ProduceUnsatCores True
   query $ do
     satRes <- checkSat
@@ -196,8 +142,10 @@ initialState m =
   where
     n = aname m
     initialEdge (Edge _ _ t _ as) = do
+      memo <- get
+      let lmap = locLiteralMap memo
       l <- location n 0
-      let initialLocation = l .== literalLocation t
+      let initialLocation = l .== literalLocation lmap n (nname t)
       variablesAreAssigned <- assignments n as 0
       return (initialLocation .&& variablesAreAssigned)
 
@@ -277,7 +225,7 @@ guard n (Just j) i = judgement n i j
 jump :: Automaton -> Index -> SymMemo SBool
 jump m@(Automaton n _ _ es _) i = do
   timeCostIsZero <- zeroTimeCost n i
-  allTargetArePossible <- sOr <$> traverse (encodeEdge m i) es
+  allTargetArePossible <- sOr <$> traverse (encodeEdge m i) (nonInitialEdges es)
   return (timeCostIsZero .&& allTargetArePossible)
 
 encodeEdge :: Automaton -> Index -> Edge -> SymMemo SBool
@@ -334,18 +282,24 @@ zeroTimeCost n i = do
 
 localize :: Name -> Index -> Node -> SymMemo SBool
 localize n i node = do
+  memo <- get
+  let lmap = locLiteralMap memo
   l <- location n i
-  return (l .== literalLocation node)
+  return (l .== literalLocation lmap n (nname node))
 
 localize' :: Name -> Name -> Index -> SymMemo SBool
 localize' n nodeName i = do
+  memo <- get
+  let lmap = locLiteralMap memo
   l <- location n i
-  return (l .== literal (unpack nodeName))
+  return (l .== literalLocation lmap n nodeName)
 
 unlocalize' :: Name -> Name -> Index -> SymMemo SBool
 unlocalize' n nodeName i = do
+  memo <- get
+  let lmap = locLiteralMap memo
   l <- location n i
-  return (l ./= literal (unpack nodeName))
+  return (l ./= literalLocation lmap n nodeName)
 
 -- encode a timed transition in an automaton
 timed :: Automaton -> Index -> SymMemo SBool
@@ -367,8 +321,10 @@ timed m@(Automaton n _ ns _ _) i = do
       afterL <- location n i
       return (beforeL .== afterL)
     selectNode nodeName = do
+      memo <- get
+      let lmap = locLiteralMap memo
       l <- location n (i - 1)
-      return (l .== literal (unpack nodeName))
+      return (l .== literalLocation lmap n nodeName)
     encodeNode (Node _ nodeName _ diffs invars) = do
       nodeIsSelected <- selectNode nodeName
       variablesAreUpdatedAccordingToFlow <- flow n diffs i
@@ -396,13 +352,13 @@ duration n i = do
 
 -- declare a fresh symbolic variable
 -- to represent the node state after the i-th transition
-location :: Name -> Index -> SymMemo SString
+location :: Name -> Index -> SymMemo SWord8
 location n i = do
   memo <- get
   case lookupLocation memo n i of
     Just l -> return l
     Nothing -> do
-      l <- lift $ sString (printf "%s|$node|%d" n i)
+      l <- lift $ sWord8 (printf "%s|$node|%d" n i)
       let memo' = insertLocation memo n i l
       put memo'
       return l
@@ -469,8 +425,8 @@ judge Lt = (.<)
 judge Eq = (.==)
 judge Neq = (./=)
 
-literalLocation :: Node -> SString
-literalLocation (Node _ nn _ _ _) = literal (unpack nn)
+literalLocation :: LocMap -> Name -> Name -> SWord8
+literalLocation lmap n nn = literal (lmap `llookup` (n, nn))
 
 offset :: Bound -> Index -> Int
 offset b i = (b + 1) * (i - 1)
