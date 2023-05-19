@@ -33,7 +33,7 @@ altitudeDisplay :: Case
 altitudeDisplay = constructCase "altitude-display" 3
 
 altitudeDisplayInt :: Case
-altitudeDisplayInt = constructCase "altitude-display-int" 1
+altitudeDisplayInt = constructCase "altitude-display-int" 5
 
 carController :: Case
 carController = constructCase "car-controller" 3

@@ -18,18 +18,18 @@ module Shan.Analysis.Memo(
 import Shan.Ast.Diagram (Name, Variable, Automaton)
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.SBV (SDouble, SWord8, Symbolic)
+import Data.SBV (SWord8, Symbolic, SReal)
 import Shan.Analysis.LocMap (LocMap, constructMap)
 import Control.Monad.State (StateT)
 
 type Index = Int
 
 data Memo = Memo
-  { durationMap :: Map (Name, Index) SDouble,
+  { durationMap :: Map (Name, Index) SReal,
     locationMap :: Map (Name, Index) SWord8,
-    variableMap :: Map (Name, Variable, Index) SDouble,
-    syncTimeMap :: Map (Name, Index) SDouble,
-    syncValueMap :: Map (Name, Index, Index) SDouble,
+    variableMap :: Map (Name, Variable, Index) SReal,
+    syncTimeMap :: Map (Name, Index) SReal,
+    syncValueMap :: Map (Name, Index, Index) SReal,
     locLiteralMap :: LocMap
   }
   deriving (Show)
@@ -39,10 +39,10 @@ type SymMemo a = StateT Memo Symbolic a
 emptyMemo :: [Automaton] -> Memo
 emptyMemo ms = Memo M.empty M.empty M.empty M.empty M.empty (constructMap ms)
 
-lookupDuration :: Memo -> Name -> Index -> Maybe SDouble
+lookupDuration :: Memo -> Name -> Index -> Maybe SReal
 lookupDuration memo n index = M.lookup (n, index) (durationMap memo)
 
-insertDuration :: Memo -> Name -> Index -> SDouble -> Memo
+insertDuration :: Memo -> Name -> Index -> SReal -> Memo
 insertDuration memo n index value =
   memo {durationMap = M.insert (n, index) value (durationMap memo)}
 
@@ -53,25 +53,25 @@ insertLocation :: Memo -> Name -> Index -> SWord8 -> Memo
 insertLocation memo n index value =
   memo {locationMap = M.insert (n, index) value (locationMap memo)}
 
-lookupVariable :: Memo -> Name -> Variable -> Index -> Maybe SDouble
+lookupVariable :: Memo -> Name -> Variable -> Index -> Maybe SReal
 lookupVariable memo n variable index =
   M.lookup (n, variable, index) (variableMap memo)
 
-insertVariable :: Memo -> Name -> Variable -> Index -> SDouble -> Memo
+insertVariable :: Memo -> Name -> Variable -> Index -> SReal -> Memo
 insertVariable memo n variable index value =
   memo {variableMap = M.insert (n, variable, index) value (variableMap memo)}
 
-lookupSyncTime :: Memo -> Name -> Index -> Maybe SDouble
+lookupSyncTime :: Memo -> Name -> Index -> Maybe SReal
 lookupSyncTime memo n index = M.lookup (n, index) (syncTimeMap memo)
 
-insertSyncTime :: Memo -> Name -> Index -> SDouble -> Memo
+insertSyncTime :: Memo -> Name -> Index -> SReal -> Memo
 insertSyncTime memo n index value =
   memo {syncTimeMap = M.insert (n, index) value (syncTimeMap memo)}
 
-lookupSyncValue :: Memo -> Name -> Index -> Index -> Maybe SDouble
+lookupSyncValue :: Memo -> Name -> Index -> Index -> Maybe SReal
 lookupSyncValue memo n index1 index2 =
   M.lookup (n, index1, index2) (syncValueMap memo)
 
-insertSyncValue :: Memo -> Name -> Index -> Index -> SDouble -> Memo
+insertSyncValue :: Memo -> Name -> Index -> Index -> SReal -> Memo
 insertSyncValue memo n index1 index2 value =
   memo {syncValueMap = M.insert (n, index1, index2) value (syncValueMap memo)}

@@ -7,7 +7,7 @@ where
 
 import Control.Monad.State (MonadState (get, put), MonadTrans (lift), evalStateT)
 import Data.Either (partitionEithers)
-import Data.SBV (OrdSymbolic, SBool, SDouble, SymVal (literal), Symbolic, namedConstraint, runSMT, sDouble, sNot, sTrue, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||), sOr, sAnd, SWord8, sWord8)
+import Data.SBV (OrdSymbolic, SBool, SReal, SymVal (literal), Symbolic, namedConstraint, runSMT, sNot, sTrue, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||), sOr, sAnd, SWord8, sWord8, sReal)
 import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getModel, getUnknownReason, getUnsatCore, query)
 import Data.SBV.Internals (SMTModel)
 import Data.Set (Set, (\\))
@@ -206,10 +206,10 @@ flow n ds i =
       vi <- indexedVar n v i
       vi' <- indexedVar n v (i - 1)
       return (vi - vi')
-    encodeDexpr :: Dexpr -> SymMemo SDouble
+    encodeDexpr :: Dexpr -> SymMemo SReal
     encodeDexpr de =
       case de of
-        Dnumber d -> return (literal d)
+        Dnumber d -> return (literal .fromRational $ toRational d)
         Nvar v -> indexedVar n v i
         Dvar v -> delta v
         Dnegation de' -> negate <$> encodeDexpr de'
@@ -340,13 +340,13 @@ timed m@(Automaton n _ ns _ _) i = do
 
 -- declare a fresh symbolic variable
 -- to represent the time costed by the i-th transition
-duration :: Name -> Index -> SymMemo SDouble
+duration :: Name -> Index -> SymMemo SReal
 duration n i = do
   memo <- get
   case lookupDuration memo n i of
     Just d -> return d
     Nothing -> do
-      d <- lift $ sDouble (printf "%s|$duration|%d" n i)
+      d <- lift $ sReal (printf "%s|$duration|%d" n i)
       let memo' = insertDuration memo n i d
       put memo'
       return d
@@ -364,47 +364,47 @@ location n i = do
       put memo'
       return l
 
-indexedVar :: Name -> Variable -> Index -> SymMemo SDouble
+indexedVar :: Name -> Variable -> Index -> SymMemo SReal
 indexedVar n v i = do
   memo <- get
   case lookupVariable memo n v i of
     Just d -> return d
     Nothing -> do
-      d <- lift $ sDouble (printf "%s|%s|%d" n v i)
+      d <- lift $ sReal (printf "%s|%s|%d" n v i)
       let memo' = insertVariable memo n v i d
       put memo'
       return d
 
 -- declare a fresh symbolic variable
 -- to represent the time of the i-th synchronous event
-synchronousTimeVar :: Name -> Index -> SymMemo SDouble
+synchronousTimeVar :: Name -> Index -> SymMemo SReal
 synchronousTimeVar n i = do
   memo <- get
   case lookupSyncTime memo n i of
     Just d -> return d
     Nothing -> do
-      d <- lift $ sDouble (printf "$syncTime|%s|%d" n i)
+      d <- lift $ sReal (printf "$syncTime|%s|%d" n i)
       let memo' = insertSyncTime memo n i d
       put memo'
       return d
 
 -- declare a fresh symbolic variable
 -- to represent the exchanged value of i'-th assignment of the i-th synchronous event
-synchronousValueVar :: Name -> Index -> Index -> SymMemo SDouble
+synchronousValueVar :: Name -> Index -> Index -> SymMemo SReal
 synchronousValueVar n i i' = do
   memo <- get
   case lookupSyncValue memo n i i' of
     Just d -> return d
     Nothing -> do
-      d <- lift $ sDouble (printf "$syncValue|%s|%d|%d" n i i')
+      d <- lift $ sReal (printf "$syncValue|%s|%d|%d" n i i')
       let memo' = insertSyncValue memo n i i' d
       put memo'
       return d
 
-encodeExpr :: Name -> Expr -> Index -> SymMemo SDouble
+encodeExpr :: Name -> Expr -> Index -> SymMemo SReal
 encodeExpr n e i =
   case e of
-    Number d -> return (literal d)
+    Number d -> return (literal .fromRational $ toRational d)
     Var v -> indexedVar n v i
     Negation e' -> negate <$> encodeExpr n e' i
     Add e1 e2 -> (+) <$> encodeExpr n e1 i <*> encodeExpr n e2 i
