@@ -61,7 +61,7 @@ querySmtVerificationResult :: Bound
 querySmtVerificationResult b ms t = do
   evalStateT (encodeAutomataWithProperties b ms t) (emptyMemo ms)
   setOption $ ProduceUnsatCores True
-  -- setOption $ OptionKeyword ":smt.core.minimize" ["true"]
+  setOption $ OptionKeyword ":smt.core.minimize" ["true"]
   query $ do
     satRes <- checkSat
     case satRes of
