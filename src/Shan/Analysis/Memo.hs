@@ -1,5 +1,4 @@
 module Shan.Analysis.Memo(
-  Index,
   Memo(..),
   SymMemo,
   emptyMemo,
@@ -21,8 +20,7 @@ import Data.Map qualified as M
 import Data.SBV (SWord8, Symbolic, SReal)
 import Shan.Analysis.LocMap (LocMap, constructMap)
 import Control.Monad.State (StateT)
-
-type Index = Int
+import Shan.Analysis.Trace (Index)
 
 data Memo = Memo
   { durationMap :: Map (Name, Index) SReal,

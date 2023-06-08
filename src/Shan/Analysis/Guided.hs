@@ -13,7 +13,7 @@ import Data.SBV.Internals (SMTModel)
 import Data.Set (Set, (\\))
 import Data.Set qualified as S
 import Shan.Analysis.Pretty (modelValues)
-import Shan.Analysis.Trace (Direction (..), LMessage, LTrace, Trace, projection, selectEvent, traces, showTrace)
+import Shan.Analysis.Trace (Direction (..), LMessage, LTrace, Trace, projection, selectEvent, traces, showTrace, Index)
 import Shan.Analysis.Validation (validateDiagrams)
 import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, automatonVars, selectEdgeByName, automatonInitialEdges, aname, nname, nonInitialEdges)
 import Shan.Parser (parseShan)
@@ -21,7 +21,7 @@ import Shan.Util (Case (..))
 import Text.Printf (printf)
 import Shan.Analysis.UnsatCore (initialName, propertiesName, segmentName)
 import Shan.Analysis.LocMap (LocMap, llookup)
-import Shan.Analysis.Memo (SymMemo, Index, Memo (locLiteralMap), lookupDuration, insertDuration, lookupLocation, insertLocation, lookupVariable, insertVariable, lookupSyncTime, insertSyncTime, lookupSyncValue, insertSyncValue, emptyMemo)
+import Shan.Analysis.Memo (SymMemo, Memo (locLiteralMap), lookupDuration, insertDuration, lookupLocation, insertLocation, lookupVariable, insertVariable, lookupSyncTime, insertSyncTime, lookupSyncValue, insertSyncValue, emptyMemo)
 
 analyzeCases :: [Case] -> IO ()
 analyzeCases = mapM_ analyzeCase
@@ -49,6 +49,7 @@ analyzeHanGuidedByTraces b ms (t : ts) = do
       putStrLn "---------"
       analyzeHanGuidedByTraces b ms ts
     Right counterExample -> putStrLn $ modelValues counterExample
+
 
 analyzeHanGuidedByTrace :: Bound -> [Automaton] -> Trace -> IO (Either [String] SMTModel)
 analyzeHanGuidedByTrace b ms t = do
@@ -124,7 +125,7 @@ encodeSegment b m (lm, i) = do
       )
 
 synchronizeTime :: Name -> Index -> (LMessage, Index) -> SymMemo SBool
-synchronizeTime n endIdx ((Message mn _ _ _, _), i) = do
+synchronizeTime n endIdx ((Message mn _ _ _, _, _), i) = do
   synchronousMessage <- synchronousTimeVar mn i
   untilNow <- sumOfCostTime
   return (synchronousMessage .== untilNow)
@@ -245,7 +246,7 @@ encodeEdge m@(Automaton n _ _ _ _) i (Edge _ s t g as) = do
     )
 
 synchronousJump :: Automaton -> Index -> Edge -> (LMessage, Index) -> SymMemo SBool
-synchronousJump m@(Automaton n _ _ _ _) i (Edge _ s t g as) ((Message mn _ _ sync, d), mi) = do
+synchronousJump m@(Automaton n _ _ _ _) i (Edge _ s t g as) ((Message mn _ _ sync, d, _), mi) = do
   previousLocIsSource <- localize n (i - 1) s
   nextLocIsTarget <- localize n i t
   guardIsTrue <- guard n g (i - 1)

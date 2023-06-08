@@ -3,6 +3,7 @@ module Shan.Analysis.Trace
     Direction(..),
     LMessage,
     LTrace,
+    Index,
     traces,
     showTrace,
     projection,
@@ -20,28 +21,36 @@ import Data.Maybe (mapMaybe)
 
 type Trace = [Message]
 
+type Index = Int
+
 data Direction
   = Sending | Receiving
   deriving (Eq, Show)
 
-type LMessage = (Message, Direction)
+type LMessage = (Message, Direction, Index)
 
 type LTrace = [LMessage]
+
+type Interrupt = ([Trace], Priority)
+
+type InterruptSequence = [Interrupt]
+
+type PriorityTrace = (Trace, M.Map Int Priority)
 
 traces :: SequenceDiagram -> [Trace]
 traces sd =
   let (clean, ints) = splitSequenceDiagram sd
       sortedInts = sortByPriority ints
       cleanTraces = companyWithPriority <$> fragTraces clean
-      intSeqs = intTraces sortedInts
+      intSeqs = intSequences sortedInts
    in if null intSeqs
         then fst <$> cleanTraces
         else fst <$> concatMap (interrupts cleanTraces) intSeqs
 
-intTraces :: [IntFragment] -> [[([Trace], Priority)]]
-intTraces ints = cartesianProductList (intTrace <$> ints)
+intSequences :: [IntFragment] -> [InterruptSequence]
+intSequences ints = cartesianProductList (intSequence <$> ints)
   where
-    intTrace (IntFragment p l h items) = (\i -> replicate i (blockTraces items, p)) <$> [l .. h]
+    intSequence (IntFragment p l h items) = (\i -> replicate i (blockTraces items, p)) <$> [l .. h]
 
 cartesianProductList :: [[[a]]] -> [[a]]
 cartesianProductList [] = []
@@ -53,7 +62,7 @@ sortByPriority = sortOn priority
   where
     priority (IntFragment p _ _ _) = p
 
-companyWithPriority :: Trace -> (Trace, M.Map Int Priority)
+companyWithPriority :: Trace -> PriorityTrace
 companyWithPriority t =
   let len = length t
       list = [(i, 0) | i <- [0 .. len]]
@@ -65,15 +74,18 @@ fragTraces (AltF items1 items2) = blockTraces items1 ++ blockTraces items2
 fragTraces (LoopF l h _ _ items) = loopTraces [l .. h] (blockTraces items)
 fragTraces (IntF (IntFragment _ _ _ items)) = blockTraces items
 
-interrupts :: [(Trace, M.Map Int Priority)] -> [([Trace], Priority)] -> [(Trace, M.Map Int Priority)]
+interrupts :: [PriorityTrace] -> InterruptSequence -> [PriorityTrace]
 interrupts ts [] = ts
 interrupts ts [int] = concatMap (`interrupt` int) ts
 interrupts ts (int : ints) = interrupts (concatMap (`interrupt` int) ts) ints
 
-interrupt :: (Trace, M.Map Int Priority) -> ([Trace], Priority) -> [(Trace, M.Map Int Priority)]
-interrupt t int = concatMap (interrupt' t int) [0 .. (length $ fst t)]
+interrupt :: PriorityTrace -> Interrupt -> [PriorityTrace]
+interrupt t int = 
+  concatMap (interrupt' t int) [0 .. lengthOfTrace]
+  where
+    lengthOfTrace = length $ fst t
 
-interrupt' :: (Trace, M.Map Int Priority) -> ([Trace], Priority) -> Int -> [(Trace, M.Map Int Priority)]
+interrupt' :: PriorityTrace -> Interrupt -> Int -> [PriorityTrace]
 interrupt' (interrupted, priorityMap) (ts, priority) point =
   if priority > pointPriority
     then interruptSingle <$> ts
@@ -123,16 +135,16 @@ showMessage (Message n _ _ _) = T.unpack n
 
 projection :: Trace -> Automaton -> LTrace
 projection t (Automaton aname _ _ es _) =
-  mapMaybe projection' t
+  mapMaybe projection' (zip t [0 ..])
   where
     enames = ename <$> es
-    projection' :: Message -> Maybe LMessage
+    projection' :: (Message, Index) -> Maybe LMessage
     projection'
-      m@(Message _ (Event sname (Instance saname _)) (Event tname (Instance taname _)) _)
-      | saname == aname && sname `elem` enames = Just (m, Sending)
-      | taname == aname && tname `elem` enames = Just (m, Receiving)
+      (m@(Message _ (Event sname (Instance saname _)) (Event tname (Instance taname _)) _), i)
+      | saname == aname && sname `elem` enames = Just (m, Sending, i)
+      | taname == aname && tname `elem` enames = Just (m, Receiving, i)
       | otherwise = Nothing
 
 selectEvent :: LMessage -> Event
-selectEvent (Message _ s _ _, Sending) = s
-selectEvent (Message _ _ r _, Receiving) = r
+selectEvent (Message _ s _ _, Sending, _) = s
+selectEvent (Message _ _ r _, Receiving, _) = r
