@@ -36,7 +36,10 @@ analyzeCase c = do
     Left io -> io
     Right _ ->
       let ts = concatMap traces sds
-       in analyzeHanGuidedByTraces (bound c) automata ts
+       in do
+        putStrLn $ "trace count: " ++ show (length ts)
+        putStrLn "-----------------------------------"
+        analyzeHanGuidedByTraces (bound c) automata ts
 
 analyzeHanGuidedByTraces :: Bound -> [Automaton] -> [Trace] -> IO ()
 analyzeHanGuidedByTraces _ _ [] = putStrLn "verified"

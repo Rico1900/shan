@@ -4,7 +4,7 @@ module Shan.Analysis.UnsatCore(
   initialName,
   segmentName,
   parseUnsatCore,
-  eliminateTracesViaUnsatCore
+  pruneTracesViaUnsatCore
 ) where
 
 import Shan.Ast.Diagram (Automaton, aname, Name)
@@ -64,12 +64,12 @@ filterSegment lists fragment = filter (isInfixOf fragment) lists
 -- filterInitial :: Eq a => [[a]] -> [a] -> [[a]]
 -- filterInitial lists initial = filter (isPrefixOf initial) lists
 
-eliminateTracesViaUnsatCore :: [Trace]
-                            -> [Automaton]
-                            -> Trace
-                            -> [String]
-                            -> [Trace]
-eliminateTracesViaUnsatCore ts ms t cores =
+pruneTracesViaUnsatCore :: [Trace]
+                        -> [Automaton]
+                        -> Trace
+                        -> [String]
+                        -> [Trace]
+pruneTracesViaUnsatCore ts ms t cores =
   filterSegment ts fragment
   where
     formulas = parseUnsatCore cores

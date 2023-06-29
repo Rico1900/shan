@@ -128,7 +128,7 @@ itemTraces (ItemF frag) = fragTraces frag
 showTrace :: Trace -> String
 showTrace [] = ""
 showTrace [m] = showMessage m
-showTrace (m:ms) = showMessage m ++ " -> " ++ showTrace ms
+showTrace (m:ms) = showMessage m ++ " -o " ++ showTrace ms
 
 showMessage :: Message -> String
 showMessage (Message n _ _ _) = T.unpack n
