@@ -173,7 +173,7 @@ neg (SimpleJ e1 op e2) = SimpleJ e1 (negateOp op) e2
 neg (AndJ j1 j2) = OrJ (neg j1) (neg j2)
 neg (OrJ j1 j2) = AndJ (neg j1) (neg j2)
 
-mname :: Message -> Name 
+mname :: Message -> Name
 mname (Message n _ _ _) = n
 
 ename :: Edge -> Name
@@ -213,7 +213,7 @@ judgementVars (AndJ j1 j2) = S.union (judgementVars j1) (judgementVars j2)
 judgementVars (OrJ j1 j2) = S.union (judgementVars j1) (judgementVars j2)
 
 assignmentVars :: Assignment -> Set Variable
-assignmentVars (Assignment v e) = S.insert v (exprVars e) 
+assignmentVars (Assignment v e) = S.insert v (exprVars e)
 
 splitSequenceDiagram :: SequenceDiagram -> (Fragment, [IntFragment])
 splitSequenceDiagram (SequenceDiagram _ _ frag _) = (fromMaybe (Block []) (clean frag), ints frag)
@@ -259,14 +259,14 @@ judgements :: SequenceDiagram -> [Judgement]
 judgements (SequenceDiagram _ _ _ js) = js
 
 automatonVars :: Automaton -> Set Variable
-automatonVars (Automaton _ _ nodes edges _) = 
+automatonVars (Automaton _ _ nodes edges _) =
   S.unions ((nodeVars <$> nodes) ++ (edgeVars <$> edges))
   where
     nodeVars (Node _ _ vars _  _) = vars
     edgeVars (Edge _ _ _ _ as) = S.unions (assignmentVars <$> as)
 
 automatonInitialEdges :: Automaton -> [Edge]
-automatonInitialEdges (Automaton _ _ _ edges _) = 
+automatonInitialEdges (Automaton _ _ _ edges _) =
   filter isInitialEdge edges
   where
     isInitial (Node Initial _ _ _ _) = True
@@ -274,7 +274,7 @@ automatonInitialEdges (Automaton _ _ _ edges _) =
     isInitialEdge (Edge _ s _ _ _) = isInitial s
 
 selectEdgeByName :: Name -> Automaton -> Edge
-selectEdgeByName n (Automaton _ _ _ edges _) = 
+selectEdgeByName n (Automaton _ _ _ edges _) =
   let searchRes = filter (\(Edge n' _ _ _ _) -> n == n') edges
    in case searchRes of
         [] -> error (printf "No edge with name %s" n)
@@ -282,9 +282,8 @@ selectEdgeByName n (Automaton _ _ _ edges _) =
         _ -> error (printf "Multiple edges with name %s" n)
 
 nonInitialEdges :: [Edge] -> [Edge]
-nonInitialEdges es = filter (not . isInitialEdge) es
+nonInitialEdges = filter (not . isInitialEdge)
   where
     isInitial (Node Initial _ _ _ _) = True
     isInitial _ = False
     isInitialEdge (Edge _ s _ _ _) = isInitial s
-        
