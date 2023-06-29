@@ -17,7 +17,6 @@ import Data.Map ((!))
 import Data.Map qualified as M
 import Data.Universe.Helpers (cartesianProduct)
 import Shan.Ast.Diagram (Fragment (..), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, splitSequenceDiagram, Automaton (Automaton), ename, Event (Event), Instance (Instance))
-import Data.Maybe (mapMaybe)
 
 type Trace = [Message]
 
@@ -27,9 +26,9 @@ data Direction
   = Sending | Receiving
   deriving (Eq, Show)
 
-type LMessage = (Message, Direction, Index)
+type LMessage = (Message, Direction)
 
-type LTrace = [LMessage]
+type LTrace = [Maybe LMessage]
 
 type Interrupt = ([Trace], Priority)
 
@@ -41,7 +40,7 @@ traces :: SequenceDiagram -> [Trace]
 traces sd =
   let (clean, ints) = splitSequenceDiagram sd
       sortedInts = sortByPriority ints
-      cleanTraces = companyWithPriority <$> fragTraces clean
+      cleanTraces = assignPriority <$> fragTraces clean
       intSeqs = intSequences sortedInts
    in if null intSeqs
         then fst <$> cleanTraces
@@ -62,8 +61,8 @@ sortByPriority = sortOn priority
   where
     priority (IntFragment p _ _ _) = p
 
-companyWithPriority :: Trace -> PriorityTrace
-companyWithPriority t =
+assignPriority :: Trace -> PriorityTrace
+assignPriority t =
   let len = length t
       list = [(i, 0) | i <- [0 .. len]]
    in (t, M.fromList list)
@@ -80,7 +79,7 @@ interrupts ts [int] = concatMap (`interrupt` int) ts
 interrupts ts (int : ints) = interrupts (concatMap (`interrupt` int) ts) ints
 
 interrupt :: PriorityTrace -> Interrupt -> [PriorityTrace]
-interrupt t int = 
+interrupt t int =
   concatMap (interrupt' t int) [0 .. lengthOfTrace]
   where
     lengthOfTrace = length $ fst t
@@ -135,16 +134,16 @@ showMessage (Message n _ _ _) = T.unpack n
 
 projection :: Trace -> Automaton -> LTrace
 projection t (Automaton aname _ _ es _) =
-  mapMaybe projection' (zip t [0 ..])
+  projection' <$> zip t [1 ..]
   where
     enames = ename <$> es
     projection' :: (Message, Index) -> Maybe LMessage
     projection'
-      (m@(Message _ (Event sname (Instance saname _)) (Event tname (Instance taname _)) _), i)
-      | saname == aname && sname `elem` enames = Just (m, Sending, i)
-      | taname == aname && tname `elem` enames = Just (m, Receiving, i)
+      (m@(Message _ (Event sname (Instance saname _)) (Event tname (Instance taname _)) _), _)
+      | saname == aname && sname `elem` enames = Just (m, Sending)
+      | taname == aname && tname `elem` enames = Just (m, Receiving)
       | otherwise = Nothing
 
 selectEvent :: LMessage -> Event
-selectEvent (Message _ s _ _, Sending, _) = s
-selectEvent (Message _ _ r _, Receiving, _) = r
+selectEvent (Message _ s _ _, Sending) = s
+selectEvent (Message _ _ r _, Receiving) = r

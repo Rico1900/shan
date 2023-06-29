@@ -28,7 +28,7 @@ analyzeCases = mapM_ analyzeCase
 
 analyzeCase :: Case -> IO ()
 analyzeCase c = do
-  putStrLn (name c)
+  printCaseName (name c)
   diagrams <- parseShan (path c)
   let (sds, automata) = partitionEithers diagrams
   let validationRes = validateDiagrams (sds, automata)
@@ -37,9 +37,20 @@ analyzeCase c = do
     Right _ ->
       let ts = concatMap traces sds
        in do
-        putStrLn $ "trace count: " ++ show (length ts)
-        putStrLn "-----------------------------------"
+        printTraceCount (length ts)
         analyzeHanGuidedByTraces (bound c) automata ts
+
+printCaseName :: String -> IO ()
+printCaseName n = do
+  let nameLen = length n
+  putStrLn $ replicate (nameLen + 2) '-'
+  putStrLn ("|" ++ n ++ "|")
+  putStrLn $ replicate (nameLen + 2) '-'
+
+printTraceCount :: Int -> IO ()
+printTraceCount n = do
+  putStrLn $ "trace count: " ++ show n
+  putStrLn "-----------------------------------"
 
 analyzeHanGuidedByTraces :: Bound -> [Automaton] -> [Trace] -> IO ()
 analyzeHanGuidedByTraces _ _ [] = putStrLn "verified"
@@ -50,7 +61,7 @@ analyzeHanGuidedByTraces b ms (t : ts) = do
     Left unsatCore -> do
       print unsatCore
       putStrLn "---------"
-      let pruned = pruneTracesViaUnsatCore ts ms t unsatCore
+      let pruned = pruneTracesViaUnsatCore ts t unsatCore
       analyzeHanGuidedByTraces b ms pruned
     Right counterExample -> putStrLn $ modelValues counterExample
 
@@ -102,23 +113,21 @@ encodeAutomatonGuidedByTrace :: Bound -> Automaton -> Trace -> SymMemo ()
 encodeAutomatonGuidedByTrace b m t = encodeAutomataGuidedByLTrace b m (projection t m)
 
 encodeAutomataGuidedByLTrace :: Bound -> Automaton -> LTrace -> SymMemo ()
-encodeAutomataGuidedByLTrace b m lt = do
-  let indexedLt = zip lt ([1..] :: [Index])
+encodeAutomataGuidedByLTrace b m ltrace = do
+  let indexedLTrace = zip ltrace ([1..] :: [Index])
   automatonIsSetToInitialStates <- initialState m
-  mapM_ (encodeSegment b m) indexedLt
+  mapM_ (encodeSegment b m) indexedLTrace
   lift $ namedConstraint (initialName m) automatonIsSetToInitialStates
 
-encodeSegment :: Bound -> Automaton -> (LMessage, Index) -> SymMemo ()
-encodeSegment b m (lm, i) = do
+encodeSegment :: Bound -> Automaton -> (Maybe LMessage, Index) -> SymMemo ()
+encodeSegment b m (mlm, i) = do
   let n = aname m
   let cursor = offset b i
   localTransitions <- sAnd <$> traverse (transition m) [(cursor + 1) .. (cursor + b)]
   let endIndex = cursor + b + 1
   timeCostIsZero <- zeroTimeCost n endIndex
-  let (Event en _) = selectEvent lm
-  let edge = selectEdgeByName en m
-  endOfSegmentIsSynchronousJump <- synchronousJump m endIndex edge (lm, i)
-  timeIsSynchronized <- synchronizeTime n endIndex (lm, i)
+  endOfSegmentIsSynchronousJump <- synchronousJump m endIndex (mlm, i)
+  timeIsSynchronized <- synchronizeTime n endIndex (mlm, i)
   lift $
     namedConstraint
       (segmentName n i)
@@ -128,9 +137,11 @@ encodeSegment b m (lm, i) = do
           .&& endOfSegmentIsSynchronousJump
       )
 
-synchronizeTime :: Name -> Index -> (LMessage, Index) -> SymMemo SBool
-synchronizeTime n endIdx ((Message mn _ _ _, _, _), i) = do
-  synchronousMessage <- synchronousTimeVar mn i
+synchronizeTime :: Name -> Index -> (Maybe LMessage, Index) -> SymMemo SBool
+synchronizeTime n endIdx (mlm, i) = do
+  synchronousMessage <- case mlm of
+                          Nothing -> synchronousTimeVar' i
+                          Just (Message mn _ _ _, _) -> synchronousTimeVar mn i
   untilNow <- sumOfCostTime
   return (synchronousMessage .== untilNow)
   where
@@ -234,6 +245,13 @@ jump m@(Automaton n _ _ es _) i = do
   allTargetArePossible <- sOr <$> traverse (encodeEdge m i) (nonInitialEdges es)
   return (timeCostIsZero .&& allTargetArePossible)
 
+-- encoding a stutter transition in an automaton
+stutter :: Automaton -> Index -> SymMemo SBool
+stutter m@(Automaton n _ _ _ _) i = do
+  timeCostIsZero <- zeroTimeCost n i
+  allVariablesWillNotChange <- unchanged n (automatonVars m) i
+  return (timeCostIsZero .&& allVariablesWillNotChange)
+
 encodeEdge :: Automaton -> Index -> Edge -> SymMemo SBool
 encodeEdge m@(Automaton n _ _ _ _) i (Edge _ s t g as) = do
   previousLocIsSource <- localize n (i - 1) s
@@ -249,8 +267,15 @@ encodeEdge m@(Automaton n _ _ _ _) i (Edge _ s t g as) = do
         .&& restVariablesRemainUnchanged
     )
 
-synchronousJump :: Automaton -> Index -> Edge -> (LMessage, Index) -> SymMemo SBool
-synchronousJump m@(Automaton n _ _ _ _) i (Edge _ s t g as) ((Message mn _ _ sync, d, _), mi) = do
+synchronousJump :: Automaton -> Index -> (Maybe LMessage, Index) -> SymMemo SBool
+synchronousJump m i (Nothing, _) = stutter m i
+synchronousJump m i (Just lm, mi) = do
+  let (Event en _) = selectEvent lm
+  let edge =  selectEdgeByName en m
+  synchronousJump' m i edge (lm, mi)
+
+synchronousJump' :: Automaton -> Index -> Edge -> (LMessage, Index) -> SymMemo SBool
+synchronousJump' m@(Automaton n _ _ _ _) i (Edge _ s t g as) ((Message mn _ _ sync, d), mi) = do
   previousLocIsSource <- localize n (i - 1) s
   nextLocIsTarget <- localize n i t
   guardIsTrue <- guard n g (i - 1)
@@ -390,6 +415,18 @@ synchronousTimeVar n i = do
     Nothing -> do
       d <- lift $ sReal (printf "$syncTime|%s|%d" n i)
       let memo' = insertSyncTime memo n i d
+      put memo'
+      return d
+
+synchronousTimeVar' :: Index -> SymMemo SReal
+synchronousTimeVar' i = do
+  let bn = "$box"
+  memo <- get
+  case lookupSyncTime memo bn i of
+    Just d -> return d
+    Nothing -> do
+      d <- lift $ sReal (printf "$syncTime|%s|%d" bn i)
+      let memo' = insertSyncTime memo bn i d
       put memo'
       return d
 

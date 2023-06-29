@@ -9,11 +9,9 @@ module Shan.Analysis.UnsatCore
 where
 
 import Data.List (groupBy, isInfixOf)
-import Data.Map (Map, (!))
-import Data.Map qualified as M
 import Data.Maybe (mapMaybe)
 import Data.Text (pack)
-import Shan.Analysis.Trace (Index, Trace, projection)
+import Shan.Analysis.Trace (Index, Trace)
 import Shan.Ast.Diagram (Automaton, Name, aname)
 import Shan.Util (Parser, symbolS)
 import Text.Megaparsec (choice, manyTill, parse, try)
@@ -77,40 +75,25 @@ parseUnsatCore = fmap parseFormula
 filterSegment :: Eq a => [[a]] -> [a] -> [[a]]
 filterSegment lists fragment = filter (isInfixOf fragment) lists
 
--- filterInitial :: Eq a => [[a]] -> [a] -> [[a]]
--- filterInitial lists initial = filter (isPrefixOf initial) lists
-
 pruneTracesViaUnsatCore ::
   [Trace] ->
-  [Automaton] ->
   Trace ->
   [String] ->
   [Trace]
-pruneTracesViaUnsatCore ts ms t cores =
-  filterSegment ts fragment
+pruneTracesViaUnsatCore traces trace cores =
+  filterSegment traces fragment
   where
     formulas = parseUnsatCore cores
     fragments = indicesToFragment <$> groupByAutomaton formulas
-    nameMap = toNameMap ms
-    bounds = (\f -> fragmentToBound f nameMap t) <$> fragments
+    bounds = fragmentToBound <$> fragments
     merge (l, r) (l', r') = (min l l', max r r')
     (li, ri) = foldl merge (maxBound, minBound) bounds
-    fragment = slice li ri t
-
-toNameMap :: [Automaton] -> Map Name Automaton
-toNameMap = foldl (\m a -> M.insert (aname a) a m) M.empty
+    fragment = slice li ri trace
 
 fragmentToBound ::
   Fragment ->
-  Map Name Automaton ->
-  Trace ->
   (Index, Index)
-fragmentToBound (Fragment n l r) nmap t =
-  let m = nmap ! n
-      lt = projection t m
-      (_, _, lb) = lt !! l
-      (_, _, rb) = lt !! r
-   in (lb, rb)
+fragmentToBound (Fragment _ l r) = (l, r)
 
 slice :: Int -> Int -> [a] -> [a]
 slice from end xs = take (end - from + 1) (drop from xs)
