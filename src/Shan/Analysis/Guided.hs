@@ -19,7 +19,7 @@ import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (.
 import Shan.Parser (parseShan)
 import Shan.Util (Case (..))
 import Text.Printf (printf)
-import Shan.Analysis.UnsatCore (initialName, propertiesName, segmentName)
+import Shan.Analysis.UnsatCore (initialName, propertiesName, segmentName, pruneTracesViaUnsatCore)
 import Shan.Analysis.LocMap (LocMap, llookup)
 import Shan.Analysis.Memo (SymMemo, Memo (locLiteralMap), lookupDuration, insertDuration, lookupLocation, insertLocation, lookupVariable, insertVariable, lookupSyncTime, insertSyncTime, lookupSyncValue, insertSyncValue, emptyMemo)
 
@@ -50,7 +50,8 @@ analyzeHanGuidedByTraces b ms (t : ts) = do
     Left unsatCore -> do
       print unsatCore
       putStrLn "---------"
-      analyzeHanGuidedByTraces b ms ts
+      let pruned = pruneTracesViaUnsatCore ts ms t unsatCore
+      analyzeHanGuidedByTraces b ms pruned
     Right counterExample -> putStrLn $ modelValues counterExample
 
 

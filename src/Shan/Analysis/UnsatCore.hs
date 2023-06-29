@@ -1,22 +1,28 @@
-module Shan.Analysis.UnsatCore(
-  Formula(..),
-  propertiesName,
-  initialName,
-  segmentName,
-  parseUnsatCore,
-  pruneTracesViaUnsatCore
-) where
+module Shan.Analysis.UnsatCore
+  ( SmtFormulaTag (..),
+    propertiesName,
+    initialName,
+    segmentName,
+    parseUnsatCore,
+    pruneTracesViaUnsatCore,
+  )
+where
 
-import Shan.Ast.Diagram (Automaton, aname, Name)
-import Text.Printf (printf)
-import Data.List (isSuffixOf, isInfixOf, groupBy)
-import Data.Text (pack, unpack, splitOn)
-import Shan.Analysis.Trace (Trace, Index, projection)
-import Data.Maybe (mapMaybe)
+import Data.List (groupBy, isInfixOf)
 import Data.Map (Map, (!))
 import Data.Map qualified as M
+import Data.Maybe (mapMaybe)
+import Data.Text (pack)
+import Shan.Analysis.Trace (Index, Trace, projection)
+import Shan.Ast.Diagram (Automaton, Name, aname)
+import Shan.Util (Parser, symbolS)
+import Text.Megaparsec (choice, manyTill, parse, try)
+import Text.Printf (printf)
+import Text.Megaparsec.Char (letterChar)
+import Text.Megaparsec.Char.Lexer (decimal)
+import qualified Text.Megaparsec as Mega
 
-data Formula
+data SmtFormulaTag
   = Properties
   | Initial Name
   | Segment Name Index
@@ -37,7 +43,7 @@ data Fragment
 --   deriving (Eq, Show)
 
 propertiesName :: String
-propertiesName = "properties"
+propertiesName = "$properties"
 
 initialName :: Automaton -> String
 initialName = printf "%s,initial" . aname
@@ -45,18 +51,28 @@ initialName = printf "%s,initial" . aname
 segmentName :: Name -> Index -> String
 segmentName = printf "%s,%d"
 
-parseUnsatCore :: [String] -> [Formula]
-parseUnsatCore = fmap parseFormula
+smtFormulaTagParser :: Parser SmtFormulaTag
+smtFormulaTagParser =
+  choice
+    [ Properties <$ symbolS (pack propertiesName)
+    , try initialParser
+    , segmentParser
+    ]
+  where
+    initialParser = do
+      n <- manyTill letterChar (symbolS ",initial")
+      return (Initial (pack n))
+    segmentParser = do
+      n <- manyTill letterChar (symbolS ",")
+      Segment (pack n) <$> decimal
 
-parseFormula :: String -> Formula
-parseFormula s
-  | s == "properties" = Properties
-  | ",initial" `isSuffixOf` s = Initial (pack (take (length s - 8) s))
-  | otherwise = if length splits /= 2
-                  then error "impossible"
-                  else Segment (head splits) (read $ unpack (splits !! 1))
-                where
-                  splits = splitOn "," (pack s)
+parseFormula :: String -> SmtFormulaTag
+parseFormula s = case parse smtFormulaTagParser "" (pack s) of
+  Left e -> error ("parse smt formula tag failed: " ++ Mega.errorBundlePretty e)
+  Right tag -> tag
+
+parseUnsatCore :: [String] -> [SmtFormulaTag]
+parseUnsatCore = fmap parseFormula
 
 filterSegment :: Eq a => [[a]] -> [a] -> [[a]]
 filterSegment lists fragment = filter (isInfixOf fragment) lists
@@ -64,11 +80,12 @@ filterSegment lists fragment = filter (isInfixOf fragment) lists
 -- filterInitial :: Eq a => [[a]] -> [a] -> [[a]]
 -- filterInitial lists initial = filter (isPrefixOf initial) lists
 
-pruneTracesViaUnsatCore :: [Trace]
-                        -> [Automaton]
-                        -> Trace
-                        -> [String]
-                        -> [Trace]
+pruneTracesViaUnsatCore ::
+  [Trace] ->
+  [Automaton] ->
+  Trace ->
+  [String] ->
+  [Trace]
 pruneTracesViaUnsatCore ts ms t cores =
   filterSegment ts fragment
   where
@@ -83,11 +100,12 @@ pruneTracesViaUnsatCore ts ms t cores =
 toNameMap :: [Automaton] -> Map Name Automaton
 toNameMap = foldl (\m a -> M.insert (aname a) a m) M.empty
 
-fragmentToBound :: Fragment 
-                -> Map Name Automaton
-                -> Trace
-                -> (Index, Index)
-fragmentToBound (Fragment n l r) nmap t = 
+fragmentToBound ::
+  Fragment ->
+  Map Name Automaton ->
+  Trace ->
+  (Index, Index)
+fragmentToBound (Fragment n l r) nmap t =
   let m = nmap ! n
       lt = projection t m
       (_, _, lb) = lt !! l
@@ -97,12 +115,12 @@ fragmentToBound (Fragment n l r) nmap t =
 slice :: Int -> Int -> [a] -> [a]
 slice from end xs = take (end - from + 1) (drop from xs)
 
-formulaToAutomatonIndice :: Formula -> Maybe AutomatonIndice
+formulaToAutomatonIndice :: SmtFormulaTag -> Maybe AutomatonIndice
 formulaToAutomatonIndice (Segment n i) = Just (AutomatonIndice n [i])
 formulaToAutomatonIndice (Initial _) = Nothing
 formulaToAutomatonIndice Properties = Nothing
 
-groupByAutomaton :: [Formula] -> [AutomatonIndice]
+groupByAutomaton :: [SmtFormulaTag] -> [AutomatonIndice]
 groupByAutomaton =
   fmap mergeAll . groupBy sameAutomaton . mapMaybe formulaToAutomatonIndice
   where

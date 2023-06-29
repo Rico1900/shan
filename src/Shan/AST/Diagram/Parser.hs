@@ -51,13 +51,12 @@ import Shan.Ast.Diagram
     differentialVars,
     judgementVars,
   )
+import Shan.Util (Parser, symbolS, symbolW)
 import Shan.Uxf.Uxf (Basic, DiagramType (..), Element (BasicE, RelationE), RawDiagram (..), Relation, UMLType (..), content, element, elementType, h, sourceX, sourceY, targetX, targetY, w, x, y, (=?))
 import Text.Megaparsec (MonadParsec (eof, try), anySingle, between, choice, manyTill, optional, parse, single, (<?>))
 import Text.Megaparsec qualified as Mega
 import Text.Megaparsec.Char (alphaNumChar, char, letterChar, newline, space)
-import Text.Megaparsec.Char.Lexer (decimal, float, lexeme, symbol)
-
-type Parser a = Mega.Parsec Void Text a
+import Text.Megaparsec.Char.Lexer (decimal, float, lexeme)
 
 type Location = (Double, Double, Double, Double)
 
@@ -385,7 +384,8 @@ reachabilityParser =
   choice
     [ Reachable <$ symbolS "reachable",
       Unreachable <$ symbolS "unreachable"
-    ] <?> "reachability"
+    ]
+    <?> "reachability"
 
 judgementsParser :: Parser [Judgement]
 judgementsParser = many judgementParser <?> "judgements"
@@ -502,14 +502,6 @@ prefix ::
   (a -> a) ->
   Operator (Mega.ParsecT Void Text Identity) a
 prefix op f = Prefix (f <$ symbolS op)
-
--- match all tailing blank symbols
-symbolS :: Text -> Parser Text
-symbolS = symbol space
-
--- match tailing spaces
-symbolW :: Text -> Parser Text
-symbolW = symbol (void . many $ single ' ')
 
 parens :: Parser a -> Parser a
 parens = between (symbolW "(") (symbolW ")")
