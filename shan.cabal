@@ -36,7 +36,8 @@ library
       Shan.Ast.Diagram
       Shan.Ast.Diagram.Parser
       Shan.Parser
-      Shan.Smt.Lib
+      Shan.Synthesis.Block
+      Shan.Synthesis.Synthesizer
       Shan.Util
       Shan.Uxf.HtmlProcessor
       Shan.Uxf.Uxf
@@ -61,6 +62,7 @@ library
     , megaparsec
     , mtl
     , parser-combinators
+    , random
     , sbv
     , split
     , text
@@ -90,6 +92,7 @@ executable shan-exe
     , megaparsec
     , mtl
     , parser-combinators
+    , random
     , sbv
     , shan
     , split
@@ -122,6 +125,7 @@ test-suite shan-test
     , megaparsec
     , mtl
     , parser-combinators
+    , random
     , sbv
     , shan
     , split

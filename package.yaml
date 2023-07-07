@@ -34,6 +34,7 @@ dependencies:
 - universe-base
 - sbv
 - mtl
+- random
 
 ghc-options:
 - -Wall

@@ -2,6 +2,8 @@ module Shan.Analysis.Guided
   ( Index,
     analyzeCase,
     analyzeCases,
+    analyzeSynthesizedCase,
+    analyzeSynthesizedCases
   )
 where
 
@@ -22,6 +24,8 @@ import Text.Printf (printf)
 import Shan.Analysis.UnsatCore (initialName, propertiesName, segmentName, pruneTracesViaUnsatCore)
 import Shan.Analysis.LocMap (LocMap, llookup)
 import Shan.Analysis.Memo (SymMemo, Memo (locLiteralMap), lookupDuration, insertDuration, lookupLocation, insertLocation, lookupVariable, insertVariable, lookupSyncTime, insertSyncTime, lookupSyncValue, insertSyncValue, emptyMemo)
+import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
+import Shan.Synthesis.Synthesizer qualified as Synth
 
 analyzeCases :: [Case] -> IO ()
 analyzeCases = mapM_ analyzeCase
@@ -29,16 +33,33 @@ analyzeCases = mapM_ analyzeCase
 analyzeCase :: Case -> IO ()
 analyzeCase c = do
   printCaseName (name c)
-  diagrams <- parseShan (path c)
-  let (sds, automata) = partitionEithers diagrams
-  let validationRes = validateDiagrams (sds, automata)
+  diag <- parseShan (path c)
+  let (sds, han) = partitionEithers diag
+  let validationRes = validateDiagrams (sds, han)
   case validationRes of
     Left io -> io
     Right _ ->
       let ts = concatMap traces sds
        in do
         printTraceCount (length ts)
-        analyzeHanGuidedByTraces (bound c) automata ts
+        analyzeHanGuidedByTraces (bound c) han ts
+
+analyzeSynthesizedCases :: [SynthesizedCase] -> IO ()
+analyzeSynthesizedCases = mapM_ analyzeSynthesizedCase
+
+analyzeSynthesizedCase :: SynthesizedCase -> IO ()
+analyzeSynthesizedCase c = do
+  printCaseName (caseId c)
+  let (sds, han) = diagrams c
+  let b = Synth.bound c
+  let validationRes = validateDiagrams (sds, han)
+  case validationRes of
+    Left io -> io
+    Right _ ->
+      let ts = concatMap traces sds
+       in do
+        printTraceCount (length ts)
+        analyzeHanGuidedByTraces b han ts
 
 printCaseName :: String -> IO ()
 printCaseName n = do

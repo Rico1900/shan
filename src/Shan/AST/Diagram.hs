@@ -38,7 +38,8 @@ module Shan.Ast.Diagram
     automatonVars,
     automatonInitialEdges,
     selectEdgeByName,
-    nonInitialEdges
+    nonInitialEdges,
+    edgesToNodes
   )
 where
 
@@ -47,6 +48,7 @@ import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Maybe (mapMaybe, fromMaybe)
 import Text.Printf (printf)
+import Data.List (nub)
 
 data JudgeOp
   = Ge | Gt | Le | Lt | Eq | Neq
@@ -287,3 +289,9 @@ nonInitialEdges = filter (not . isInitialEdge)
     isInitial (Node Initial _ _ _ _) = True
     isInitial _ = False
     isInitialEdge (Edge _ s _ _ _) = isInitial s
+
+edgesToNodes :: [Edge] -> [Node]
+edgesToNodes = 
+  nub . concatMap edgeToNodes
+  where
+    edgeToNodes (Edge _ n1 n2 _ _) = [n1, n2]
