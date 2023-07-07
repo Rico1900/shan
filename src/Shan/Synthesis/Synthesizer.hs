@@ -375,11 +375,14 @@ randomSelect lst n = do
 randomSelectTwoUnique :: Eq a => [a] -> Synthesis (a, a)
 randomSelectTwoUnique lst = do
   selection <- randomSelect lst 2
-  let x1 = selection !! 0
-  let x2 = selection !! 1
-  if x1 == x2
-    then randomSelectTwoUnique lst
-    else return (x1, x2)
+  if length selection < 2
+    then error "randomSelectTwoUnique: list length is smaller than 2"
+    else do
+      let x1 = selection !! 0
+      let x2 = selection !! 1
+      if x1 == x2
+        then randomSelectTwoUnique lst
+        else return (x1, x2)
 
 randomBound :: Synthesis Int
 randomBound = randomByRange boundRange
