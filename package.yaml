@@ -47,7 +47,6 @@ ghc-options:
 - -Wpartial-fields
 - -Wredundant-constraints
 - -O2
-- -fllvm
 
 default-extensions:
 - ImportQualifiedPost

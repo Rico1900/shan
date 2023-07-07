@@ -14,11 +14,12 @@ import Data.Text (pack)
 import Shan.Analysis.Trace (Index, Trace)
 import Shan.Ast.Diagram (Automaton, Name, aname)
 import Shan.Util (Parser, symbolS)
-import Text.Megaparsec (choice, manyTill, parse, try)
+import Text.Megaparsec (choice, manyTill, parse, try, many, (<|>))
 import Text.Printf (printf)
-import Text.Megaparsec.Char (letterChar)
+import Text.Megaparsec.Char (letterChar, numberChar)
 import Text.Megaparsec.Char.Lexer (decimal)
 import qualified Text.Megaparsec as Mega
+import Control.Monad (void)
 
 data SmtFormulaTag
   = Properties
@@ -44,7 +45,7 @@ propertiesName :: String
 propertiesName = "$properties"
 
 initialName :: Automaton -> String
-initialName = printf "%s,initial" . aname
+initialName = printf "@%s" . aname
 
 segmentName :: Name -> Index -> String
 segmentName = printf "%s,%d"
@@ -58,11 +59,14 @@ smtFormulaTagParser =
     ]
   where
     initialParser = do
-      n <- manyTill letterChar (symbolS ",initial")
+      void (symbolS "@")
+      n <- many letterNumber
       return (Initial (pack n))
     segmentParser = do
-      n <- manyTill letterChar (symbolS ",")
+      n <- manyTill letterNumber (symbolS ",")
       Segment (pack n) <$> decimal
+    letterNumber :: Parser Char
+    letterNumber = letterChar <|> numberChar
 
 parseFormula :: String -> SmtFormulaTag
 parseFormula s = case parse smtFormulaTagParser "" (pack s) of

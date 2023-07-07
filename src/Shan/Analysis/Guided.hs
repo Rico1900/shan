@@ -80,9 +80,10 @@ analyzeHanGuidedByTraces b ms (t : ts) = do
   res <- analyzeHanGuidedByTrace b ms t
   case res of
     Left unsatCore -> do
-      print unsatCore
-      putStrLn "---------"
+      putStrLn $ "Unsat Core: " ++ show unsatCore
       let pruned = pruneTracesViaUnsatCore ts t unsatCore
+      putStrLn $ printf "prune %d paths" (length ts - length pruned)
+      putStrLn "-----------------------------------"
       analyzeHanGuidedByTraces b ms pruned
     Right counterExample -> putStrLn $ modelValues counterExample
 

@@ -18,10 +18,10 @@ synthesisConfig =
   SynthesisConfig
     { _caseNum = 6,
       _initialSeed = 2023,
-      _boundRange = (3, 20),
-      _componentRange = (2, 10),
-      _nodeRange = (2, 20),
-      _edgeRange = (2, 40),
+      _boundRange = (3, 10),
+      _componentRange = (2, 5),
+      _nodeRange = (2, 4),
+      _edgeRange = (2, 20),
       _initialEdgeRange = (1, 4),
       _variableCountRange = (3, 20),
       _variableCountWithinNodeRange = (1, 3),
@@ -29,12 +29,12 @@ synthesisConfig =
       _variableCountWithinAssignmentRange = (1, 3),
       _propertyCountRange = (0, 3),
       _constantRange = (0.0, 100.0),
-      _itemCountRange = (1, 5),
-      _loopBoundRange = (1, 6),
-      _intCountRange = (0, 5),
-      _intBoundRange = (1, 10),
+      _itemCountRange = (1, 3),
+      _loopBoundRange = (1, 5),
+      _intCountRange = (0, 3),
+      _intBoundRange = (1, 5),
       _priorityRange = (1, 10),
-      _maxLayer = 2
+      _maxLayer = 1
     }
 
 constructCase :: String -> Int -> Case
@@ -105,7 +105,6 @@ runShanTask2 :: IO ()
 runShanTask2 = do
   banner2
   let synthesizedCases = synthesizeCases synthesisConfig
-  print (head synthesizedCases)
   analyzeSynthesizedCase (head synthesizedCases)
 
 banner1 :: IO ()

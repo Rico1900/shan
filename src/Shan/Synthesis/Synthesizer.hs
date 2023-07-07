@@ -365,18 +365,15 @@ genAutomataVariable = pack . printf "x%d"
 randomSelect :: [a] -> Int -> Synthesis [a]
 randomSelect lst n = do
   let len = length lst
-  if len < n
-    then error "randomSelect: list length is smaller than n"
-    else do
-      indices <- randomNumbers n (0, len - 1)
-      let indices' = nub indices
-      return [lst !! i | i <- indices']
+  indices <- randomNumbers n (0, len - 1)
+  let indices' = nub indices
+  return [lst !! i | i <- indices']
 
 randomSelectTwoUnique :: Eq a => [a] -> Synthesis (a, a)
 randomSelectTwoUnique lst = do
   selection <- randomSelect lst 2
   if length selection < 2
-    then error "randomSelectTwoUnique: list length is smaller than 2"
+    then randomSelectTwoUnique lst
     else do
       let x1 = selection !! 0
       let x2 = selection !! 1
