@@ -15,12 +15,15 @@ import System.FilePath ((</>))
 basePath :: FilePath
 basePath = "./cases/Shan"
 
+defaultBound :: Int
+defaultBound = 3
+
 synthesisConfig :: SynthesisConfig
 synthesisConfig =
   SynthesisConfig
     { _caseNum = 6,
       _initialSeed = 2023,
-      _boundRange = (3, 10),
+      _checkingBound = defaultBound,
       _componentRange = (2, 5),
       _nodeRange = (2, 4),
       _edgeRange = (2, 20),
@@ -38,9 +41,6 @@ synthesisConfig =
       _priorityRange = (1, 10),
       _maxLayer = 1
     }
-
-defaultBound :: Int
-defaultBound = 3
 
 constructCase :: String -> Int -> Case
 constructCase n b =

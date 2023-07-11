@@ -30,7 +30,7 @@ type Index = Int
 data SynthesisConfig = SynthesisConfig
   { _caseNum :: Int,
     _initialSeed :: Int,
-    _boundRange :: (Int, Int),
+    _checkingBound :: Int,
     _componentRange :: (Int, Int),
     _nodeRange :: (Int, Int),
     _edgeRange :: (Int, Int),
@@ -91,9 +91,10 @@ genCases = do
 
 genCase :: Index -> Synthesis SynthesizedCase
 genCase i = do
+  config <- ask
   let caseName = printf "case%d" i
   diagram <- genDiagram
-  b <- randomBound
+  let b = config ^. checkingBound
   return $ SynthesizedCase caseName diagram b
 
 genDiagram :: Synthesis Diagrams
@@ -380,9 +381,6 @@ randomSelectTwoUnique lst = do
       if x1 == x2
         then randomSelectTwoUnique lst
         else return (x1, x2)
-
-randomBound :: Synthesis Int
-randomBound = randomByRange boundRange
 
 randomConstant :: Synthesis Double
 randomConstant = randomByRange constantRange
