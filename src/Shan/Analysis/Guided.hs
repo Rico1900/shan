@@ -1,9 +1,7 @@
 module Shan.Analysis.Guided
   ( Index,
-    analyzeCase,
-    analyzeCases,
+    analyzeLiteratureCase,
     analyzeSynthesizedCase,
-    analyzeSynthesizedCases
   )
 where
 
@@ -19,7 +17,7 @@ import Shan.Analysis.Trace (Direction (..), LMessage, LTrace, Trace, projection,
 import Shan.Analysis.Validation (validateDiagrams)
 import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, automatonVars, selectEdgeByName, automatonInitialEdges, aname, nname, nonInitialEdges)
 import Shan.Parser (parseShan)
-import Shan.Util (Case (..))
+import Shan.Util (LiteratureCase (..))
 import Text.Printf (printf)
 import Shan.Analysis.UnsatCore (initialName, propertiesName, segmentName, pruneTracesViaUnsatCore)
 import Shan.Analysis.LocMap (LocMap, llookup)
@@ -27,11 +25,8 @@ import Shan.Analysis.Memo (SymMemo, Memo (locLiteralMap), lookupDuration, insert
 import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
 import Shan.Synthesis.Synthesizer qualified as Synth
 
-analyzeCases :: [Case] -> IO ()
-analyzeCases = mapM_ analyzeCase
-
-analyzeCase :: Case -> IO ()
-analyzeCase c = do
+analyzeLiteratureCase :: LiteratureCase -> IO ()
+analyzeLiteratureCase c = do
   printCaseName (name c)
   diag <- parseShan (path c)
   let (sds, han) = partitionEithers diag
@@ -43,9 +38,6 @@ analyzeCase c = do
        in do
         printTraceCount (length ts)
         analyzeHanGuidedByTraces (bound c) han ts
-
-analyzeSynthesizedCases :: [SynthesizedCase] -> IO ()
-analyzeSynthesizedCases = mapM_ analyzeSynthesizedCase
 
 analyzeSynthesizedCase :: SynthesizedCase -> IO ()
 analyzeSynthesizedCase c = do

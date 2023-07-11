@@ -1,5 +1,5 @@
 module Shan.Util (
-  Case(..),
+  LiteratureCase(..),
   Parser,
   symbolS,
   symbolW
@@ -15,7 +15,7 @@ import Text.Megaparsec (single)
 import Control.Applicative.Combinators (many)
 import Control.Monad (void)
 
-data Case = Case
+data LiteratureCase = LiteratureCase
   { name :: String,
     path :: FilePath,
     bound :: Bound

@@ -6,10 +6,10 @@ module Task.Shan
 where
 
 import Criterion.Main (Benchmark, bench, bgroup, defaultMain, nfIO)
-import Shan.Analysis.Guided (analyzeCase, analyzeSynthesizedCase)
+import Shan.Analysis.Guided (analyzeLiteratureCase, analyzeSynthesizedCase)
 import Shan.Pretty (banner)
 import Shan.Synthesis.Synthesizer (SynthesisConfig (..), SynthesizedCase (caseId), synthesizeCases)
-import Shan.Util (Case (..))
+import Shan.Util (LiteratureCase (..))
 import System.FilePath ((</>))
 
 basePath :: FilePath
@@ -26,34 +26,34 @@ synthesisConfig =
       _checkingBound = defaultBound,
       _componentRange = (2, 5),
       _nodeRange = (2, 4),
-      _edgeRange = (2, 20),
+      _edgeRange = (2, 10),
       _initialEdgeRange = (1, 4),
-      _variableCountRange = (3, 20),
+      _variableCountRange = (3, 10),
       _variableCountWithinNodeRange = (1, 3),
       _variableCountWithinGuardRange = (1, 3),
       _variableCountWithinAssignmentRange = (1, 3),
       _propertyCountRange = (0, 3),
       _constantRange = (0.0, 100.0),
-      _itemCountRange = (1, 3),
-      _loopBoundRange = (1, 5),
-      _intCountRange = (0, 3),
-      _intBoundRange = (1, 5),
+      _itemCountRange = (2, 4),
+      _loopBoundRange = (1, 3),
+      _intCountRange = (0, 4),
+      _intBoundRange = (1, 3),
       _priorityRange = (1, 10),
       _maxLayer = 1
     }
 
-constructCase :: String -> Int -> Case
+constructCase :: String -> Int -> LiteratureCase
 constructCase n b =
   if b < 0
     then error "invalid bound"
     else
-      Case
+      LiteratureCase
         { name = n,
           path = basePath </> n,
           bound = b
         }
 
-yield :: String -> Case
+yield :: String -> LiteratureCase
 yield = flip constructCase defaultBound
 
 adcBugDInt :: String
@@ -89,8 +89,8 @@ medicalMonitor = "medical-monitor"
 waterTanks :: String
 waterTanks = "water-tanks"
 
-benchCase :: String -> Benchmark
-benchCase s = bench s $ nfIO $ analyzeCase $ yield s
+benchLiteratureCase :: String -> Benchmark
+benchLiteratureCase s = bench s $ nfIO $ analyzeLiteratureCase $ yield s
 
 benchSynthesizedCase :: SynthesizedCase -> Benchmark
 benchSynthesizedCase sc = bench (caseId sc) $ nfIO $ analyzeSynthesizedCase sc
@@ -99,17 +99,17 @@ benchmark1 :: [Benchmark]
 benchmark1 =
   [ bgroup
       "experiment 1"
-      [ benchCase adcBugDInt,
-        benchCase adcBugInt,
-        benchCase altitudeDisplay,
-        benchCase altitudeDisplayInt,
-        benchCase carController,
-        benchCase csmaAut,
-        benchCase fischerAut,
-        benchCase hddi,
-        benchCase learningFactory,
-        benchCase medicalMonitor,
-        benchCase waterTanks
+      [ benchLiteratureCase adcBugDInt,
+        benchLiteratureCase adcBugInt,
+        benchLiteratureCase altitudeDisplay,
+        benchLiteratureCase altitudeDisplayInt,
+        benchLiteratureCase carController,
+        benchLiteratureCase csmaAut,
+        benchLiteratureCase fischerAut,
+        benchLiteratureCase hddi,
+        benchLiteratureCase learningFactory,
+        benchLiteratureCase medicalMonitor,
+        benchLiteratureCase waterTanks
       ]
   ]
 
@@ -117,7 +117,7 @@ benchmarkTest1 :: [Benchmark]
 benchmarkTest1 =
   [ bgroup
       "experiment 1"
-      [ benchCase altitudeDisplayInt
+      [ benchLiteratureCase altitudeDisplayInt
       ]
   ]
 
