@@ -5,10 +5,12 @@ module Task.Shan
   )
 where
 
-import System.FilePath ((</>))
+import Criterion.Main (Benchmark, bench, bgroup, defaultMain, nfIO)
+import Shan.Analysis.Guided (analyzeCase, analyzeSynthesizedCase)
+import Shan.Pretty (banner)
+import Shan.Synthesis.Synthesizer (SynthesisConfig (..), SynthesizedCase (caseId), synthesizeCases)
 import Shan.Util (Case (..))
-import Shan.Analysis.Guided (analyzeCases, analyzeCase, analyzeSynthesizedCase)
-import Shan.Synthesis.Synthesizer (SynthesisConfig (..), synthesizeCases)
+import System.FilePath ((</>))
 
 basePath :: FilePath
 basePath = "./cases/Shan"
@@ -37,88 +39,110 @@ synthesisConfig =
       _maxLayer = 1
     }
 
+defaultBound :: Int
+defaultBound = 3
+
 constructCase :: String -> Int -> Case
 constructCase n b =
   if b < 0
     then error "invalid bound"
-    else  Case
-      { name = n,
-        path = basePath </> n,
-        bound = b
-      }
-  
-adcBugDInt :: Case
-adcBugDInt = constructCase "ADC-Bug-d-int" 3
+    else
+      Case
+        { name = n,
+          path = basePath </> n,
+          bound = b
+        }
 
-adcBugInt :: Case
-adcBugInt = constructCase "ADC-Bug-int" 3
+yield :: String -> Case
+yield = flip constructCase defaultBound
 
-altitudeDisplay :: Case
-altitudeDisplay = constructCase "altitude-display" 3
+adcBugDInt :: String
+adcBugDInt = "ADC-Bug-d-int"
 
-altitudeDisplayInt :: Case
-altitudeDisplayInt = constructCase "altitude-display-int" 5
+adcBugInt :: String
+adcBugInt = "ADC-Bug-int"
 
-carController :: Case
-carController = constructCase "car-controller" 3
+altitudeDisplay :: String
+altitudeDisplay = "altitude-display"
 
-csmaAut :: Case
-csmaAut = constructCase "csma-aut" 3
+altitudeDisplayInt :: String
+altitudeDisplayInt = "altitude-display-int"
 
-fischerAut :: Case
-fischerAut = constructCase "fischer-aut" 3
+carController :: String
+carController = "car-controller"
 
-hddi :: Case
-hddi = constructCase "hddi" 3
+csmaAut :: String
+csmaAut = "csma-aut"
 
-learningFactory :: Case
-learningFactory = constructCase "learning-factory" 3
+fischerAut :: String
+fischerAut = "fischer-aut"
 
-medicalMonitor :: Case
-medicalMonitor = constructCase "medical-monitor" 3
+hddi :: String
+hddi = "hddi"
 
-waterTanks :: Case
-waterTanks = constructCase "water-tanks" 3
+learningFactory :: String
+learningFactory = "learning-factory"
 
-benchmark :: [Case]
-benchmark = 
-  [ adcBugDInt, 
-    adcBugInt, 
-    altitudeDisplay, 
-    altitudeDisplayInt, 
-    carController, 
-    csmaAut, 
-    fischerAut,
-    hddi,
-    learningFactory,
-    medicalMonitor,
-    waterTanks
+medicalMonitor :: String
+medicalMonitor = "medical-monitor"
+
+waterTanks :: String
+waterTanks = "water-tanks"
+
+benchCase :: String -> Benchmark
+benchCase s = bench s $ nfIO $ analyzeCase $ yield s
+
+benchSynthesizedCase :: SynthesizedCase -> Benchmark
+benchSynthesizedCase sc = bench (caseId sc) $ nfIO $ analyzeSynthesizedCase sc
+
+benchmark1 :: [Benchmark]
+benchmark1 =
+  [ bgroup
+      "experiment 1"
+      [ benchCase adcBugDInt,
+        benchCase adcBugInt,
+        benchCase altitudeDisplay,
+        benchCase altitudeDisplayInt,
+        benchCase carController,
+        benchCase csmaAut,
+        benchCase fischerAut,
+        benchCase hddi,
+        benchCase learningFactory,
+        benchCase medicalMonitor,
+        benchCase waterTanks
+      ]
   ]
 
-runShanTask1 :: IO ()
-runShanTask1 = do
-  banner1
-  -- runShanTask = analyzeCases benchmark
-  analyzeCase altitudeDisplayInt
+benchmarkTest1 :: [Benchmark]
+benchmarkTest1 =
+  [ bgroup
+      "experiment 1"
+      [ benchCase altitudeDisplayInt
+      ]
+  ]
 
-runShanTask2 :: IO ()
-runShanTask2 = do
-  banner2
-  let synthesizedCases = synthesizeCases synthesisConfig
-  analyzeSynthesizedCase (head synthesizedCases)
+benchmark2 :: [Benchmark]
+benchmark2 =
+  [ bgroup "experiment 2" (benchSynthesizedCase <$> synthesizeCases synthesisConfig)
+  ]
+
+benchmarkTest2 :: [Benchmark]
+benchmarkTest2 =
+  [ bgroup "experiment 2" (benchSynthesizedCase <$> take 1 (synthesizeCases synthesisConfig))
+  ]
 
 banner1 :: IO ()
 banner1 = banner "|  experiment 1: literature cases  |"
 
 banner2 :: IO ()
-banner2 = banner "|  expriment 2: synthesized cases  |"
+banner2 = banner "|  experiment 2: synthesized cases  |"
 
-banner :: String -> IO ()
-banner info = do
-  let l = length info
-  line l
-  putStrLn info
-  line l
+runShanTask1 :: IO ()
+runShanTask1 = do
+  banner1
+  defaultMain benchmarkTest1
 
-line :: Int -> IO ()
-line n = putStrLn $ replicate n '-'
+runShanTask2 :: IO ()
+runShanTask2 = do
+  banner2
+  defaultMain benchmarkTest2

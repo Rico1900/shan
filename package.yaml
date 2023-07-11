@@ -35,6 +35,7 @@ dependencies:
 - sbv
 - mtl
 - random
+- criterion
 
 ghc-options:
 - -Wall
