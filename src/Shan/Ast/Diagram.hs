@@ -26,6 +26,7 @@ module Shan.Ast.Diagram
     Automaton(..),
     Diagrams,
     neg,
+    sdname,
     mname,
     ename,
     aname,
@@ -174,6 +175,9 @@ neg :: Judgement -> Judgement
 neg (SimpleJ e1 op e2) = SimpleJ e1 (negateOp op) e2
 neg (AndJ j1 j2) = OrJ (neg j1) (neg j2)
 neg (OrJ j1 j2) = AndJ (neg j1) (neg j2)
+
+sdname :: SequenceDiagram -> Name
+sdname (SequenceDiagram n _ _ _) = n
 
 mname :: Message -> Name
 mname (Message n _ _ _) = n

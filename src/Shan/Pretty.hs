@@ -1,6 +1,7 @@
 module Shan.Pretty(
   banner,
-  line
+  line,
+  separationLine
 ) where
 
 banner :: String -> IO ()
@@ -12,3 +13,6 @@ banner info = do
 
 line :: Int -> IO ()
 line n = putStrLn $ replicate n '-'
+
+separationLine :: IO ()
+separationLine = putStrLn $ replicate 35 '-'

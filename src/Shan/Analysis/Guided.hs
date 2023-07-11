@@ -15,7 +15,7 @@ import Data.Set qualified as S
 import Shan.Analysis.Pretty (modelValues)
 import Shan.Analysis.Trace (Direction (..), LMessage, LTrace, Trace, projection, selectEvent, traces, showTrace, Index)
 import Shan.Analysis.Validation (validateDiagrams)
-import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, automatonVars, selectEdgeByName, automatonInitialEdges, aname, nname, nonInitialEdges)
+import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, automatonVars, selectEdgeByName, automatonInitialEdges, aname, nname, nonInitialEdges, Diagrams, SequenceDiagram, splitSequenceDiagram, sdname)
 import Shan.Parser (parseShan)
 import Shan.Util (LiteratureCase (..))
 import Text.Printf (printf)
@@ -24,32 +24,31 @@ import Shan.Analysis.LocMap (LocMap, llookup)
 import Shan.Analysis.Memo (SymMemo, Memo (locLiteralMap), lookupDuration, insertDuration, lookupLocation, insertLocation, lookupVariable, insertVariable, lookupSyncTime, insertSyncTime, lookupSyncValue, insertSyncValue, emptyMemo)
 import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
 import Shan.Synthesis.Synthesizer qualified as Synth
+import Shan.Pretty (separationLine)
 
 analyzeLiteratureCase :: LiteratureCase -> IO ()
 analyzeLiteratureCase c = do
   printCaseName (name c)
-  diag <- parseShan (path c)
-  let (sds, han) = partitionEithers diag
-  let validationRes = validateDiagrams (sds, han)
-  case validationRes of
-    Left io -> io
-    Right _ ->
-      let ts = concatMap traces sds
-       in do
-        printTraceCount (length ts)
-        analyzeHanGuidedByTraces (bound c) han ts
+  sdOrAutomaton <- parseShan (path c)
+  let diags = partitionEithers sdOrAutomaton
+  analyze (bound c) diags
 
 analyzeSynthesizedCase :: SynthesizedCase -> IO ()
 analyzeSynthesizedCase c = do
   printCaseName (caseId c)
-  let (sds, han) = diagrams c
+  let diags = diagrams c
   let b = Synth.bound c
+  analyze b diags
+
+analyze :: Bound -> Diagrams -> IO ()
+analyze b (sds, han) = do
   let validationRes = validateDiagrams (sds, han)
   case validationRes of
     Left io -> io
     Right _ ->
       let ts = concatMap traces sds
        in do
+        printIntCount sds
         printTraceCount (length ts)
         analyzeHanGuidedByTraces b han ts
 
@@ -60,10 +59,20 @@ printCaseName n = do
   putStrLn ("|" ++ n ++ "|")
   putStrLn $ replicate (nameLen + 2) '-'
 
+printIntCount :: [SequenceDiagram] -> IO ()
+printIntCount sds = do
+  mapM_ printIntCount' sds
+  separationLine
+  where
+    printIntCount' :: SequenceDiagram -> IO ()
+    printIntCount' sd = do
+      let (_, ints) = splitSequenceDiagram sd
+      putStrLn $ printf "interrupt count of %s: %d" (sdname sd) (length ints)
+
 printTraceCount :: Int -> IO ()
 printTraceCount n = do
   putStrLn $ "trace count: " ++ show n
-  putStrLn "-----------------------------------"
+  separationLine
 
 analyzeHanGuidedByTraces :: Bound -> [Automaton] -> [Trace] -> IO ()
 analyzeHanGuidedByTraces _ _ [] = putStrLn "verified"
@@ -75,10 +84,9 @@ analyzeHanGuidedByTraces b ms (t : ts) = do
       putStrLn $ "Unsat Core: " ++ show unsatCore
       let pruned = pruneTracesViaUnsatCore ts t unsatCore
       putStrLn $ printf "prune %d paths" (length ts - length pruned)
-      putStrLn "-----------------------------------"
+      separationLine
       analyzeHanGuidedByTraces b ms pruned
     Right counterExample -> putStrLn $ modelValues counterExample
-
 
 analyzeHanGuidedByTrace :: Bound -> [Automaton] -> Trace -> IO (Either [String] SMTModel)
 analyzeHanGuidedByTrace b ms t = do
