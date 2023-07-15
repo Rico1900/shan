@@ -115,7 +115,9 @@ groupByAutomaton =
     merge (AutomatonIndice n1 is1) (AutomatonIndice n2 is2) = AutomatonIndice (selectName n1 n2) (is1 ++ is2)
     selectName n "" = n
     selectName "" n = n
-    selectName n1 n2 = if n1 == n2 then n1 else error "impossible"
+    selectName n1 n2 = if n1 == n2 
+                          then n1 
+                          else error "impossible"
     mergeAll = foldl merge (AutomatonIndice "" [])
 
 indicesToFragment :: AutomatonIndice -> Fragment
