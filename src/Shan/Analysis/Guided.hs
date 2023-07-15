@@ -12,10 +12,10 @@ import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getModel
 import Data.SBV.Internals (SMTModel)
 import Data.Set (Set, (\\))
 import Data.Set qualified as S
-import Shan.Analysis.Pretty (modelValues)
+import Shan.Analysis.Pretty (modelValues, printCaseName, printIsdStatistics)
 import Shan.Analysis.Trace (Direction (..), LMessage, LTrace, Trace, projection, selectEvent, traces, showTrace, Index)
 import Shan.Analysis.Validation (validateDiagrams)
-import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, automatonVars, selectEdgeByName, automatonInitialEdges, aname, nname, nonInitialEdges, Diagrams, SequenceDiagram, splitSequenceDiagram, sdname)
+import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, automatonVars, selectEdgeByName, automatonInitialEdges, aname, nname, nonInitialEdges, Diagrams)
 import Shan.Parser (parseShan)
 import Shan.Util (LiteratureCase (..))
 import Text.Printf (printf)
@@ -50,32 +50,6 @@ analyze b (sds, han) = do
        in do
         printIsdStatistics sds ts
         analyzeHanGuidedByTraces b han ts
-
-printCaseName :: String -> IO ()
-printCaseName n = do
-  let nameLen = length n
-  putStrLn $ replicate (nameLen + 2) '-'
-  putStrLn ("|" ++ n ++ "|")
-  putStrLn $ replicate (nameLen + 2) '-'
-
-printIsdStatistics :: [SequenceDiagram] -> [Trace] -> IO ()
-printIsdStatistics sds ts = do
-  printIntCount sds
-  printTraceCount (length ts)
-
-printIntCount :: [SequenceDiagram] -> IO ()
-printIntCount sds = do
-  mapM_ printIntCount' sds
-  where
-    printIntCount' :: SequenceDiagram -> IO ()
-    printIntCount' sd = do
-      let (_, ints) = splitSequenceDiagram sd
-      putStrLn $ printf "interrupt count of %s: %d" (sdname sd) (length ints)
-
-printTraceCount :: Int -> IO ()
-printTraceCount n = do
-  putStrLn $ "trace count: " ++ show n
-  separationLine
 
 analyzeHanGuidedByTraces :: Bound -> [Automaton] -> [Trace] -> IO ()
 analyzeHanGuidedByTraces _ _ [] = putStrLn "verified"
