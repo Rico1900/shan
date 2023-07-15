@@ -48,8 +48,7 @@ analyze b (sds, han) = do
     Right _ ->
       let ts = concatMap traces sds
        in do
-        printIntCount sds
-        printTraceCount (length ts)
+        printIsdStatistics sds ts
         analyzeHanGuidedByTraces b han ts
 
 printCaseName :: String -> IO ()
@@ -59,10 +58,14 @@ printCaseName n = do
   putStrLn ("|" ++ n ++ "|")
   putStrLn $ replicate (nameLen + 2) '-'
 
+printIsdStatistics :: [SequenceDiagram] -> [Trace] -> IO ()
+printIsdStatistics sds ts = do
+  printIntCount sds
+  printTraceCount (length ts)
+
 printIntCount :: [SequenceDiagram] -> IO ()
 printIntCount sds = do
   mapM_ printIntCount' sds
-  separationLine
   where
     printIntCount' :: SequenceDiagram -> IO ()
     printIntCount' sd = do
