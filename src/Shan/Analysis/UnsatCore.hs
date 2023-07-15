@@ -77,7 +77,7 @@ parseUnsatCore :: [String] -> [SmtFormulaTag]
 parseUnsatCore = fmap parseFormula
 
 filterSegment :: Eq a => [[a]] -> [a] -> [[a]]
-filterSegment lists fragment = filter (isInfixOf fragment) lists
+filterSegment lists fragment = filter (not . isInfixOf fragment) lists
 
 pruneTracesViaUnsatCore ::
   [Trace] ->
@@ -92,7 +92,7 @@ pruneTracesViaUnsatCore traces trace cores =
     bounds = fragmentToBound <$> fragments
     merge (l, r) (l', r') = (min l l', max r r')
     (li, ri) = foldl merge (maxBound, minBound) bounds
-    fragment = slice li ri trace
+    fragment = slice (li-1) (ri-1) trace
 
 fragmentToBound ::
   Fragment ->
