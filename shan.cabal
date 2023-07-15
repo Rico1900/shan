@@ -37,7 +37,6 @@ library
       Shan.Ast.Diagram.Parser
       Shan.Parser
       Shan.Pretty
-      Shan.Synthesis.Block
       Shan.Synthesis.Synthesizer
       Shan.Util
       Shan.Uxf.HtmlProcessor

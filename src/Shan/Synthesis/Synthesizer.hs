@@ -103,6 +103,7 @@ genDiagram = do
   isds <- genSequenceDiagrams han
   return (isds, han)
 
+-- this version of synthesizer only generates one sequence diagram
 genSequenceDiagrams :: [Automaton] -> Synthesis [SequenceDiagram]
 genSequenceDiagrams han = do
   isd <- genSequenceDiagram 1 han
@@ -119,11 +120,13 @@ genFragment :: Context -> Synthesis Fragment
 genFragment context = do
   currentLayer <- genLayer
   if currentLayer == 0
-    then do
-      items <- genBlock context
+    then genBlock
+    else genControlFrag context
+  where
+    genBlock = do
+      items <- genItems context
       ints <- genIntFragments context
       return $ Block (items ++ (ItemF <$> ints))
-    else genControlFrag context
 
 genIntFragments :: Context -> Synthesis [Fragment]
 genIntFragments context = do
@@ -137,13 +140,6 @@ genIntFragment context = do
   items <- genItems context
   return $ IntF $ IntFragment p l u items
 
-genBlock :: Context -> Synthesis [Item]
-genBlock context = do
-  items <- genItems context
-  sstate <- get
-  put (sstate & layer .~ 0)
-  return items
-
 genItems :: Context -> Synthesis [Item]
 genItems context = do
   itemCount <- randomItemCount
@@ -155,8 +151,11 @@ genItem context = do
   config <- ask
   let maxL = config ^. maxLayer
   if currentLayer >= maxL
-    then ItemM <$> genMessage context
-    else do
+    then genMessageItem
+    else randomItemOrFrag
+  where
+    genMessageItem = ItemM <$> genMessage context
+    randomItemOrFrag = do
       b <- randomBool
       if b
         then ItemM <$> genMessage context

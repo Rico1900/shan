@@ -44,7 +44,7 @@ analyze :: Bound -> Diagrams -> IO ()
 analyze b (sds, han) = do
   let validationRes = validateDiagrams (sds, han)
   case validationRes of
-    Left io -> io
+    Left errorMsg -> print errorMsg
     Right _ ->
       let ts = concatMap traces sds
        in do
