@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
+
 module Shan.Analysis.Guided
   ( Index,
     analyzeLiteratureCase,
