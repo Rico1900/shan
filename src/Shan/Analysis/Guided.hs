@@ -11,7 +11,7 @@ where
 
 import Control.Monad.State (MonadState (get, put), MonadTrans (lift), evalStateT)
 import Data.Either (partitionEithers)
-import Data.SBV (OrdSymbolic, SBool, SReal, SWord8, SymVal (literal), Symbolic, namedConstraint, runSMT, sAnd, sNot, sOr, sReal, sTrue, sWord8, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||))
+import Data.SBV (OrdSymbolic, SBool, SReal, SWord8, SymVal (literal), namedConstraint, runSMT, sAnd, sNot, sOr, sReal, sTrue, sWord8, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||))
 import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getModel, getUnknownReason, getUnsatCore, query)
 import Data.SBV.Internals (SMTModel)
 import Data.Set (Set, (\\))
@@ -71,27 +71,24 @@ analyzeHanGuidedByTraces b ms (t : ts) = do
 
 analyzeHanGuidedByTrace :: Bound -> [Automaton] -> Trace -> IO (Either [String] SMTModel)
 analyzeHanGuidedByTrace b ms t = do
-  runSMT $ querySmtVerificationResult b ms t
-
-querySmtVerificationResult ::
-  Bound ->
-  [Automaton] ->
-  Trace ->
-  Symbolic (Either [String] SMTModel)
-querySmtVerificationResult b ms t = do
-  evalStateT (encodeAutomataWithProperties b ms t) (emptyMemo ms)
-  setOption $ ProduceUnsatCores True
-  setOption $ OptionKeyword ":smt.core.minimize" ["true"]
-  query $ do
-    satRes <- checkSat
-    case satRes of
-      Unsat -> Left <$> getUnsatCore
-      Sat -> Right <$> getModel
-      DSat Nothing -> error "delta satisfiable"
-      DSat (Just s) -> error $ "delta satisfiable: " ++ show s
-      Unk -> do
-        reason <- getUnknownReason
-        error $ "unknown: " ++ show reason
+  runSMT querySmtVerificationResult
+  where 
+    querySmtVerificationResult = do
+      evalStateT (encodeAutomataWithProperties b ms t) (emptyMemo ms)
+      setSolvingOption
+      query $ do
+        satRes <- checkSat
+        case satRes of
+          Unsat -> Left <$> getUnsatCore
+          Sat -> Right <$> getModel
+          DSat Nothing -> error "delta satisfiable"
+          DSat (Just s) -> error $ "delta satisfiable: " ++ show s
+          Unk -> do
+            reason <- getUnknownReason
+            error $ "unknown: " ++ show reason
+    setSolvingOption = do
+      setOption $ ProduceUnsatCores True
+      setOption $ OptionKeyword ":smt.core.minimize" ["true"]
 
 encodeAutomataWithProperties :: Bound -> [Automaton] -> Trace -> SymMemo ()
 encodeAutomataWithProperties b ms t = do
