@@ -8,18 +8,18 @@ module Shan.Analysis.UnsatCore
   )
 where
 
+import Control.Monad (void)
 import Data.List (groupBy, isInfixOf)
 import Data.Maybe (mapMaybe)
 import Data.Text (pack)
 import Shan.Analysis.Trace (Index, Trace)
 import Shan.Ast.Diagram (Automaton, Name, aname)
 import Shan.Util (Parser, symbolS)
-import Text.Megaparsec (choice, manyTill, parse, try, many, (<|>))
-import Text.Printf (printf)
+import Text.Megaparsec (choice, many, manyTill, parse, try, (<|>))
+import Text.Megaparsec qualified as Mega
 import Text.Megaparsec.Char (letterChar, numberChar)
 import Text.Megaparsec.Char.Lexer (decimal)
-import qualified Text.Megaparsec as Mega
-import Control.Monad (void)
+import Text.Printf (printf)
 
 data SmtFormulaTag
   = Properties
@@ -53,9 +53,9 @@ segmentName = printf "%s,%d"
 smtFormulaTagParser :: Parser SmtFormulaTag
 smtFormulaTagParser =
   choice
-    [ Properties <$ symbolS (pack propertiesName)
-    , try initialParser
-    , segmentParser
+    [ Properties <$ symbolS (pack propertiesName),
+      try initialParser,
+      segmentParser
     ]
   where
     initialParser = do

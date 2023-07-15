@@ -1,8 +1,9 @@
-module Shan.Analysis.LocMap(
-  LocMap,
-  constructMap,
-  llookup
-) where
+module Shan.Analysis.LocMap
+  ( LocMap,
+    constructMap,
+    llookup,
+  )
+where
 
 import Data.Map (Map)
 import Data.Map qualified as M
@@ -16,7 +17,7 @@ constructMap :: [Automaton] -> LocMap
 constructMap ms =
   M.fromList $ concatMap entries ms
   where
-    entries (Automaton n _ nodes _ _) = entry n <$> zip nodes [0..]
+    entries (Automaton n _ nodes _ _) = entry n <$> zip nodes [0 ..]
     entry n (Node _ nn _ _ _, i) = ((n, nn), i)
 
 llookup :: LocMap -> (Text, Text) -> Word8

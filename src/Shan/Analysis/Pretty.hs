@@ -1,17 +1,18 @@
-module Shan.Analysis.Pretty(
-  modelValues,
-  printCaseName,
-  printIsdStatistics
-) where
+module Shan.Analysis.Pretty
+  ( modelValues,
+    printCaseName,
+    printIsdStatistics,
+  )
+where
 
 import Data.SBV.Internals (SMTModel (modelAssocs))
-import Text.Printf (printf)
-import Shan.Ast.Diagram (SequenceDiagram, splitSequenceDiagram, sdname)
 import Shan.Analysis.Trace (Trace)
+import Shan.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram)
 import Shan.Pretty (separationLine)
+import Text.Printf (printf)
 
 modelValues :: SMTModel -> String
-modelValues m = 
+modelValues m =
   unlines (showAssoc <$> assocs)
   where
     assocs = modelAssocs m

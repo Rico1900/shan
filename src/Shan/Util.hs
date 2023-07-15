@@ -1,19 +1,20 @@
-module Shan.Util (
-  LiteratureCase(..),
-  Parser,
-  symbolS,
-  symbolW
-) where
-  
-import Shan.Ast.Diagram (Bound)
-import Text.Megaparsec qualified as Mega
-import Data.Void (Void)
-import Data.Text (Text)
-import Text.Megaparsec.Char.Lexer (symbol)
-import Text.Megaparsec.Char (space)
-import Text.Megaparsec (single)
+module Shan.Util
+  ( LiteratureCase (..),
+    Parser,
+    symbolS,
+    symbolW,
+  )
+where
+
 import Control.Applicative.Combinators (many)
 import Control.Monad (void)
+import Data.Text (Text)
+import Data.Void (Void)
+import Shan.Ast.Diagram (Bound)
+import Text.Megaparsec (single)
+import Text.Megaparsec qualified as Mega
+import Text.Megaparsec.Char (space)
+import Text.Megaparsec.Char.Lexer (symbol)
 
 data LiteratureCase = LiteratureCase
   { name :: String,

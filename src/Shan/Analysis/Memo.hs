@@ -1,26 +1,27 @@
-module Shan.Analysis.Memo(
-  Memo(..),
-  SymMemo,
-  emptyMemo,
-  lookupDuration,
-  insertDuration,
-  lookupLocation,
-  insertLocation,
-  lookupVariable,
-  insertVariable,
-  lookupSyncTime,
-  insertSyncTime,
-  lookupSyncValue,
-  insertSyncValue
-) where
+module Shan.Analysis.Memo
+  ( Memo (..),
+    SymMemo,
+    emptyMemo,
+    lookupDuration,
+    insertDuration,
+    lookupLocation,
+    insertLocation,
+    lookupVariable,
+    insertVariable,
+    lookupSyncTime,
+    insertSyncTime,
+    lookupSyncValue,
+    insertSyncValue,
+  )
+where
 
-import Shan.Ast.Diagram (Name, Variable, Automaton)
+import Control.Monad.State (StateT)
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.SBV (SWord8, Symbolic, SReal)
+import Data.SBV (SReal, SWord8, Symbolic)
 import Shan.Analysis.LocMap (LocMap, constructMap)
-import Control.Monad.State (StateT)
 import Shan.Analysis.Trace (Index)
+import Shan.Ast.Diagram (Automaton, Name, Variable)
 
 data Memo = Memo
   { durationMap :: Map (Name, Index) SReal,

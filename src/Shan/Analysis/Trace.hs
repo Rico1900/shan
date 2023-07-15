@@ -1,29 +1,30 @@
 module Shan.Analysis.Trace
   ( Trace,
-    Direction(..),
+    Direction (..),
     LMessage,
     LTrace,
     Index,
     traces,
     showTrace,
     projection,
-    selectEvent
+    selectEvent,
   )
 where
 
 import Data.List (sortOn)
-import Data.Text qualified as T
 import Data.Map ((!))
 import Data.Map qualified as M
+import Data.Text qualified as T
 import Data.Universe.Helpers (cartesianProduct)
-import Shan.Ast.Diagram (Fragment (..), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, splitSequenceDiagram, Automaton (Automaton), ename, Event (Event), Instance (Instance))
+import Shan.Ast.Diagram (Automaton (Automaton), Event (Event), Fragment (..), Instance (Instance), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, ename, splitSequenceDiagram)
 
 type Trace = [Message]
 
 type Index = Int
 
 data Direction
-  = Sending | Receiving
+  = Sending
+  | Receiving
   deriving (Eq, Show)
 
 type LMessage = (Message, Direction)
@@ -100,7 +101,7 @@ interrupt' (interrupted, priorityMap) (ts, priority) point =
               then (i, v)
               else (i + len, v)
           origin = updateKey <$> list
-          newList = (point, pointPriority) : ((, priority) <$> [(point + 1) .. (point + len - 1)])
+          newList = (point, pointPriority) : ((,priority) <$> [(point + 1) .. (point + len - 1)])
        in M.fromList (origin ++ newList)
 
 insertListAt :: Int -> [a] -> [a] -> [a]
@@ -127,7 +128,7 @@ itemTraces (ItemF frag) = fragTraces frag
 showTrace :: Trace -> String
 showTrace [] = ""
 showTrace [m] = showMessage m
-showTrace (m:ms) = showMessage m ++ " -o " ++ showTrace ms
+showTrace (m : ms) = showMessage m ++ " -o " ++ showTrace ms
 
 showMessage :: Message -> String
 showMessage (Message n _ _ _) = T.unpack n
@@ -140,9 +141,9 @@ projection t (Automaton aname _ _ es _) =
     projection' :: (Message, Index) -> Maybe LMessage
     projection'
       (m@(Message _ (Event sname (Instance saname _)) (Event tname (Instance taname _)) _), _)
-      | saname == aname && sname `elem` enames = Just (m, Sending)
-      | taname == aname && tname `elem` enames = Just (m, Receiving)
-      | otherwise = Nothing
+        | saname == aname && sname `elem` enames = Just (m, Sending)
+        | taname == aname && tname `elem` enames = Just (m, Receiving)
+        | otherwise = Nothing
 
 selectEvent :: LMessage -> Event
 selectEvent (Message _ s _ _, Sending) = s

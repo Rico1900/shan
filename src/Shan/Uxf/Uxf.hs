@@ -2,8 +2,8 @@
 
 module Shan.Uxf.Uxf
   ( UMLType (..),
-    DiagramType(..),
-    RawDiagram(..),
+    DiagramType (..),
+    RawDiagram (..),
     Basic (..),
     Element (..),
     Relation (..),
@@ -20,32 +20,32 @@ module Shan.Uxf.Uxf
     targetY,
     parseUxfFile,
     parseUxfFolder,
-    (=?)
+    (=?),
   )
 where
 
+import Control.Applicative.Combinators (many)
 import Control.Lens (makeLenses, to, (^.), (^..))
 import Control.Lens.Combinators (folded)
+import Control.Monad (void)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.ByteString.Char8 (pack, unpack)
 import Data.Foldable (find)
 import Data.List.Split (splitOn)
-import Data.Maybe (fromMaybe, catMaybes)
+import Data.Maybe (catMaybes, fromMaybe)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
+import Data.Void (Void)
 import Shan.Uxf.HtmlProcessor (processHtmlEntries)
 import System.Directory (listDirectory)
-import System.FilePath ((</>), takeFileName)
+import System.FilePath (takeFileName, (</>))
+import Text.Megaparsec (MonadParsec (eof), Parsec, (<|>))
+import Text.Megaparsec qualified as Mega
+import Text.Megaparsec.Char (alphaNumChar, char, letterChar, string)
 import Text.Read (readMaybe)
 import Xeno.DOM (Content (Text), Node, children, contents, name, parse)
-import Text.Megaparsec (Parsec, MonadParsec (eof), (<|>))
-import Data.Void (Void)
-import Text.Megaparsec.Char (string, letterChar, char, alphaNumChar)
-import Text.Megaparsec qualified as Mega
-import Control.Applicative.Combinators (many)
-import Control.Monad (void)
 
 data UMLType
   = UMLSequenceAllInOne
@@ -65,17 +65,18 @@ parseUMLType s = case s of
   _ -> UMLNote
 
 data DiagramType
-  = SD | HA
+  = SD
+  | HA
   deriving (Eq, Show)
 
 parseDiagramType :: String -> DiagramType
 parseDiagramType s
-    | s `elem` sds = SD
-    | s `elem` has = HA
-    | otherwise = error ("wrong diagram type: " ++ s)
-    where
-      sds = [a ++ b | a <- ["s", "S"], b <- ["d", "D"]]
-      has = [a ++ b | a <- ["h", "H"], b <- ["a", "A"]]
+  | s `elem` sds = SD
+  | s `elem` has = HA
+  | otherwise = error ("wrong diagram type: " ++ s)
+  where
+    sds = [a ++ b | a <- ["s", "S"], b <- ["d", "D"]]
+    has = [a ++ b | a <- ["h", "H"], b <- ["a", "A"]]
 
 data Element = BasicE Basic | RelationE Relation
   deriving (Eq, Show)
@@ -164,7 +165,7 @@ findChildByName :: ByteString -> Node -> Maybe Node
 findChildByName n parent = find (\node -> name node == n) (children parent)
 
 textContent :: Node -> ByteString
-textContent node = 
+textContent node =
   mconcat (contents node ^.. folded . to text)
   where
     text c = case c of
@@ -174,26 +175,25 @@ textContent node =
 type Parser a = Parsec Void String a
 
 parseFilename :: String -> Maybe (String, DiagramType)
-parseFilename s = 
-  let
-    fnParser :: Parser (String, DiagramType) 
-    fnParser = do
-      n <- many (alphaNumChar <|> char '-') 
-      void (string "_")
-      t <- parseDiagramType <$> many letterChar
-      void (string ".uxf")
-      eof
-      return (n, t)
-   in Mega.parseMaybe fnParser s 
+parseFilename s =
+  let fnParser :: Parser (String, DiagramType)
+      fnParser = do
+        n <- many (alphaNumChar <|> char '-')
+        void (string "_")
+        t <- parseDiagramType <$> many letterChar
+        void (string ".uxf")
+        eof
+        return (n, t)
+   in Mega.parseMaybe fnParser s
 
 parseUxfFile :: FilePath -> IO (Maybe RawDiagram)
 parseUxfFile p =
   let fname = takeFileName p
       meta = parseFilename fname
-  in do
-    c <- BS.readFile p
-    return ((\(n, t) -> RawDiagram (T.pack n) t (parseUxf c)) <$> meta)
-  
+   in do
+        c <- BS.readFile p
+        return ((\(n, t) -> RawDiagram (T.pack n) t (parseUxf c)) <$> meta)
+
 parseUxfFolder :: FilePath -> IO [RawDiagram]
 parseUxfFolder p = do
   files <- listDirectory p

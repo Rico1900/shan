@@ -1,8 +1,9 @@
-module Shan.Pretty(
-  banner,
-  line,
-  separationLine
-) where
+module Shan.Pretty
+  ( banner,
+    line,
+    separationLine,
+  )
+where
 
 banner :: String -> IO ()
 banner info = do

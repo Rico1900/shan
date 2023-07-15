@@ -1,29 +1,28 @@
 module Shan.Ast.Diagram
-  (
-    JudgeOp(..),
+  ( JudgeOp (..),
     Name,
     Scope,
     Priority,
     Bound,
     Variable,
-    Expr(..),
-    Dexpr(..),
-    Judgement(..),
-    Assignment(..),
-    Differential(..),
-    Instance(..),
-    Event(..),
-    Message(..),
-    Item(..),
-    Fragment(..),
-    IntFragment(..),
-    NodeType(..),
-    Node(..),
-    Edge(..),
-    SequenceDiagram(..),
-    Reachability(..),
-    Property(..),
-    Automaton(..),
+    Expr (..),
+    Dexpr (..),
+    Judgement (..),
+    Assignment (..),
+    Differential (..),
+    Instance (..),
+    Event (..),
+    Message (..),
+    Item (..),
+    Fragment (..),
+    IntFragment (..),
+    NodeType (..),
+    Node (..),
+    Edge (..),
+    SequenceDiagram (..),
+    Reachability (..),
+    Property (..),
+    Automaton (..),
     Diagrams,
     neg,
     sdname,
@@ -40,19 +39,24 @@ module Shan.Ast.Diagram
     automatonInitialEdges,
     selectEdgeByName,
     nonInitialEdges,
-    edgesToNodes
+    edgesToNodes,
   )
 where
 
-import Data.Text (Text)
+import Data.List (nub)
+import Data.Maybe (fromMaybe, mapMaybe)
 import Data.Set (Set)
 import Data.Set qualified as S
-import Data.Maybe (mapMaybe, fromMaybe)
+import Data.Text (Text)
 import Text.Printf (printf)
-import Data.List (nub)
 
 data JudgeOp
-  = Ge | Gt | Le | Lt | Eq | Neq
+  = Ge
+  | Gt
+  | Le
+  | Lt
+  | Eq
+  | Neq
   deriving (Eq, Show)
 
 type Name = Text
@@ -134,7 +138,8 @@ data IntFragment
   deriving (Eq, Show)
 
 data NodeType
-  = Initial | Common
+  = Initial
+  | Common
   deriving (Eq, Show)
 
 data Node
@@ -150,7 +155,8 @@ data SequenceDiagram
   deriving (Eq, Show)
 
 data Reachability
-  = Reachable | Unreachable
+  = Reachable
+  | Unreachable
   deriving (Eq, Show)
 
 data Property
@@ -268,7 +274,7 @@ automatonVars :: Automaton -> Set Variable
 automatonVars (Automaton _ _ nodes edges _) =
   S.unions ((nodeVars <$> nodes) ++ (edgeVars <$> edges))
   where
-    nodeVars (Node _ _ vars _  _) = vars
+    nodeVars (Node _ _ vars _ _) = vars
     edgeVars (Edge _ _ _ _ as) = S.unions (assignmentVars <$> as)
 
 automatonInitialEdges :: Automaton -> [Edge]
@@ -295,7 +301,7 @@ nonInitialEdges = filter (not . isInitialEdge)
     isInitialEdge (Edge _ s _ _ _) = isInitial s
 
 edgesToNodes :: [Edge] -> [Node]
-edgesToNodes = 
+edgesToNodes =
   nub . concatMap edgeToNodes
   where
     edgeToNodes (Edge _ n1 n2 _ _) = [n1, n2]

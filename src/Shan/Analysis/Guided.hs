@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 {-# HLINT ignore "Redundant bracket" #-}
 
 module Shan.Analysis.Guided
@@ -10,24 +11,24 @@ where
 
 import Control.Monad.State (MonadState (get, put), MonadTrans (lift), evalStateT)
 import Data.Either (partitionEithers)
-import Data.SBV (OrdSymbolic, SBool, SReal, SymVal (literal), Symbolic, namedConstraint, runSMT, sNot, sTrue, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||), sOr, sAnd, SWord8, sWord8, sReal)
+import Data.SBV (OrdSymbolic, SBool, SReal, SWord8, SymVal (literal), Symbolic, namedConstraint, runSMT, sAnd, sNot, sOr, sReal, sTrue, sWord8, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||))
 import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getModel, getUnknownReason, getUnsatCore, query)
 import Data.SBV.Internals (SMTModel)
 import Data.Set (Set, (\\))
 import Data.Set qualified as S
-import Shan.Analysis.Pretty (modelValues, printCaseName, printIsdStatistics)
-import Shan.Analysis.Trace (Direction (..), LMessage, LTrace, Trace, projection, selectEvent, traces, showTrace, Index)
-import Shan.Analysis.Validation (validateDiagrams)
-import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, automatonVars, selectEdgeByName, automatonInitialEdges, aname, nname, nonInitialEdges, Diagrams)
-import Shan.Parser (parseShan)
-import Shan.Util (LiteratureCase (..))
-import Text.Printf (printf)
-import Shan.Analysis.UnsatCore (initialName, propertiesName, segmentName, pruneTracesViaUnsatCore)
 import Shan.Analysis.LocMap (LocMap, llookup)
-import Shan.Analysis.Memo (SymMemo, Memo (locLiteralMap), lookupDuration, insertDuration, lookupLocation, insertLocation, lookupVariable, insertVariable, lookupSyncTime, insertSyncTime, lookupSyncValue, insertSyncValue, emptyMemo)
+import Shan.Analysis.Memo (Memo (locLiteralMap), SymMemo, emptyMemo, insertDuration, insertLocation, insertSyncTime, insertSyncValue, insertVariable, lookupDuration, lookupLocation, lookupSyncTime, lookupSyncValue, lookupVariable)
+import Shan.Analysis.Pretty (modelValues, printCaseName, printIsdStatistics)
+import Shan.Analysis.Trace (Direction (..), Index, LMessage, LTrace, Trace, projection, selectEvent, showTrace, traces)
+import Shan.Analysis.UnsatCore (initialName, propertiesName, pruneTracesViaUnsatCore, segmentName)
+import Shan.Analysis.Validation (validateDiagrams)
+import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Diagrams, Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, aname, automatonInitialEdges, automatonVars, nname, nonInitialEdges, selectEdgeByName)
+import Shan.Parser (parseShan)
+import Shan.Pretty (separationLine)
 import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
 import Shan.Synthesis.Synthesizer qualified as Synth
-import Shan.Pretty (separationLine)
+import Shan.Util (LiteratureCase (..))
+import Text.Printf (printf)
 
 analyzeLiteratureCase :: LiteratureCase -> IO ()
 analyzeLiteratureCase c = do
@@ -51,8 +52,8 @@ analyze b (sds, han) = do
     Right _ ->
       let ts = concatMap traces sds
        in do
-        printIsdStatistics sds ts
-        analyzeHanGuidedByTraces b han ts
+            printIsdStatistics sds ts
+            analyzeHanGuidedByTraces b han ts
 
 analyzeHanGuidedByTraces :: Bound -> [Automaton] -> [Trace] -> IO ()
 analyzeHanGuidedByTraces _ _ [] = putStrLn "verified"
@@ -72,10 +73,11 @@ analyzeHanGuidedByTrace :: Bound -> [Automaton] -> Trace -> IO (Either [String] 
 analyzeHanGuidedByTrace b ms t = do
   runSMT $ querySmtVerificationResult b ms t
 
-querySmtVerificationResult :: Bound 
-                           -> [Automaton] 
-                           -> Trace 
-                           -> Symbolic (Either [String] SMTModel)
+querySmtVerificationResult ::
+  Bound ->
+  [Automaton] ->
+  Trace ->
+  Symbolic (Either [String] SMTModel)
 querySmtVerificationResult b ms t = do
   evalStateT (encodeAutomataWithProperties b ms t) (emptyMemo ms)
   setOption $ ProduceUnsatCores True
@@ -116,7 +118,7 @@ encodeAutomatonGuidedByTrace b m t = encodeAutomataGuidedByLTrace b m (projectio
 
 encodeAutomataGuidedByLTrace :: Bound -> Automaton -> LTrace -> SymMemo ()
 encodeAutomataGuidedByLTrace b m ltrace = do
-  let indexedLTrace = zip ltrace ([1..] :: [Index])
+  let indexedLTrace = zip ltrace ([1 ..] :: [Index])
   automatonIsSetToInitialStates <- initialState m
   mapM_ (encodeSegment b m) indexedLTrace
   lift $ namedConstraint (initialName m) automatonIsSetToInitialStates
@@ -142,8 +144,8 @@ encodeSegment b m (mlm, i) = do
 synchronizeTime :: Name -> Index -> (Maybe LMessage, Index) -> SymMemo SBool
 synchronizeTime n endIdx (mlm, i) = do
   synchronousMessage <- case mlm of
-                          Nothing -> synchronousTimeVar' i
-                          Just (Message mn _ _ _, _) -> synchronousTimeVar mn i
+    Nothing -> synchronousTimeVar' i
+    Just (Message mn _ _ _, _) -> synchronousTimeVar mn i
   untilNow <- sumOfCostTime
   return (synchronousMessage .== untilNow)
   where
@@ -170,7 +172,7 @@ initialState m =
 
 -- all the variables in the automaton remain unchanged, i.e. v_{i-1} == v_i
 unchanged :: Name -> Set Variable -> Index -> SymMemo SBool
-unchanged n vs i = 
+unchanged n vs i =
   sAnd <$> clauses
   where
     clauses = traverse unchanged' (S.toList vs)
@@ -227,7 +229,7 @@ flow n ds i =
     encodeDexpr :: Dexpr -> SymMemo SReal
     encodeDexpr de =
       case de of
-        Dnumber d -> return (literal .fromRational $ toRational d)
+        Dnumber d -> return (literal . fromRational $ toRational d)
         Nvar v -> indexedVar n v i
         Dvar v -> delta v
         Dnegation de' -> negate <$> encodeDexpr de'
@@ -273,7 +275,7 @@ synchronousJump :: Automaton -> Index -> (Maybe LMessage, Index) -> SymMemo SBoo
 synchronousJump m i (Nothing, _) = stutter m i
 synchronousJump m i (Just lm, mi) = do
   let (Event en _) = selectEvent lm
-  let edge =  selectEdgeByName en m
+  let edge = selectEdgeByName en m
   synchronousJump' m i edge (lm, mi)
 
 synchronousJump' :: Automaton -> Index -> Edge -> (LMessage, Index) -> SymMemo SBool
@@ -341,9 +343,9 @@ timed m@(Automaton n _ ns _ _) i = do
   locationRemainsUnchanged <- locUnchange
   allNodesEvolveAccordingToFlow <- sOr <$> traverse encodeNode ns
   return
-    ( timeCostIsGreaterThanZero .&&
-      locationRemainsUnchanged .&&
-      allNodesEvolveAccordingToFlow
+    ( timeCostIsGreaterThanZero
+        .&& locationRemainsUnchanged
+        .&& allNodesEvolveAccordingToFlow
     )
   where
     timeCost = do
@@ -364,10 +366,10 @@ timed m@(Automaton n _ ns _ _) i = do
       restVariablesRemainUnchanged <- unchanged n (automatonVars m \\ evovledVars diffs) i
       invariantsHold <- invariants n invars i
       return
-        ( nodeIsSelected .&&
-          variablesAreUpdatedAccordingToFlow .&&
-          restVariablesRemainUnchanged .&&
-          invariantsHold
+        ( nodeIsSelected
+            .&& variablesAreUpdatedAccordingToFlow
+            .&& restVariablesRemainUnchanged
+            .&& invariantsHold
         )
 
 -- declare a fresh symbolic variable
@@ -448,7 +450,7 @@ synchronousValueVar n i i' = do
 encodeExpr :: Name -> Expr -> Index -> SymMemo SReal
 encodeExpr n e i =
   case e of
-    Number d -> return (literal .fromRational $ toRational d)
+    Number d -> return (literal . fromRational $ toRational d)
     Var v -> indexedVar n v i
     Negation e' -> negate <$> encodeExpr n e' i
     Add e1 e2 -> (+) <$> encodeExpr n e1 i <*> encodeExpr n e2 i

@@ -1,9 +1,11 @@
-module Shan.Uxf.HtmlProcessor(
-  processHtmlEntries
-) where
+module Shan.Uxf.HtmlProcessor
+  ( processHtmlEntries,
+  )
+where
 
 import Data.Text (Text, replace)
 
 processHtmlEntries :: Text -> Text
-processHtmlEntries = replace "&gt;" ">" 
-                      . replace "&lt;" "<"
+processHtmlEntries =
+  replace "&gt;" ">"
+    . replace "&lt;" "<"
