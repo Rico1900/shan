@@ -36,6 +36,8 @@ dependencies:
 - mtl
 - random
 - criterion
+- async
+- stm
 
 ghc-options:
 - -Wall

@@ -1,7 +1,12 @@
 module Task.Shan
-  ( runShanTask1,
-    runShanTask2,
-    altitudeDisplayInt,
+  ( runExperiment1,
+    runExperiment2,
+    parallelRunExperiment1,
+    parallelRunExperiment2,
+    runSingle1,
+    runSingle2,
+    parallelRunSingle1,
+    parallelRunSingle2,
   )
 where
 
@@ -11,6 +16,7 @@ import Shan.Pretty (banner)
 import Shan.Synthesis.Synthesizer (SynthesisConfig (..), SynthesizedCase (caseId), synthesizeCases)
 import Shan.Util (LiteratureCase (..))
 import System.FilePath ((</>))
+import Shan.Analysis.ParallelVerification (parallelAnalyzeLiteratureCase, parallelAnalyzeSynthesizedCase)
 
 basePath :: FilePath
 basePath = "./cases/Shan"
@@ -95,6 +101,12 @@ benchLiteratureCase s = bench s $ nfIO $ analyzeLiteratureCase $ yield s
 benchSynthesizedCase :: SynthesizedCase -> Benchmark
 benchSynthesizedCase sc = bench (caseId sc) $ nfIO $ analyzeSynthesizedCase sc
 
+parallelBenchLiteratureCase :: String -> Benchmark
+parallelBenchLiteratureCase s = bench s $ nfIO $ parallelAnalyzeLiteratureCase $ yield s
+
+parallelBenchSynthesizedCase :: SynthesizedCase -> Benchmark
+parallelBenchSynthesizedCase sc = bench (caseId sc) $ nfIO $ parallelAnalyzeSynthesizedCase sc
+
 benchmark1 :: [Benchmark]
 benchmark1 =
   [ bgroup
@@ -113,11 +125,37 @@ benchmark1 =
       ]
   ]
 
-benchmarkTest1 :: [Benchmark]
-benchmarkTest1 =
+parallelBenchmark1 :: [Benchmark]
+parallelBenchmark1 =
   [ bgroup
       "experiment 1"
+      [ parallelBenchLiteratureCase adcBugDInt,
+        parallelBenchLiteratureCase adcBugInt,
+        parallelBenchLiteratureCase altitudeDisplay,
+        parallelBenchLiteratureCase altitudeDisplayInt,
+        parallelBenchLiteratureCase carController,
+        parallelBenchLiteratureCase csmaAut,
+        parallelBenchLiteratureCase fischerAut,
+        parallelBenchLiteratureCase hddi,
+        parallelBenchLiteratureCase learningFactory,
+        parallelBenchLiteratureCase medicalMonitor,
+        parallelBenchLiteratureCase waterTanks
+      ]
+  ]
+
+benchmarkSingle1 :: [Benchmark]
+benchmarkSingle1 =
+  [ bgroup
+      "altitude display int"
       [ benchLiteratureCase altitudeDisplayInt
+      ]
+  ]
+
+parallelBenchmarkSingle1 :: [Benchmark]
+parallelBenchmarkSingle1 =
+  [ bgroup
+      "altitude display int, checking in parallel"
+      [ parallelBenchLiteratureCase altitudeDisplayInt
       ]
   ]
 
@@ -126,9 +164,19 @@ benchmark2 =
   [ bgroup "experiment 2" (benchSynthesizedCase <$> synthesizeCases synthesisConfig)
   ]
 
-benchmarkTest2 :: [Benchmark]
-benchmarkTest2 =
-  [ bgroup "experiment 2" (benchSynthesizedCase <$> take 1 (synthesizeCases synthesisConfig))
+parallelBenchmark2 :: [Benchmark]
+parallelBenchmark2 =
+  [ bgroup "experiment 2" (parallelBenchSynthesizedCase <$> synthesizeCases synthesisConfig)
+  ]
+
+benchmarkSingle2 :: [Benchmark]
+benchmarkSingle2 =
+  [ bgroup "single synthesized case" (benchSynthesizedCase <$> take 1 (synthesizeCases synthesisConfig))
+  ]
+
+parallelBenchmarkSingle2 :: [Benchmark]
+parallelBenchmarkSingle2 =
+  [ bgroup "single synthesized case, checking in parallel" (parallelBenchSynthesizedCase <$> take 1 (synthesizeCases synthesisConfig))
   ]
 
 banner1 :: IO ()
@@ -137,12 +185,48 @@ banner1 = banner "|  experiment 1: literature cases  |"
 banner2 :: IO ()
 banner2 = banner "|  experiment 2: synthesized cases  |"
 
-runShanTask1 :: IO ()
-runShanTask1 = do
+runExperiment1 :: IO ()
+runExperiment1 = do
   banner1
-  defaultMain benchmarkTest1
+  defaultMain benchmark1
 
-runShanTask2 :: IO ()
-runShanTask2 = do
+runExperiment2 :: IO ()
+runExperiment2 = do
   banner2
-  defaultMain benchmarkTest2
+  defaultMain benchmark2
+
+parallelRunExperiment1 :: IO ()
+parallelRunExperiment1 = do
+  banner1
+  defaultMain parallelBenchmark1
+
+parallelRunExperiment2 :: IO ()
+parallelRunExperiment2 = do
+  banner2
+  defaultMain parallelBenchmark2
+
+singleBanner1 :: IO ()
+singleBanner1 = banner "|  single case: altitude display int  |"
+
+singleBanner2 :: IO ()
+singleBanner2 = banner "|  single case: synthesized case  |"
+
+runSingle1 :: IO ()
+runSingle1 = do
+  singleBanner1
+  defaultMain benchmarkSingle1
+
+runSingle2 :: IO ()
+runSingle2 = do
+  singleBanner2
+  defaultMain benchmarkSingle2
+
+parallelRunSingle1 :: IO ()
+parallelRunSingle1 = do
+  singleBanner1
+  defaultMain parallelBenchmarkSingle1
+
+parallelRunSingle2 :: IO ()
+parallelRunSingle2 = do
+  singleBanner2
+  defaultMain parallelBenchmarkSingle2

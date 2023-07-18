@@ -6,6 +6,7 @@ module Shan.Analysis.Guided
   ( Index,
     analyzeLiteratureCase,
     analyzeSynthesizedCase,
+    analyzeHanGuidedByTrace
   )
 where
 
@@ -13,7 +14,6 @@ import Control.Monad.State (MonadState (get, put), MonadTrans (lift), evalStateT
 import Data.Either (partitionEithers)
 import Data.SBV (OrdSymbolic, SBool, SReal, SWord8, SymVal (literal), namedConstraint, runSMT, sAnd, sNot, sOr, sReal, sTrue, sWord8, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||))
 import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getModel, getUnknownReason, getUnsatCore, query)
-import Data.SBV.Internals (SMTModel)
 import Data.Set (Set, (\\))
 import Data.Set qualified as S
 import Shan.Analysis.LocMap (LocMap, llookup)
@@ -67,9 +67,9 @@ analyzeHanGuidedByTraces b ms (t : ts) = do
       putStrLn $ printf "prune %d paths" (length ts - length pruned)
       separationLine
       analyzeHanGuidedByTraces b ms pruned
-    Right counterExample -> putStrLn $ modelValues counterExample
+    Right counterExample -> putStrLn counterExample
 
-analyzeHanGuidedByTrace :: Bound -> [Automaton] -> Trace -> IO (Either [String] SMTModel)
+analyzeHanGuidedByTrace :: Bound -> [Automaton] -> Trace -> IO (Either [String] String)
 analyzeHanGuidedByTrace b ms t = do
   runSMT querySmtVerificationResult
   where 
@@ -80,7 +80,7 @@ analyzeHanGuidedByTrace b ms t = do
         satRes <- checkSat
         case satRes of
           Unsat -> Left <$> getUnsatCore
-          Sat -> Right <$> getModel
+          Sat -> Right . modelValues <$> getModel
           DSat Nothing -> error "delta satisfiable"
           DSat (Just s) -> error $ "delta satisfiable: " ++ show s
           Unk -> do

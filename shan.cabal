@@ -29,6 +29,7 @@ library
       Shan.Analysis.Guided
       Shan.Analysis.LocMap
       Shan.Analysis.Memo
+      Shan.Analysis.ParallelVerification
       Shan.Analysis.Pretty
       Shan.Analysis.Trace
       Shan.Analysis.UnsatCore
@@ -53,7 +54,8 @@ library
       TupleSections
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O2
   build-depends:
-      base >=4.7 && <5
+      async
+    , base >=4.7 && <5
     , bytestring
     , containers
     , criterion
@@ -66,6 +68,7 @@ library
     , random
     , sbv
     , split
+    , stm
     , text
     , universe-base
     , xeno
@@ -84,7 +87,8 @@ executable shan-exe
       TupleSections
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      async
+    , base >=4.7 && <5
     , bytestring
     , containers
     , criterion
@@ -98,6 +102,7 @@ executable shan-exe
     , sbv
     , shan
     , split
+    , stm
     , text
     , universe-base
     , xeno
@@ -118,7 +123,8 @@ test-suite shan-test
       TupleSections
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      async
+    , base >=4.7 && <5
     , bytestring
     , containers
     , criterion
@@ -132,6 +138,7 @@ test-suite shan-test
     , sbv
     , shan
     , split
+    , stm
     , sydtest
     , text
     , universe-base

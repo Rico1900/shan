@@ -5,6 +5,7 @@ module Shan.Analysis.UnsatCore
     segmentName,
     parseUnsatCore,
     pruneTracesViaUnsatCore,
+    unsatCoreToFragment
   )
 where
 
@@ -13,7 +14,7 @@ import Data.List (groupBy, isInfixOf)
 import Data.Maybe (mapMaybe)
 import Data.Text (pack)
 import Shan.Analysis.Trace (Index, Trace)
-import Shan.Ast.Diagram (Automaton, Name, aname)
+import Shan.Ast.Diagram (Automaton, Name, aname, Message)
 import Shan.Util (Parser, symbolS)
 import Text.Megaparsec (choice, many, manyTill, parse, try, (<|>))
 import Text.Megaparsec qualified as Mega
@@ -87,12 +88,17 @@ pruneTracesViaUnsatCore ::
 pruneTracesViaUnsatCore traces trace cores =
   filterSegment traces fragment
   where
+    fragment = unsatCoreToFragment trace cores
+
+unsatCoreToFragment :: Trace -> [String] -> [Message]
+unsatCoreToFragment trace cores = 
+  slice (li-1) (ri-1) trace
+  where
     formulas = parseUnsatCore cores
     fragments = indicesToFragment <$> groupByAutomaton formulas
     bounds = fragmentToBound <$> fragments
     merge (l, r) (l', r') = (min l l', max r r')
     (li, ri) = foldl merge (maxBound, minBound) bounds
-    fragment = slice (li-1) (ri-1) trace
 
 fragmentToBound ::
   Fragment ->
