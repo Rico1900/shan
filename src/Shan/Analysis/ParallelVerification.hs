@@ -64,7 +64,7 @@ pruner ::
   TQueue Trace -> 
   TQueue (Either [Message] String) ->
   IO ()
-pruner [] _ _ = pure ()
+pruner [] _ _ = putStrLn "verified"
 pruner tasks taskQueue checkResultQueue = do
   checkResult <- atomically $ readTQueue checkResultQueue
   case checkResult of
@@ -73,6 +73,7 @@ pruner tasks taskQueue checkResultQueue = do
       mapM_ (atomically . writeTQueue taskQueue) (take 1 filtered)
       pruner (drop 1 filtered) taskQueue checkResultQueue
     Right counterExample -> do
+      putStrLn "Counter Example:"
       putStrLn counterExample
 
 initializePruner ::
