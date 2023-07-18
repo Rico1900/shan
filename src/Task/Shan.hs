@@ -42,10 +42,10 @@ synthesisConfig =
       _constantRange = (0.0, 100.0),
       _itemCountRange = (2, 4),
       _loopBoundRange = (1, 3),
-      _intCountRange = (1, 4), -- key parameter
+      _intCountRange = (1, 3), -- key parameter
       _intBoundRange = (1, 3),
       _priorityRange = (1, 10),
-      _maxLayer = 1
+      _maxLayer = 3 -- key parameter
     }
 
 constructCase :: String -> Int -> LiteratureCase
