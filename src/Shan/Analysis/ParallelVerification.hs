@@ -70,8 +70,8 @@ pruner tasks taskQueue checkResultQueue = do
   case checkResult of
     Left fragment -> do
       let filtered = filter (not . isInfixOf fragment) tasks
-      mapM_ (atomically . writeTQueue taskQueue) (take 2 filtered)
-      pruner (drop 2 filtered) taskQueue checkResultQueue
+      mapM_ (atomically . writeTQueue taskQueue) (take 1 filtered)
+      pruner (drop 1 filtered) taskQueue checkResultQueue
     Right counterExample -> do
       putStrLn counterExample
 
@@ -82,7 +82,7 @@ initializePruner ::
   IO ()
 initializePruner tasks taskQueue checkResultQueue = do
   capabilityCount <- getNumCapabilities
-  let initialTaskCount = capabilityCount * 2
+  let initialTaskCount = capabilityCount
   let initialTasks = take initialTaskCount tasks
   mapM_ (atomically . writeTQueue taskQueue) initialTasks
   pruner (drop initialTaskCount tasks) taskQueue checkResultQueue
@@ -103,4 +103,3 @@ worker b han taskQueue checkResultQueue = forever $ do
       atomically $ writeTQueue checkResultQueue (Left fragment)
     Right counterExample -> do
       atomically $ writeTQueue checkResultQueue (Right counterExample)
-
