@@ -3,6 +3,8 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Use <$>" #-}
+{-# HLINT ignore "Use head" #-}
+{-# HLINT ignore "Avoid lambda using `infix`" #-}
 
 module Shan.Synthesis.Synthesizer
   ( SynthesisConfig (..),
