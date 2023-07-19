@@ -2,6 +2,7 @@ module Shan.Pretty
   ( banner,
     line,
     separationLine,
+    blank
   )
 where
 
@@ -17,3 +18,6 @@ line n = putStrLn $ replicate n '-'
 
 separationLine :: IO ()
 separationLine = putStrLn $ replicate 35 '-'
+
+blank :: IO ()
+blank = putStr $ replicate 2 '\n'

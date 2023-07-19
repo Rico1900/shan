@@ -6,7 +6,7 @@ module Shan.Analysis.ParallelVerification
 where
 
 import Shan.Analysis.Pretty (printIsdStatistics, printCaseName)
-import Shan.Analysis.Trace (Trace, traces)
+import Shan.Analysis.Trace (Trace, traces, showTrace)
 import Shan.Analysis.Validation (validateDiagrams)
 import Shan.Ast.Diagram (Automaton, Bound, Diagrams, Message)
 import Control.Concurrent.STM (newTQueueIO, TQueue, readTQueue, atomically, writeTQueue)
@@ -21,6 +21,7 @@ import Data.Either (partitionEithers)
 import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
 import Shan.Synthesis.Synthesizer qualified as Synth
 import Control.Concurrent.Async (async)
+import Shan.Pretty (blank)
 
 parallelAnalyzeLiteratureCase :: LiteratureCase -> IO ()
 parallelAnalyzeLiteratureCase c = do
@@ -44,7 +45,7 @@ parallelAnalyze b (sds, han) = do
     Right _ ->
       let ts = concatMap traces sds
        in do
-            printIsdStatistics sds ts
+            printIsdStatistics sds ts han
             parallelAnalyzeHanGuidedByTraces b han ts
 
 parallelAnalyzeHanGuidedByTraces :: 
@@ -64,7 +65,9 @@ pruner ::
   TQueue Trace -> 
   TQueue (Either [Message] String) ->
   IO ()
-pruner [] _ _ = putStrLn "verified"
+pruner [] _ _ = do 
+  putStrLn "verified"
+  blank
 pruner tasks taskQueue checkResultQueue = do
   checkResult <- atomically $ readTQueue checkResultQueue
   case checkResult of
@@ -73,8 +76,9 @@ pruner tasks taskQueue checkResultQueue = do
       mapM_ (atomically . writeTQueue taskQueue) (take 1 filtered)
       pruner (drop 1 filtered) taskQueue checkResultQueue
     Right counterExample -> do
-      putStrLn "Counter Example:"
+      putStrLn "Counter Example: "
       putStrLn counterExample
+      blank
 
 initializePruner ::
   [Trace] ->
@@ -99,7 +103,7 @@ worker b han taskQueue checkResultQueue = forever $ do
   res <- analyzeHanGuidedByTrace b han trace
   case res of 
     Left unsatCore -> do
-      putStrLn $ "Unsat Core: " ++ show unsatCore
+      -- putStrLn $ "Trace: " ++ showTrace trace
       let fragment = unsatCoreToFragment trace unsatCore
       atomically $ writeTQueue checkResultQueue (Left fragment)
     Right counterExample -> do

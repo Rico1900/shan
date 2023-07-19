@@ -40,6 +40,8 @@ module Shan.Ast.Diagram
     selectEdgeByName,
     nonInitialEdges,
     edgesToNodes,
+    nodeCount,
+    edgeCount,
   )
 where
 
@@ -305,3 +307,9 @@ edgesToNodes =
   nub . concatMap edgeToNodes
   where
     edgeToNodes (Edge _ n1 n2 _ _) = [n1, n2]
+
+nodeCount :: Automaton -> Int
+nodeCount (Automaton _ _ nodes _ _) = length nodes
+
+edgeCount :: Automaton -> Int
+edgeCount (Automaton _ _ _ edges _) = length edges

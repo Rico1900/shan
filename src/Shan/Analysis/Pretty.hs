@@ -7,8 +7,7 @@ where
 
 import Data.SBV.Internals (SMTModel (modelAssocs))
 import Shan.Analysis.Trace (Trace)
-import Shan.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram)
-import Shan.Pretty (separationLine)
+import Shan.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram, Automaton, nodeCount, edgeCount)
 import Text.Printf (printf)
 
 modelValues :: SMTModel -> String
@@ -25,10 +24,23 @@ printCaseName n = do
   putStrLn ("|" ++ n ++ "|")
   putStrLn $ replicate (nameLen + 2) '-'
 
-printIsdStatistics :: [SequenceDiagram] -> [Trace] -> IO ()
-printIsdStatistics sds ts = do
+printIsdStatistics :: [SequenceDiagram] -> [Trace] -> [Automaton] -> IO ()
+printIsdStatistics sds ts han = do
+  printComponentCount han
+  printHanNodesAndEdges han
   printIntCount sds
   printTraceCount (length ts)
+
+printComponentCount :: [Automaton] -> IO ()
+printComponentCount han = do
+  putStrLn $ "component count: " ++ show (length han)
+
+printHanNodesAndEdges :: [Automaton] -> IO ()
+printHanNodesAndEdges han = do
+  let nodes = sum (nodeCount <$> han)
+  let edges = sum (edgeCount <$> han)
+  putStrLn $ "han node count: " ++ show nodes
+  putStrLn $ "han edge count: " ++ show edges
 
 printIntCount :: [SequenceDiagram] -> IO ()
 printIntCount sds = do
@@ -42,4 +54,3 @@ printIntCount sds = do
 printTraceCount :: Int -> IO ()
 printTraceCount n = do
   putStrLn $ "trace count: " ++ show n
-  separationLine
