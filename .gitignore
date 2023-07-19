@@ -12,3 +12,6 @@ dist-newstyle
 
 # vscode
 .vscode
+
+# html report
+*.html
