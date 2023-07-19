@@ -6,7 +6,7 @@ module Shan.Analysis.ParallelVerification
 where
 
 import Shan.Analysis.Pretty (printIsdStatistics, printCaseName)
-import Shan.Analysis.Trace (Trace, traces, showTrace)
+import Shan.Analysis.Trace (Trace, traces)
 import Shan.Analysis.Validation (validateDiagrams)
 import Shan.Ast.Diagram (Automaton, Bound, Diagrams, Message)
 import Control.Concurrent.STM (newTQueueIO, TQueue, readTQueue, atomically, writeTQueue)
