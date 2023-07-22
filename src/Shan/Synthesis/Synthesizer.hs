@@ -10,7 +10,6 @@ module Shan.Synthesis.Synthesizer
   ( SynthesisConfig (..),
     SynthesizedCase (..),
     genCase,
-    genCases,
     synthesizeCases,
   )
 where
@@ -81,23 +80,17 @@ makeLenses ''Context
 
 synthesizeCases :: SynthesisConfig -> [SynthesizedCase]
 synthesizeCases config =
-  evalState (runReaderT genCases config) sstate
-  where
-    sstate = SynthesisState (mkStdGen $ config ^. initialSeed) 0 0 0
-
-genCases :: Synthesis [SynthesizedCase]
-genCases = do
-  config <- ask
   let caseCount = config ^. caseNum
-  traverse genCase [1 .. caseCount]
+   in (\i -> genCase i config) <$> [1 .. caseCount]
 
-genCase :: Index -> Synthesis SynthesizedCase
-genCase i = do
-  config <- ask
-  let caseName = printf "case%d" i
-  diagram <- genDiagram
-  let b = config ^. checkingBound
-  return $ SynthesizedCase caseName diagram b
+genCase :: Index -> SynthesisConfig -> SynthesizedCase
+genCase i config = 
+  let caseSeed = (config ^. initialSeed) + i
+      sstate = SynthesisState (mkStdGen caseSeed) 0 0 0
+      diagram = evalState (runReaderT genDiagram config) sstate
+      b = config ^. checkingBound
+   in SynthesizedCase (printf "gen%d" i) diagram b
+
 
 genDiagram :: Synthesis Diagrams
 genDiagram = do
