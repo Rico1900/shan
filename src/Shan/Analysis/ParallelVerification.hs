@@ -103,7 +103,6 @@ worker b han taskQueue checkResultQueue = forever $ do
   res <- analyzeHanGuidedByTrace b han trace
   case res of 
     Left unsatCore -> do
-      -- putStrLn $ "Trace: " ++ showTrace trace
       let fragment = unsatCoreToFragment trace unsatCore
       atomically $ writeTQueue checkResultQueue (Left fragment)
     Right counterExample -> do
