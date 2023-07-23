@@ -35,3 +35,6 @@ stack run +RTS -N -- parallel experiment1 --output experiment1.html
 ```bash
 stack run +RTS -N -- parallel experiment2 --output experiment2.html
 ```
+
+Once you execute these two commands, `shan` will produce two HTML files named `experiment1.html` and `experiment2.html`, which depict the experimental results.
+To visualize these experimental results, open these files using a web browser.
