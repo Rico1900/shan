@@ -78,17 +78,6 @@ cal:=((2*pre)-penu)]</panel_attributes>
     <additional_attributes>40.0;10.0;510.0;190.0;260.0;190.0;10.0;10.0</additional_attributes>
   </element>
   <element>
-    <id>UMLNote</id>
-    <coordinates>
-      <x>720</x>
-      <y>700</y>
-      <w>200</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>(error, unreachable)</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
     <id>Relation</id>
     <coordinates>
       <x>60</x>
@@ -178,5 +167,16 @@ valign=top
     <panel_attributes>lt=-&gt;
 error_t:(cal-truth)&lt;=5 || (truth-cal)&lt;=5;</panel_attributes>
     <additional_attributes>10.0;100.0;440.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>680</x>
+      <y>640</y>
+      <w>200</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>(error, unreachable)</panel_attributes>
+    <additional_attributes/>
   </element>
 </diagram>

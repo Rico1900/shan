@@ -22,7 +22,7 @@
     </coordinates>
     <panel_attributes>producing
 --
-'x1==2
+'x1=2
 -.
 
 valign=top
@@ -61,7 +61,7 @@ place:;[x1:=0]</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>x1&gt;=0</panel_attributes>
+    <panel_attributes>(success, reachable)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -75,5 +75,34 @@ place:;[x1:=0]</panel_attributes>
     <panel_attributes>lt=-&gt;
 produce</panel_attributes>
     <additional_attributes>170.0;10.0;10.0;10.0;10.0;60.0;170.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>1070</x>
+      <y>400</y>
+      <w>180</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>success
+--
+'x1=2
+-.
+
+valign=top
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>660</x>
+      <y>260</y>
+      <w>430</w>
+      <h>250</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+forward:x1&gt;=0;</panel_attributes>
+    <additional_attributes>10.0;10.0;410.0;230.0</additional_attributes>
   </element>
 </diagram>

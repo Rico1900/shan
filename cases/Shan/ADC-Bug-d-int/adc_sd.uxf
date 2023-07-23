@@ -16,7 +16,7 @@ obj=converter~b
 obj=PC~c
 
 
-combinedFragment=loop(5,5) ~loop1
+combinedFragment=loop(4,5) ~loop1
 b-&gt;&gt;&gt;c : (report, report,report);
 c-&gt;&gt;&gt;b : (response,response,response);
 --

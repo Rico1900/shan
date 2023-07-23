@@ -15,7 +15,7 @@
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>370</x>
+      <x>220</x>
       <y>370</y>
       <w>180</w>
       <h>130</h>
@@ -78,26 +78,26 @@ init:;[c3:=0]</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>420</x>
+      <x>270</x>
       <y>490</y>
-      <w>270</w>
+      <w>340</w>
       <h>240</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 evt_send:c3&lt;26;[c3:=0]</panel_attributes>
-    <additional_attributes>10.0;10.0;170.0;220.0</additional_attributes>
+    <additional_attributes>10.0;10.0;320.0;220.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>540</x>
+      <x>390</x>
       <y>420</y>
-      <w>430</w>
+      <w>580</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 send_2:c3&lt;26;[c3:=0]</panel_attributes>
-    <additional_attributes>410.0;20.0;10.0;20.0</additional_attributes>
+    <additional_attributes>560.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -143,7 +143,7 @@ broadcast:;[c3:=0]</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>c3&gt;=0</panel_attributes>
+    <panel_attributes>(success, unreachable)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -162,24 +162,77 @@ cbusy_1:;[c3:=0]</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>990</x>
-      <y>270</y>
+      <y>310</y>
       <w>120</w>
-      <h>120</h>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 rec_1:c3&gt;=26;</panel_attributes>
-    <additional_attributes>10.0;100.0;10.0;20.0;100.0;20.0;100.0;100.0</additional_attributes>
+    <additional_attributes>10.0;60.0;10.0;20.0;100.0;20.0;100.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>540</x>
+      <x>390</x>
       <y>450</y>
-      <w>430</w>
+      <w>580</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 send_1:c3&lt;26;[c3:=0]</panel_attributes>
-    <additional_attributes>410.0;20.0;10.0;20.0</additional_attributes>
+    <additional_attributes>560.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>630</x>
+      <y>110</y>
+      <w>180</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>success
+--
+'c3=1
+-.
+
+valign=top
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>310</x>
+      <y>170</y>
+      <w>340</w>
+      <h>220</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+forward1:c3&gt;=0;</panel_attributes>
+    <additional_attributes>10.0;200.0;320.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>740</x>
+      <y>230</y>
+      <w>150</w>
+      <h>450</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+forward2:c3&gt;=0;</panel_attributes>
+    <additional_attributes>10.0;430.0;20.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>800</x>
+      <y>180</y>
+      <w>230</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+forward3:c3&gt;=0;</panel_attributes>
+    <additional_attributes>180.0;190.0;10.0;10.0</additional_attributes>
   </element>
 </diagram>
