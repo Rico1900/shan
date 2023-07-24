@@ -5,22 +5,11 @@ module ParseSpec(
   parseSpec
 ) where
 
-import Shan.Parser (parseShan)
 import Test.Syd (Spec, describe, it)
-import Task.Shan (altitudeDisplayInt)
-import Shan.Util (Case(path))
-
-parseAltitudeDisplayInt :: IO ()
-parseAltitudeDisplayInt = do
-  res <- parseShan (path altitudeDisplayInt)
-  mapM_ printGraph res
-  where 
-    printGraph g = case g of 
-      Left sd -> print sd
-      Right automaton -> print automaton
+import Shan.Ast.Diagram.Parser (parseJudgement)
 
 parseSpec :: Spec
 parseSpec = do
-  describe "parse altitude display with int fragment" $ do 
-    it "does not throw exception" $ 
-      parseAltitudeDisplayInt
+  describe "judgement parser" $
+    it "inq2>=0&&outq2>=0&&q2<=100 parses as a judgement" $ 
+      print $ parseJudgement "inq2>=0&&outq2>=0&&q2<=100"
