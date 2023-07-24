@@ -9,3 +9,4 @@ processHtmlEntries :: Text -> Text
 processHtmlEntries =
   replace "&gt;" ">"
     . replace "&lt;" "<"
+    . replace "&amp;" "&"
