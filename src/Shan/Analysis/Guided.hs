@@ -13,12 +13,12 @@ where
 import Control.Monad.State (MonadState (get, put), MonadTrans (lift), evalStateT)
 import Data.Either (partitionEithers)
 import Data.SBV (OrdSymbolic, SBool, SReal, SWord8, SymVal (literal), namedConstraint, runSMT, sAnd, sNot, sOr, sReal, sTrue, sWord8, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||))
-import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getModel, getUnknownReason, getUnsatCore, query)
+import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getUnknownReason, getUnsatCore, query)
 import Data.Set (Set, (\\))
 import Data.Set qualified as S
 import Shan.Analysis.LocMap (LocMap, llookup)
 import Shan.Analysis.Memo (Memo (locLiteralMap), SymMemo, emptyMemo, insertDuration, insertLocation, insertSyncTime, insertSyncValue, insertVariable, lookupDuration, lookupLocation, lookupSyncTime, lookupSyncValue, lookupVariable)
-import Shan.Analysis.Pretty (modelValues, printCaseName, printIsdStatistics)
+import Shan.Analysis.Pretty (printCaseName, printIsdStatistics)
 import Shan.Analysis.Trace (Direction (..), Index, LMessage, LTrace, Trace, projection, selectEvent, showTrace, traces)
 import Shan.Analysis.UnsatCore (initialName, propertiesName, pruneTracesViaUnsatCore, segmentName)
 import Shan.Analysis.Validation (validateDiagrams)
@@ -72,7 +72,7 @@ analyzeHanGuidedByTraces b ms (t : ts) = do
 analyzeHanGuidedByTrace :: Bound -> [Automaton] -> Trace -> IO (Either [String] String)
 analyzeHanGuidedByTrace b ms t = do
   runSMT querySmtVerificationResult
-  where 
+  where
     querySmtVerificationResult = do
       evalStateT (encodeAutomataWithProperties b ms t) (emptyMemo ms)
       setSolvingOption
@@ -80,7 +80,7 @@ analyzeHanGuidedByTrace b ms t = do
         satRes <- checkSat
         case satRes of
           Unsat -> Left <$> getUnsatCore
-          Sat -> Right . modelValues <$> getModel
+          Sat -> return (Right (showTrace t))
           DSat Nothing -> error "delta satisfiable"
           DSat (Just s) -> error $ "delta satisfiable: " ++ show s
           Unk -> do
