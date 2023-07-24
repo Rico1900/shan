@@ -52,7 +52,7 @@ analyze b (sds, han) = do
     Right _ ->
       let ts = concatMap traces sds
        in do
-            printIsdStatistics sds ts han
+            printIsdStatistics b sds ts han
             analyzeHanGuidedByTraces b han ts
 
 analyzeHanGuidedByTraces :: Bound -> [Automaton] -> [Trace] -> IO ()

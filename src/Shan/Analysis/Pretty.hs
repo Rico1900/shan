@@ -7,7 +7,7 @@ where
 
 import Data.SBV.Internals (SMTModel (modelAssocs))
 import Shan.Analysis.Trace (Trace)
-import Shan.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram, Automaton, nodeCount, edgeCount)
+import Shan.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram, Automaton, nodeCount, edgeCount, Bound)
 import Text.Printf (printf)
 
 modelValues :: SMTModel -> String
@@ -24,12 +24,17 @@ printCaseName n = do
   putStrLn ("|" ++ n ++ "|")
   putStrLn $ replicate (nameLen + 2) '-'
 
-printIsdStatistics :: [SequenceDiagram] -> [Trace] -> [Automaton] -> IO ()
-printIsdStatistics sds ts han = do
+printIsdStatistics :: Bound -> [SequenceDiagram] -> [Trace] -> [Automaton] -> IO ()
+printIsdStatistics b sds ts han = do
+  printBound b
   printComponentCount han
   printHanNodesAndEdges han
   printIntCount sds
   printTraceCount (length ts)
+
+printBound :: Bound -> IO ()
+printBound b = do
+  putStrLn $ "bound: " ++ show b
 
 printComponentCount :: [Automaton] -> IO ()
 printComponentCount han = do
