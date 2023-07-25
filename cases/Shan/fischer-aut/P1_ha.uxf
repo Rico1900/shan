@@ -38,7 +38,7 @@ valign=top
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>(success,reachable)</panel_attributes>
+    <panel_attributes>(success,unreachable)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>

@@ -15,8 +15,8 @@
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>510</x>
-      <y>290</y>
+      <x>230</x>
+      <y>260</y>
       <w>180</w>
       <h>130</h>
     </coordinates>
@@ -122,14 +122,14 @@ T21:id2==0;[x2:=0]</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>680</x>
+      <x>400</x>
       <y>170</y>
-      <w>330</w>
-      <h>200</h>
+      <w>610</w>
+      <h>170</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 T22:x2&lt;=3;[x2:=0,id2:=2]</panel_attributes>
-    <additional_attributes>310.0;10.0;10.0;180.0</additional_attributes>
+    <additional_attributes>590.0;10.0;10.0;150.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -146,26 +146,26 @@ T-rec:;[id2:=0]</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>680</x>
-      <y>380</y>
-      <w>540</w>
-      <h>330</h>
+      <x>400</x>
+      <y>350</y>
+      <w>820</w>
+      <h>360</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 T-send:x2&gt;3&amp;&amp;id2==2;</panel_attributes>
-    <additional_attributes>10.0;10.0;520.0;310.0</additional_attributes>
+    <additional_attributes>10.0;10.0;800.0;340.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>680</x>
+      <x>400</x>
       <y>200</y>
-      <w>330</w>
-      <h>200</h>
+      <w>610</w>
+      <h>170</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 T23:id2==0;[x2:=0]</panel_attributes>
-    <additional_attributes>10.0;180.0;310.0;10.0</additional_attributes>
+    <additional_attributes>10.0;150.0;590.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
@@ -199,14 +199,14 @@ forward1:x2&gt;=0&amp;&amp;id2&gt;=2;</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>680</x>
-      <y>350</y>
-      <w>630</w>
-      <h>60</h>
+      <x>400</x>
+      <y>320</y>
+      <w>910</w>
+      <h>90</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 forward2:x2&gt;=0&amp;&amp;id2&gt;=2;</panel_attributes>
-    <additional_attributes>10.0;10.0;610.0;40.0</additional_attributes>
+    <additional_attributes>10.0;10.0;890.0;70.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -225,11 +225,11 @@ forward3:x2&gt;=0&amp;&amp;id2&gt;=2;</panel_attributes>
     <coordinates>
       <x>1230</x>
       <y>490</y>
-      <w>250</w>
+      <w>300</w>
       <h>220</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 forward4:x2&gt;=0&amp;&amp;id2&gt;=2;</panel_attributes>
-    <additional_attributes>10.0;200.0;180.0;110.0;180.0;10.0</additional_attributes>
+    <additional_attributes>10.0;200.0;180.0;10.0</additional_attributes>
   </element>
 </diagram>

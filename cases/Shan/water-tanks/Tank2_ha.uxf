@@ -87,8 +87,8 @@ valign=top
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>970</x>
-      <y>320</y>
+      <x>1010</x>
+      <y>290</y>
       <w>180</w>
       <h>120</h>
     </coordinates>
@@ -174,26 +174,26 @@ T22:q2=100;</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1050</x>
-      <y>430</y>
-      <w>260</w>
-      <h>150</h>
+      <x>1090</x>
+      <y>400</y>
+      <w>220</w>
+      <h>180</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 T23</panel_attributes>
-    <additional_attributes>240.0;130.0;10.0;10.0</additional_attributes>
+    <additional_attributes>200.0;160.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>890</x>
       <y>220</y>
-      <w>190</w>
-      <h>120</h>
+      <w>230</w>
+      <h>90</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 T24</panel_attributes>
-    <additional_attributes>170.0;100.0;10.0;10.0</additional_attributes>
+    <additional_attributes>210.0;70.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
@@ -296,26 +296,26 @@ forward3:inq2&gt;=0&amp;&amp;outq2&gt;=0&amp;&amp;q2&lt;=100;</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>600</x>
+      <x>630</x>
       <y>220</y>
-      <w>340</w>
+      <w>440</w>
       <h>600</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 forward4:inq2&gt;=0&amp;&amp;outq2&gt;=0&amp;&amp;q2&lt;=100;</panel_attributes>
-    <additional_attributes>250.0;10.0;10.0;100.0;40.0;580.0</additional_attributes>
+    <additional_attributes>220.0;10.0;10.0;580.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>660</x>
-      <y>430</y>
-      <w>510</w>
-      <h>390</h>
+      <y>400</y>
+      <w>530</w>
+      <h>420</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 forward5:inq2&gt;=0&amp;&amp;outq2&gt;=0&amp;&amp;q2&lt;=100;</panel_attributes>
-    <additional_attributes>360.0;10.0;10.0;370.0</additional_attributes>
+    <additional_attributes>400.0;10.0;10.0;400.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>

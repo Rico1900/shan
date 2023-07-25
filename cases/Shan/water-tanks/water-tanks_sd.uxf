@@ -15,7 +15,7 @@ obj=Tank2~b
 
 
 
-combinedFragment=loop(1,200)~loop1
+combinedFragment=loop(1,1000)~loop1
 a-&gt;&gt;&gt;b : (flowto,flowto,flowto);
 --
 </panel_attributes>

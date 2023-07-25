@@ -87,8 +87,8 @@ valign=top
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>990</x>
-      <y>330</y>
+      <x>1230</x>
+      <y>260</y>
       <w>180</w>
       <h>120</h>
     </coordinates>
@@ -174,26 +174,26 @@ T12</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1070</x>
-      <y>440</y>
-      <w>250</w>
-      <h>100</h>
+      <x>1290</x>
+      <y>370</y>
+      <w>70</w>
+      <h>170</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 T13</panel_attributes>
-    <additional_attributes>230.0;80.0;10.0;10.0</additional_attributes>
+    <additional_attributes>10.0;150.0;30.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>940</x>
-      <y>270</y>
-      <w>160</w>
-      <h>80</h>
+      <y>250</y>
+      <w>400</w>
+      <h>50</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 T14</panel_attributes>
-    <additional_attributes>140.0;60.0;10.0;10.0</additional_attributes>
+    <additional_attributes>380.0;10.0;10.0;30.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
@@ -230,13 +230,13 @@ valign=top
     <id>Relation</id>
     <coordinates>
       <x>310</x>
-      <y>370</y>
-      <w>700</w>
-      <h>240</h>
+      <y>300</y>
+      <w>940</w>
+      <h>310</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 T15</panel_attributes>
-    <additional_attributes>680.0;10.0;10.0;220.0</additional_attributes>
+    <additional_attributes>920.0;10.0;10.0;290.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
@@ -295,26 +295,26 @@ forward3:inq1&lt;5&amp;&amp;outq1&gt;=0&amp;&amp;q1&lt;=100;</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>630</x>
+      <x>760</x>
       <y>270</y>
-      <w>350</w>
+      <w>400</w>
       <h>510</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 forward4:inq1&lt;5&amp;&amp;outq1&gt;=0&amp;&amp;q1&lt;=100;</panel_attributes>
-    <additional_attributes>280.0;10.0;10.0;30.0;140.0;490.0</additional_attributes>
+    <additional_attributes>150.0;10.0;10.0;490.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>780</x>
-      <y>440</y>
-      <w>450</w>
-      <h>340</h>
+      <y>370</y>
+      <w>510</w>
+      <h>410</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 forward5:inq1&lt;5&amp;&amp;outq1&gt;=0&amp;&amp;q1&lt;=100;</panel_attributes>
-    <additional_attributes>250.0;10.0;10.0;320.0</additional_attributes>
+    <additional_attributes>490.0;10.0;10.0;390.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>

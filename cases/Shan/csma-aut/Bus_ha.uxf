@@ -143,7 +143,7 @@ broadcast:;[c3:=0]</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>(success, unreachable)</panel_attributes>
+    <panel_attributes>(success, reachable)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
