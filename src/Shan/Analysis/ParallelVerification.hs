@@ -48,60 +48,66 @@ parallelAnalyze b (sds, han) = do
             printIsdStatistics b sds ts han
             parallelAnalyzeHanGuidedByTraces b han ts
 
-parallelAnalyzeHanGuidedByTraces :: 
-  Bound -> 
-  [Automaton] -> 
-  [Trace] -> 
+parallelAnalyzeHanGuidedByTraces ::
+  Bound ->
+  [Automaton] ->
+  [Trace] ->
   IO ()
 parallelAnalyzeHanGuidedByTraces b han ts = do
   taskQueue <- newTQueueIO
   checkResultQueue <- newTQueueIO
   capabilityCount <- getNumCapabilities
   replicateM_ capabilityCount $ async $ worker b han taskQueue checkResultQueue
-  initializePruner ts taskQueue checkResultQueue
+  initialize ts taskQueue checkResultQueue
 
-pruner :: 
+pruner ::
+  Int ->
   [Trace] ->
-  TQueue Trace -> 
+  TQueue Trace ->
   TQueue (Either [Message] String) ->
   IO ()
-pruner [] _ _ = do 
-  putStrLn "verified"
-  blank
-pruner tasks taskQueue checkResultQueue = do
-  checkResult <- atomically $ readTQueue checkResultQueue
-  case checkResult of
-    Left fragment -> do
-      let filtered = filter (not . isInfixOf fragment) tasks
-      mapM_ (atomically . writeTQueue taskQueue) (take 1 filtered)
-      pruner (drop 1 filtered) taskQueue checkResultQueue
-    Right counterExample -> do
-      putStrLn "Counter Example: "
-      putStrLn counterExample
+pruner processingTasks tasks taskQueue checkResultQueue = do
+  if processingTasks == 0
+    then do
+      putStrLn "verified"
       blank
+    else do
+      checkResult <- atomically $ readTQueue checkResultQueue
+      case checkResult of
+        Left fragment -> do
+          let filtered = filter (not . isInfixOf fragment) tasks
+          let remaining = if null filtered
+                            then processingTasks - 1
+                            else processingTasks
+          mapM_ (atomically . writeTQueue taskQueue) (take 1 filtered)
+          pruner remaining (drop 1 filtered) taskQueue checkResultQueue
+        Right counterExample -> do
+          putStrLn "Counter Example: "
+          putStrLn counterExample
+          blank
 
-initializePruner ::
+initialize ::
   [Trace] ->
-  TQueue Trace -> 
+  TQueue Trace ->
   TQueue (Either [Message] String) ->
   IO ()
-initializePruner tasks taskQueue checkResultQueue = do
+initialize tasks taskQueue checkResultQueue = do
   capabilityCount <- getNumCapabilities
-  let initialTaskCount = capabilityCount
-  let initialTasks = take initialTaskCount tasks
+  let initialTasks = take capabilityCount tasks
+  let initialTaskCount = length initialTasks
   mapM_ (atomically . writeTQueue taskQueue) initialTasks
-  pruner (drop initialTaskCount tasks) taskQueue checkResultQueue
+  pruner initialTaskCount (drop initialTaskCount tasks) taskQueue checkResultQueue
 
-worker :: 
-  Bound -> 
-  [Automaton] -> 
-  TQueue Trace -> 
+worker ::
+  Bound ->
+  [Automaton] ->
+  TQueue Trace ->
   TQueue (Either [Message] String) ->
   IO ()
 worker b han taskQueue checkResultQueue = forever $ do
   trace <- atomically $ readTQueue taskQueue
   res <- analyzeHanGuidedByTrace b han trace
-  case res of 
+  case res of
     Left unsatCore -> do
       let fragment = unsatCoreToFragment trace unsatCore
       atomically $ writeTQueue checkResultQueue (Left fragment)

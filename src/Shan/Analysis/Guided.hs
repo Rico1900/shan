@@ -97,18 +97,18 @@ encodeAutomataWithProperties b ms t = do
   lift $ namedConstraint propertiesName propertiesInNegation
 
 encodePropertiesInNegation :: Bound -> [Automaton] -> Trace -> SymMemo SBool
-encodePropertiesInNegation b ms t =
-  sNot . sAnd <$> traverse automatonProperties ms
+encodePropertiesInNegation b han t =
+  sNot . sAnd <$> traverse automatonProperties han
   where
-    automatonProperties m@(Automaton n _ _ _ ps) =
+    automatonProperties m@(Automaton machineName _ _ _ ps) =
       sAnd <$> traverse singleProperty ps
       where
-        locationLength = (length (projection t m)) * (b + 1)
-        singleProperty (Property node Reachable) = sOr <$> traverse (localize' n node) [0 .. locationLength]
-        singleProperty (Property node Unreachable) = sAnd <$> traverse (unlocalize' n node) [0 .. locationLength]
+        locationMax = (length (projection t m)) * (b + 1)
+        singleProperty (Property node Reachable) = sOr <$> traverse (localize' machineName node) [0 .. locationMax]
+        singleProperty (Property node Unreachable) = sAnd <$> traverse (unlocalize' machineName node) [0 .. locationMax]
 
 encodeAutomataGuidedByTrace :: Bound -> [Automaton] -> Trace -> SymMemo ()
-encodeAutomataGuidedByTrace b ms t = mapM_ (\m -> encodeAutomatonGuidedByTrace b m t) ms
+encodeAutomataGuidedByTrace b han t = mapM_ (\m -> encodeAutomatonGuidedByTrace b m t) han
 
 encodeAutomatonGuidedByTrace :: Bound -> Automaton -> Trace -> SymMemo ()
 encodeAutomatonGuidedByTrace b m t = encodeAutomataGuidedByLTrace b m (projection t m)
@@ -117,8 +117,8 @@ encodeAutomataGuidedByLTrace :: Bound -> Automaton -> LTrace -> SymMemo ()
 encodeAutomataGuidedByLTrace b m ltrace = do
   let indexedLTrace = zip ltrace ([1 ..] :: [Index])
   automatonIsSetToInitialStates <- initialState m
-  mapM_ (encodeSegment b m) indexedLTrace
   lift $ namedConstraint (initialName m) automatonIsSetToInitialStates
+  mapM_ (encodeSegment b m) indexedLTrace
 
 encodeSegment :: Bound -> Automaton -> (Maybe LMessage, Index) -> SymMemo ()
 encodeSegment b m (mlm, i) = do
@@ -139,12 +139,12 @@ encodeSegment b m (mlm, i) = do
       )
 
 synchronizeTime :: Name -> Index -> (Maybe LMessage, Index) -> SymMemo SBool
-synchronizeTime n endIdx (mlm, i) = do
-  synchronousMessage <- case mlm of
-    Nothing -> synchronousTimeVar' i
-    Just (Message mn _ _ _, _) -> synchronousTimeVar mn i
-  untilNow <- sumOfCostTime
-  return (synchronousMessage .== untilNow)
+synchronizeTime n endIdx (mlm, i) = case mlm of
+    Nothing -> return sTrue
+    Just (Message mn _ _ _, _) -> do 
+      synchronousMessage <- synchronousTimeVar mn i
+      untilNow <- sumOfCostTime
+      return (synchronousMessage .== untilNow)
   where
     sumOfCostTime = sum <$> traverse (duration n) [1 .. endIdx]
 
@@ -320,11 +320,11 @@ localize n i node = do
   return (l .== literalLocation lmap n (nname node))
 
 localize' :: Name -> Name -> Index -> SymMemo SBool
-localize' n nodeName i = do
+localize' machineName nodeName i = do
   memo <- get
   let lmap = locLiteralMap memo
-  l <- location n i
-  return (l .== literalLocation lmap n nodeName)
+  l <- location machineName i
+  return (l .== literalLocation lmap machineName nodeName)
 
 unlocalize' :: Name -> Name -> Index -> SymMemo SBool
 unlocalize' n nodeName i = do
@@ -416,18 +416,6 @@ synchronousTimeVar n i = do
     Nothing -> do
       d <- lift $ sReal (printf "$syncTime|%s|%d" n i)
       let memo' = insertSyncTime memo n i d
-      put memo'
-      return d
-
-synchronousTimeVar' :: Index -> SymMemo SReal
-synchronousTimeVar' i = do
-  let bn = "$box"
-  memo <- get
-  case lookupSyncTime memo bn i of
-    Just d -> return d
-    Nothing -> do
-      d <- lift $ sReal (printf "$syncTime|%s|%d" bn i)
-      let memo' = insertSyncTime memo bn i d
       put memo'
       return d
 
