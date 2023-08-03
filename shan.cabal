@@ -26,9 +26,12 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Shan.Analysis.Decoder
+      Shan.Analysis.Encoder
       Shan.Analysis.Guided
       Shan.Analysis.LocMap
       Shan.Analysis.Memo
+      Shan.Analysis.Offset
       Shan.Analysis.ParallelVerification
       Shan.Analysis.Pretty
       Shan.Analysis.Trace

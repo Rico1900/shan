@@ -18,8 +18,6 @@ import Data.Text qualified as T
 import Data.Universe.Helpers (cartesianProduct)
 import Shan.Ast.Diagram (Automaton (Automaton), Event (Event), Fragment (..), Instance (Instance), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, ename, splitSequenceDiagram)
 
-import Debug.Trace qualified as Debug
-
 type Trace = [Message]
 
 type Index = Int
