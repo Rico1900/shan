@@ -1,7 +1,10 @@
 module Shan.Analysis.LocMap
   ( LocMap,
+    ReverseMap,
     constructMap,
+    reverseMap,
     llookup,
+    rlookup,
   )
 where
 
@@ -12,6 +15,8 @@ import Data.Word (Word8)
 import Shan.Ast.Diagram (Automaton (Automaton), Node (..))
 
 type LocMap = Map (Text, Text) Word8
+
+type ReverseMap = Map (Text, Word8) Text
 
 constructMap :: [Automaton] -> LocMap
 constructMap ms =
@@ -24,3 +29,11 @@ llookup :: LocMap -> (Text, Text) -> Word8
 llookup lmap key = case M.lookup key lmap of
   Just v -> v
   Nothing -> error ("impossible " ++ show key ++ "\n" ++ show lmap)
+
+reverseMap :: LocMap -> ReverseMap
+reverseMap = M.fromList . fmap (\((n, nn), v) -> ((n, v), nn)) . M.toList
+
+rlookup :: ReverseMap -> (Text, Word8) -> Text
+rlookup rmap key = case M.lookup key rmap of
+  Just v -> v
+  Nothing -> error ("impossible " ++ show key ++ "\n" ++ show rmap)

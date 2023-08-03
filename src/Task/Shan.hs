@@ -22,12 +22,12 @@ basePath :: FilePath
 basePath = "./cases/Shan"
 
 defaultBound :: Int
-defaultBound = 2
+defaultBound = 6
 
 synthesisConfig :: SynthesisConfig
 synthesisConfig =
   SynthesisConfig
-    { _caseNum = 6,
+    { _caseNum = 10,
       _initialSeed = 2023,
       _checkingBound = defaultBound,
       _componentRange = (5, 10), -- key parameter
@@ -155,7 +155,7 @@ parallelBenchmarkSingle1 :: [Benchmark]
 parallelBenchmarkSingle1 =
   [ bgroup
       "altitude display int, checking in parallel"
-      [ parallelBenchLiteratureCase csmaAut
+      [ parallelBenchLiteratureCase fischerAut
       ]
   ]
 

@@ -3,8 +3,7 @@
 {-# HLINT ignore "Redundant bracket" #-}
 
 module Shan.Analysis.Guided
-  ( Index,
-    analyzeLiteratureCase,
+  ( analyzeLiteratureCase,
     analyzeSynthesizedCase,
     analyzeHanGuidedByTrace
   )
@@ -12,8 +11,8 @@ where
 
 import Control.Monad.State (MonadState (get, put), MonadTrans (lift), evalStateT)
 import Data.Either (partitionEithers)
-import Data.SBV (OrdSymbolic, SBool, SReal, SWord8, SymVal (literal), namedConstraint, runSMT, sAnd, sNot, sOr, sReal, sTrue, sWord8, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||))
-import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getUnknownReason, getUnsatCore, query)
+import Data.SBV (OrdSymbolic, SBool, SReal, SWord8, SymVal (literal), namedConstraint, runSMT, sAnd, sNot, sOr, sReal, sTrue, sWord8, setOption, (.&&), (./=), (.<), (.<=), (.==), (.>), (.>=), (.||), (.=>))
+import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getUnknownReason, getUnsatCore, query, getModel)
 import Data.Set (Set, (\\))
 import Data.Set qualified as S
 import Shan.Analysis.LocMap (LocMap, llookup)
@@ -29,6 +28,10 @@ import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
 import Shan.Synthesis.Synthesizer qualified as Synth
 import Shan.Util (LiteratureCase (..))
 import Text.Printf (printf)
+import Shan.Analysis.Offset (segmentStartIndex, segmentEndpoints, locationIndices, indexTrace, oneToEndIdx, initialLocationIndex, initialSegmentIndex)
+
+import Shan.Analysis.Encoder (durationVarName, nodeVarName, variableVarName, syncTimeVarName, syncValueVarName)
+import Shan.Analysis.Decoder (explain)
 
 analyzeLiteratureCase :: LiteratureCase -> IO ()
 analyzeLiteratureCase c = do
@@ -70,17 +73,19 @@ analyzeHanGuidedByTraces b ms (t : ts) = do
     Right counterExample -> putStrLn counterExample
 
 analyzeHanGuidedByTrace :: Bound -> [Automaton] -> Trace -> IO (Either [String] String)
-analyzeHanGuidedByTrace b ms t = do
+analyzeHanGuidedByTrace b han t = do
   runSMT querySmtVerificationResult
   where
     querySmtVerificationResult = do
-      evalStateT (encodeAutomataWithProperties b ms t) (emptyMemo ms)
+      evalStateT (encodeAutomataWithProperties b han t) (emptyMemo han)
       setSolvingOption
       query $ do
         satRes <- checkSat
         case satRes of
           Unsat -> Left <$> getUnsatCore
-          Sat -> return (Right (showTrace t))
+          Sat -> do
+            model <- getModel
+            return (Right (showTrace t ++ "\n" ++ explain b han model))
           DSat Nothing -> error "delta satisfiable"
           DSat (Just s) -> error $ "delta satisfiable: " ++ show s
           Unk -> do
@@ -100,12 +105,12 @@ encodePropertiesInNegation :: Bound -> [Automaton] -> Trace -> SymMemo SBool
 encodePropertiesInNegation b han t =
   sNot . sAnd <$> traverse automatonProperties han
   where
-    automatonProperties m@(Automaton machineName _ _ _ ps) =
+    automatonProperties (Automaton machineName _ _ _ ps) =
       sAnd <$> traverse singleProperty ps
       where
-        locationMax = (length (projection t m)) * (b + 1)
-        singleProperty (Property node Reachable) = sOr <$> traverse (localize' machineName node) [0 .. locationMax]
-        singleProperty (Property node Unreachable) = sAnd <$> traverse (unlocalize' machineName node) [0 .. locationMax]
+        locations = locationIndices b (length t)
+        singleProperty (Property node Reachable) = sOr <$> traverse (localize' machineName node) locations
+        singleProperty (Property node Unreachable) = sAnd <$> traverse (unlocalize' machineName node) locations
 
 encodeAutomataGuidedByTrace :: Bound -> [Automaton] -> Trace -> SymMemo ()
 encodeAutomataGuidedByTrace b han t = mapM_ (\m -> encodeAutomatonGuidedByTrace b m t) han
@@ -115,28 +120,34 @@ encodeAutomatonGuidedByTrace b m t = encodeAutomataGuidedByLTrace b m (projectio
 
 encodeAutomataGuidedByLTrace :: Bound -> Automaton -> LTrace -> SymMemo ()
 encodeAutomataGuidedByLTrace b m ltrace = do
-  let indexedLTrace = zip ltrace ([1 ..] :: [Index])
-  automatonIsSetToInitialStates <- initialState m
-  lift $ namedConstraint (initialName m) automatonIsSetToInitialStates
+  initializeSegment b m
+  encodeSegments b m ltrace
+
+encodeSegments :: Bound -> Automaton -> LTrace -> SymMemo ()
+encodeSegments b m ltrace = do 
+  let indexedLTrace = indexTrace ltrace
   mapM_ (encodeSegment b m) indexedLTrace
 
 encodeSegment :: Bound -> Automaton -> (Maybe LMessage, Index) -> SymMemo ()
 encodeSegment b m (mlm, i) = do
   let n = aname m
-  let cursor = offset b i
-  localTransitions <- sAnd <$> traverse (transition m) [(cursor + 1) .. (cursor + b)]
-  let endIndex = cursor + b + 1
-  timeCostIsZero <- zeroTimeCost n endIndex
-  endOfSegmentIsSynchronousJump <- synchronousJump m endIndex (mlm, i)
-  timeIsSynchronized <- synchronizeTime n endIndex (mlm, i)
+  let startIndex = segmentStartIndex b i
+  startOfSegmentIsSynchronousJump <- synchronousJump m startIndex (mlm, i)
+  timeIsSynchronized <- synchronizeTime n startIndex (mlm, i)
+  afterSynchronousJumpIsLocalTransitions <- localTransitions b i m
   lift $
     namedConstraint
       (segmentName n i)
-      ( localTransitions
+      ( startOfSegmentIsSynchronousJump
           .&& timeIsSynchronized
-          .&& timeCostIsZero
-          .&& endOfSegmentIsSynchronousJump
+          .&& afterSynchronousJumpIsLocalTransitions
       )
+
+localTransitions :: Bound -> Index -> Automaton -> SymMemo SBool
+localTransitions b indexOfSyncEvent m = do
+  let start = segmentStartIndex b indexOfSyncEvent
+  let (l, r) = segmentEndpoints start b
+  sAnd <$> traverse (transition m) [l .. r]
 
 synchronizeTime :: Name -> Index -> (Maybe LMessage, Index) -> SymMemo SBool
 synchronizeTime n endIdx (mlm, i) = case mlm of
@@ -146,7 +157,7 @@ synchronizeTime n endIdx (mlm, i) = case mlm of
       untilNow <- sumOfCostTime
       return (synchronousMessage .== untilNow)
   where
-    sumOfCostTime = sum <$> traverse (duration n) [1 .. endIdx]
+    sumOfCostTime = sum <$> traverse (duration n) (oneToEndIdx endIdx)
 
 transition :: Automaton -> Index -> SymMemo SBool
 transition m i = do
@@ -154,18 +165,28 @@ transition m i = do
   stayInCurrentNode <- timed m i
   return (jumpToSomeNode .|| stayInCurrentNode)
 
-initialState :: Automaton -> SymMemo SBool
-initialState m =
+initializeSegment :: Bound -> Automaton -> SymMemo ()
+initializeSegment b m = do
+  automatonIsSetToInitialStates <- selectInitialSegment b m
+  lift $ namedConstraint (initialName m) automatonIsSetToInitialStates
+
+selectInitialSegment :: Bound -> Automaton -> SymMemo SBool
+selectInitialSegment b m =
   sOr <$> traverse initialEdge (automatonInitialEdges m)
   where
     n = aname m
     initialEdge (Edge _ _ t _ as) = do
       memo <- get
       let lmap = locLiteralMap memo
-      l <- location n 0
-      let initialLocation = l .== literalLocation lmap n (nname t)
-      variablesAreAssigned <- assignments n as 0
-      return (initialLocation .&& variablesAreAssigned)
+      l <- location n initialLocationIndex
+      let locationIsSetViaInitialEdge = l .== literalLocation lmap n (nname t)
+      variablesAreAssigned <- assignments n as initialLocationIndex
+      afterInitialIsLocalTransitions <- localTransitions b initialSegmentIndex m
+      timeCoseIsZero <- noTimeCost n initialLocationIndex
+      return (locationIsSetViaInitialEdge 
+              .&& timeCoseIsZero
+              .&& variablesAreAssigned
+              .&& afterInitialIsLocalTransitions)
 
 -- all the variables in the automaton remain unchanged, i.e. v_{i-1} == v_i
 unchanged :: Name -> Set Variable -> Index -> SymMemo SBool
@@ -213,8 +234,9 @@ invariants n js i = sAnd <$> traverse (judgement n i) js
 -- update the variables in the automaton according to the flow conditions
 flow :: Name -> [Differential] -> Index -> SymMemo SBool
 flow n ds i =
-  sAnd <$> traverse flow' ds
+  sAnd <$> clauses
   where
+    clauses = traverse flow' ds
     flow' (Differential v op de) = do
       left <- delta v
       right <- encodeDexpr de
@@ -226,7 +248,10 @@ flow n ds i =
     encodeDexpr :: Dexpr -> SymMemo SReal
     encodeDexpr de =
       case de of
-        Dnumber d -> return (literal . fromRational $ toRational d)
+        Dnumber d -> do 
+          d' <- duration n i
+          let realVal = literal . fromRational $ toRational d
+          return (d' * realVal)
         Nvar v -> indexedVar n v i
         Dvar v -> delta v
         Dnegation de' -> negate <$> encodeDexpr de'
@@ -242,16 +267,19 @@ guard n (Just j) i = judgement n i j
 -- encoding a jumping transition in an automaton
 jump :: Automaton -> Index -> SymMemo SBool
 jump m@(Automaton n _ _ es _) i = do
-  timeCostIsZero <- zeroTimeCost n i
+  timeCostIsZero <- noTimeCost n i
   allTargetArePossible <- sOr <$> traverse (encodeEdge m i) (nonInitialEdges es)
   return (timeCostIsZero .&& allTargetArePossible)
 
 -- encoding a stutter transition in an automaton
 stutter :: Automaton -> Index -> SymMemo SBool
 stutter m@(Automaton n _ _ _ _) i = do
-  timeCostIsZero <- zeroTimeCost n i
+  timeCostIsZero <- noTimeCost n i
+  locationRemainsUnchanged <- noLocationTransition n i
   allVariablesWillNotChange <- unchanged n (automatonVars m) i
-  return (timeCostIsZero .&& allVariablesWillNotChange)
+  return (timeCostIsZero 
+          .&& locationRemainsUnchanged
+          .&& allVariablesWillNotChange)
 
 encodeEdge :: Automaton -> Index -> Edge -> SymMemo SBool
 encodeEdge m@(Automaton n _ _ _ _) i (Edge _ s t g as) = do
@@ -287,6 +315,7 @@ synchronousJump' m@(Automaton n _ _ _ _) i (Edge _ s t g as) ((Message mn _ _ sy
   restVariablesRemainUnchanged <- case d of
     Sending -> unchanged n (automatonVars m \\ updatedVars as) i
     Receiving -> unchanged n (automatonVars m \\ updatedVars as \\ syncVars) i
+  timeCostIsZero <- noTimeCost n i
   return
     ( previousLocIsSource
         .&& nextLocIsTarget
@@ -294,6 +323,7 @@ synchronousJump' m@(Automaton n _ _ _ _) i (Edge _ s t g as) ((Message mn _ _ sy
         .&& variablesAreAssigned
         .&& variablesAreSynchronized
         .&& restVariablesRemainUnchanged
+        .&& timeCostIsZero
     )
   where
     syncVars = updatedVars sync
@@ -306,11 +336,6 @@ synchronousJump' m@(Automaton n _ _ _ _) i (Edge _ s t g as) ((Message mn _ _ sy
       assigned <- indexedVar n v i
       mv <- synchronousValueVar mn mi ai
       return (assigned .== mv)
-
-zeroTimeCost :: Name -> Index -> SymMemo SBool
-zeroTimeCost n i = do
-  d <- duration n i
-  return (d .== 0)
 
 localize :: Name -> Index -> Node -> SymMemo SBool
 localize n i node = do
@@ -336,38 +361,39 @@ unlocalize' n nodeName i = do
 -- encode a timed transition in an automaton
 timed :: Automaton -> Index -> SymMemo SBool
 timed m@(Automaton n _ ns _ _) i = do
-  timeCostIsGreaterThanZero <- timeCost
-  locationRemainsUnchanged <- locUnchange
-  allNodesEvolveAccordingToFlow <- sOr <$> traverse encodeNode ns
+  timeCostIsGreaterThanZero <- hasTimeCost n i
+  locationRemainsUnchanged <- noLocationTransition n i
+  allNodesEvolveAccordingToFlow <- sAnd <$> traverse ifSelectThisNode ns
   return
     ( timeCostIsGreaterThanZero
         .&& locationRemainsUnchanged
         .&& allNodesEvolveAccordingToFlow
     )
   where
-    timeCost = do
-      d <- duration n i
-      return (d .> 0)
-    locUnchange = do
-      beforeL <- location n (i - 1)
-      afterL <- location n i
-      return (beforeL .== afterL)
     selectNode nodeName = do
       memo <- get
       let lmap = locLiteralMap memo
-      l <- location n (i - 1)
-      return (l .== literalLocation lmap n nodeName)
-    encodeNode (Node _ nodeName _ diffs invars) = do
+      loc <- location n i
+      return (loc .== literalLocation lmap n nodeName)
+    ifSelectThisNode (Node _ nodeName _ diffs invars) = do
       nodeIsSelected <- selectNode nodeName
       variablesAreUpdatedAccordingToFlow <- flow n diffs i
       restVariablesRemainUnchanged <- unchanged n (automatonVars m \\ evovledVars diffs) i
       invariantsHold <- invariants n invars i
-      return
-        ( nodeIsSelected
-            .&& variablesAreUpdatedAccordingToFlow
-            .&& restVariablesRemainUnchanged
-            .&& invariantsHold
-        )
+      let evolveAccordingToThisNode = variablesAreUpdatedAccordingToFlow
+                                      .&& restVariablesRemainUnchanged
+                                      .&& invariantsHold
+      return (nodeIsSelected .=> evolveAccordingToThisNode)
+
+noTimeCost :: Name -> Index -> SymMemo SBool
+noTimeCost n i = do
+  d <- duration n i
+  return (d .== 0)
+
+hasTimeCost :: Name -> Index -> SymMemo SBool
+hasTimeCost n i = do
+  d <- duration n i
+  return (d .> 0)
 
 -- declare a fresh symbolic variable
 -- to represent the time costed by the i-th transition
@@ -377,10 +403,16 @@ duration n i = do
   case lookupDuration memo n i of
     Just d -> return d
     Nothing -> do
-      d <- lift $ sReal (printf "%s|$duration|%d" n i)
+      d <- lift $ sReal (durationVarName n i)
       let memo' = insertDuration memo n i d
       put memo'
       return d
+
+noLocationTransition :: Name -> Index -> SymMemo SBool
+noLocationTransition n i = do
+  preL <- location n (i - 1)
+  succL <- location n i
+  return (preL .== succL)
 
 -- declare a fresh symbolic variable
 -- to represent the node state after the i-th transition
@@ -390,7 +422,7 @@ location n i = do
   case lookupLocation memo n i of
     Just l -> return l
     Nothing -> do
-      l <- lift $ sWord8 (printf "%s|$node|%d" n i)
+      l <- lift $ sWord8 (nodeVarName n i)
       let memo' = insertLocation memo n i l
       put memo'
       return l
@@ -401,7 +433,7 @@ indexedVar n v i = do
   case lookupVariable memo n v i of
     Just d -> return d
     Nothing -> do
-      d <- lift $ sReal (printf "%s|%s|%d" n v i)
+      d <- lift $ sReal (variableVarName n v i)
       let memo' = insertVariable memo n v i d
       put memo'
       return d
@@ -414,7 +446,7 @@ synchronousTimeVar n i = do
   case lookupSyncTime memo n i of
     Just d -> return d
     Nothing -> do
-      d <- lift $ sReal (printf "$syncTime|%s|%d" n i)
+      d <- lift $ sReal (syncTimeVarName n i)
       let memo' = insertSyncTime memo n i d
       put memo'
       return d
@@ -427,7 +459,7 @@ synchronousValueVar n i i' = do
   case lookupSyncValue memo n i i' of
     Just d -> return d
     Nothing -> do
-      d <- lift $ sReal (printf "$syncValue|%s|%d|%d" n i i')
+      d <- lift $ sReal (syncValueVarName n i i')
       let memo' = insertSyncValue memo n i i' d
       put memo'
       return d
@@ -450,15 +482,12 @@ evovledVars :: [Differential] -> Set Variable
 evovledVars = S.fromList . fmap (\(Differential v _ _) -> v)
 
 judge :: OrdSymbolic a => JudgeOp -> a -> a -> SBool
-judge Ge = (.>=)
-judge Gt = (.>)
-judge Le = (.<=)
-judge Lt = (.<)
-judge Eq = (.==)
+judge Ge  = (.>=)
+judge Gt  = (.>)
+judge Le  = (.<=)
+judge Lt  = (.<)
+judge Eq  = (.==)
 judge Neq = (./=)
 
 literalLocation :: LocMap -> Name -> Name -> SWord8
 literalLocation lmap n nn = literal (lmap `llookup` (n, nn))
-
-offset :: Bound -> Index -> Int
-offset b i = (b + 1) * (i - 1)

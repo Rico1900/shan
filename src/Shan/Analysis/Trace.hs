@@ -18,6 +18,8 @@ import Data.Text qualified as T
 import Data.Universe.Helpers (cartesianProduct)
 import Shan.Ast.Diagram (Automaton (Automaton), Event (Event), Fragment (..), Instance (Instance), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, ename, splitSequenceDiagram)
 
+import Debug.Trace qualified as Debug
+
 type Trace = [Message]
 
 type Index = Int
@@ -134,7 +136,7 @@ showMessage :: Message -> String
 showMessage (Message n _ _ _) = T.unpack n
 
 projection :: Trace -> Automaton -> LTrace
-projection t (Automaton aname _ _ es _) =
+projection t (Automaton aname _ _ es _) = 
   projection' <$> zip t [1 ..]
   where
     enames = ename <$> es

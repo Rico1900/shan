@@ -8,6 +8,8 @@ module Shan.Ast.Diagram.Parser
     parseAutomaton,
     parseJudgement,
     judgeOpParser,
+    variableParser,
+    nameParser,
   )
 where
 

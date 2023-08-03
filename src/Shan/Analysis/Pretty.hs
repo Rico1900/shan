@@ -2,6 +2,15 @@ module Shan.Analysis.Pretty
   ( modelValues,
     printCaseName,
     printIsdStatistics,
+    emptyBox,
+    invisibleBox,
+    arrowStr,
+    syncArrorStr,
+    arrowWithInfoStr,
+    syncArrowWithInfoStr,
+    seal,
+    padding,
+    (|++|),
   )
 where
 
@@ -59,3 +68,63 @@ printIntCount sds = do
 printTraceCount :: Int -> IO ()
 printTraceCount n = do
   putStrLn $ "trace count: " ++ show n
+
+emptyBox :: String
+emptyBox = "┌───┐\n│   │\n└───┘"
+
+invisibleBox :: String
+invisibleBox = "     \n     \n     "
+
+arrowStr :: String
+arrowStr = "--->"
+
+syncArrorStr :: String
+syncArrorStr = "===>"
+
+arrowWithInfoStr :: String -> String
+arrowWithInfoStr info =
+  let len = length info
+      fstLine = info ++ " \n"
+      sndLine = replicate len '-' ++ ">"
+   in fstLine ++ sndLine
+
+syncArrowWithInfoStr :: String -> String
+syncArrowWithInfoStr info =
+  let len = length info
+      fstLine = info ++ " \n"
+      sndLine = replicate len '=' ++ ">"
+   in fstLine ++ sndLine
+
+seal :: String -> String
+seal info =
+  let len = maximum $ map length (lines info)
+      fstLine = "┌" ++ replicate len '─' ++ "┐\n"
+      midLines = unlines $ map (\l -> "│" ++ l ++ "│") (lines info)
+      lstLine = "└" ++ replicate len '─' ++ "┘"
+   in fstLine ++ midLines ++ lstLine
+
+padding :: String -> String
+padding str =
+  let len = maximum $ map length (lines str)
+      lines' = map (\l -> l ++ replicate (len - length l) ' ') (lines str)
+   in unlines lines'
+
+(|++|) :: String -> String -> String
+left |++| right =
+  let padLines sideLines sideLen targetHeight =
+        let paddingLine = replicate sideLen ' '
+            sideHeight = length sideLines
+            topPaddingNum = (targetHeight - sideHeight) `div` 2
+            bottomPaddingNum = targetHeight - sideHeight - topPaddingNum
+        in replicate topPaddingNum paddingLine 
+           ++ sideLines 
+           ++ replicate bottomPaddingNum paddingLine
+      leftLines = lines left
+      rightLines = lines right
+      leftLen = maximum $ map length leftLines
+      rightLen = maximum $ map length rightLines
+      maxHeight = max (length leftLines) (length rightLines)
+      lines' = zipWith (++) 
+                (padLines leftLines leftLen maxHeight) 
+                (padLines rightLines rightLen maxHeight)
+   in unlines lines'

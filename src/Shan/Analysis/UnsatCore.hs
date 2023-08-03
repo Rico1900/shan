@@ -10,7 +10,7 @@ module Shan.Analysis.UnsatCore
 where
 
 import Control.Monad (void)
-import Data.List (groupBy, isInfixOf)
+import Data.List (groupBy, isInfixOf, sortOn)
 import Data.Maybe (mapMaybe)
 import Data.Text (pack)
 import Shan.Analysis.Trace (Index, Trace)
@@ -36,12 +36,6 @@ data Fragment
   = Fragment Name Index Index
   deriving (Eq, Show)
 
--- data OptimizationStrategy
---   = WithInitial [Formula]
---   | EliminatingSegments[Formula]
---   | None
---   deriving (Eq, Show)
-
 propertiesName :: String
 propertiesName = "$properties"
 
@@ -50,6 +44,9 @@ initialName = printf "@%s" . aname
 
 segmentName :: Name -> Index -> String
 segmentName = printf "%s,%d"
+
+name :: AutomatonIndice -> Name
+name (AutomatonIndice n _) = n
 
 smtFormulaTagParser :: Parser SmtFormulaTag
 smtFormulaTagParser =
@@ -115,7 +112,7 @@ formulaToAutomatonIndice Properties = Nothing
 
 groupByAutomaton :: [SmtFormulaTag] -> [AutomatonIndice]
 groupByAutomaton =
-  fmap mergeAll . groupBy sameAutomaton . mapMaybe formulaToAutomatonIndice
+  fmap mergeAll . groupBy sameAutomaton . sortOn name . mapMaybe formulaToAutomatonIndice
   where
     sameAutomaton (AutomatonIndice n1 _) (AutomatonIndice n2 _) = n1 == n2
     merge (AutomatonIndice n1 is1) (AutomatonIndice n2 is2) = AutomatonIndice (selectName n1 n2) (is1 ++ is2)
