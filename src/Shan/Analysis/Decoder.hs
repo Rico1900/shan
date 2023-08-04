@@ -155,7 +155,7 @@ renderTransitions b ts =
             then foldl renderAndConcat emptyBox c
             else foldl renderAndConcat invisibleBox c
     renderAndConcat acc t = acc |++| renderTransition t
-    maxWidth = 170
+    maxWidth = 150
     tryChunk :: [(Transition, Int)] -> Either Int String
     tryChunk c = 
       let r = renderChunk c
