@@ -30,6 +30,7 @@ module Shan.Ast.Diagram
     ename,
     aname,
     nname,
+    iname,
     differentialVars,
     judgementVars,
     splitSequenceDiagram,
@@ -198,6 +199,9 @@ aname (Automaton n _ _ _ _) = n
 
 nname :: Node -> Name
 nname (Node _ n _ _ _) = n
+
+iname :: Instance -> Name
+iname (Instance n _) = n
 
 exprVars :: Expr -> Set Variable
 exprVars (Number _) = S.empty

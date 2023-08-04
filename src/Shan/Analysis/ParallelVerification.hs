@@ -41,12 +41,12 @@ parallelAnalyze :: Bound -> Diagrams -> IO ()
 parallelAnalyze b (sds, han) = do
   let validationRes = validateDiagrams (sds, han)
   case validationRes of
-    Left errorMsg -> print errorMsg
-    Right _ ->
+    [] ->
       let ts = concatMap traces sds
        in do
             printIsdStatistics b sds ts han
             parallelAnalyzeHanGuidedByTraces b han ts
+    errorMsg -> print errorMsg
 
 parallelAnalyzeHanGuidedByTraces ::
   Bound ->

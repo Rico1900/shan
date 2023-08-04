@@ -51,13 +51,12 @@ analyze :: Bound -> Diagrams -> IO ()
 analyze b (sds, han) = do
   let validationRes = validateDiagrams (sds, han)
   case validationRes of
-    Left errorMsg -> print errorMsg
-    Right _ ->
-      let ts = concatMap traces sds
-       in do
-            printIsdStatistics b sds ts han
-            analyzeHanGuidedByTraces b han ts
-
+    [] -> let ts = concatMap traces sds
+           in do
+                printIsdStatistics b sds ts han
+                analyzeHanGuidedByTraces b han ts
+    errs -> print errs
+      
 analyzeHanGuidedByTraces :: Bound -> [Automaton] -> [Trace] -> IO ()
 analyzeHanGuidedByTraces _ _ [] = putStrLn "verified"
 analyzeHanGuidedByTraces b ms (t : ts) = do
