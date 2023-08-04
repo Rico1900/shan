@@ -31,17 +31,6 @@ valign=top
     <additional_attributes/>
   </element>
   <element>
-    <id>UMLNote</id>
-    <coordinates>
-      <x>1270</x>
-      <y>60</y>
-      <w>200</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>(success,reachable)</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
     <id>UMLState</id>
     <coordinates>
       <x>990</x>

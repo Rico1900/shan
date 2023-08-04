@@ -10,8 +10,8 @@
       <h>210</h>
     </coordinates>
     <panel_attributes>title=controller
-obj=P_1~a
-obj=P_2~b
+obj=P1~a
+obj=P2~b
 
 
 a-&gt;&gt;&gt;b : (T_send,T_send,T_send);
