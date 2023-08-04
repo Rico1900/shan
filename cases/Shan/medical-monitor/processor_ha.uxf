@@ -173,7 +173,7 @@ c5</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>(success, unreachable)</panel_attributes>
+    <panel_attributes>(error, unreachable)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -184,7 +184,7 @@ c5</panel_attributes>
       <w>180</w>
       <h>150</h>
     </coordinates>
-    <panel_attributes>success
+    <panel_attributes>error
 --
 'u=1
 'v=0

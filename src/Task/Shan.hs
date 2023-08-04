@@ -22,7 +22,7 @@ basePath :: FilePath
 basePath = "./cases/Shan"
 
 defaultBound :: Int
-defaultBound = 6
+defaultBound = 5
 
 synthesisConfig :: SynthesisConfig
 synthesisConfig =
@@ -155,7 +155,7 @@ parallelBenchmarkSingle1 :: [Benchmark]
 parallelBenchmarkSingle1 =
   [ bgroup
       "altitude display int, checking in parallel"
-      [ parallelBenchLiteratureCase fischerAut
+      [ parallelBenchLiteratureCase waterTanks
       ]
   ]
 

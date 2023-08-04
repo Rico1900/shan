@@ -38,7 +38,7 @@ valign=top
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>(success,unreachable)</panel_attributes>
+    <panel_attributes>(id2,reachable)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -152,7 +152,7 @@ T13:id1==0;[x1:=0]</panel_attributes>
       <h>330</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T-send:x1&gt;3 &amp;&amp; id1==1;</panel_attributes>
+T_send:x1&gt;3 &amp;&amp; id1==1;</panel_attributes>
     <additional_attributes>10.0;10.0;540.0;310.0</additional_attributes>
   </element>
   <element>
@@ -164,7 +164,7 @@ T-send:x1&gt;3 &amp;&amp; id1==1;</panel_attributes>
       <h>160</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T-rec:;[id1:=0]</panel_attributes>
+T_rec:;[id1:=0]</panel_attributes>
     <additional_attributes>440.0;140.0;10.0;10.0</additional_attributes>
   </element>
   <element>

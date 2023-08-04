@@ -114,15 +114,4 @@ retrieval:;[belt_products:=(belt_products+1)]</panel_attributes>
 consume:;[belt_products:=(belt_products-1)]</panel_attributes>
     <additional_attributes>20.0;10.0;110.0;230.0;190.0;230.0;80.0;10.0</additional_attributes>
   </element>
-  <element>
-    <id>UMLNote</id>
-    <coordinates>
-      <x>1160</x>
-      <y>60</y>
-      <w>200</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>belt_products&gt;=0</panel_attributes>
-    <additional_attributes/>
-  </element>
 </diagram>

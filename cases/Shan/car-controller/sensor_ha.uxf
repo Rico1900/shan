@@ -271,7 +271,7 @@ valign=top
       <h>230</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-error1:time&lt;5&amp;&amp;acce&gt;=0;</panel_attributes>
+error1:acce&gt;10;</panel_attributes>
     <additional_attributes>10.0;210.0;230.0;10.0</additional_attributes>
   </element>
   <element>
@@ -283,7 +283,7 @@ error1:time&lt;5&amp;&amp;acce&gt;=0;</panel_attributes>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-error2:time&lt;5&amp;&amp;acce&gt;=0;</panel_attributes>
+error2:acce&gt;10;</panel_attributes>
     <additional_attributes>10.0;40.0;880.0;10.0</additional_attributes>
   </element>
   <element>
@@ -295,7 +295,7 @@ error2:time&lt;5&amp;&amp;acce&gt;=0;</panel_attributes>
       <h>240</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-error3:time&lt;5&amp;&amp;acce&gt;=0;</panel_attributes>
+error3:acce&gt;10;</panel_attributes>
     <additional_attributes>10.0;10.0;930.0;220.0</additional_attributes>
   </element>
   <element>
@@ -307,7 +307,7 @@ error3:time&lt;5&amp;&amp;acce&gt;=0;</panel_attributes>
       <h>340</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-error4:time&lt;5&amp;&amp;acce&gt;=0;</panel_attributes>
+error4:acce&gt;10;</panel_attributes>
     <additional_attributes>10.0;10.0;540.0;320.0</additional_attributes>
   </element>
   <element>
@@ -315,11 +315,11 @@ error4:time&lt;5&amp;&amp;acce&gt;=0;</panel_attributes>
     <coordinates>
       <x>1000</x>
       <y>190</y>
-      <w>300</w>
+      <w>220</w>
       <h>290</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-error5:time&lt;5&amp;&amp;acce&gt;=0;</panel_attributes>
+error5:acce&gt;10;</panel_attributes>
     <additional_attributes>10.0;10.0;180.0;270.0</additional_attributes>
   </element>
   <element>

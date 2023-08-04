@@ -167,7 +167,7 @@ rbusy_2:;[c2:=0]</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>(success, reachable)</panel_attributes>
+    <panel_attributes>(id6, reachable)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>

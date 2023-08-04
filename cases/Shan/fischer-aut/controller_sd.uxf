@@ -6,17 +6,18 @@
     <coordinates>
       <x>330</x>
       <y>260</y>
-      <w>460</w>
-      <h>210</h>
+      <w>490</w>
+      <h>280</h>
     </coordinates>
     <panel_attributes>title=controller
 obj=P1~a
 obj=P2~b
 
 
+combinedFragment=loop(2,5)~loop1
 a-&gt;&gt;&gt;b : (T_send,T_send,T_send);
 b-&gt;&gt;&gt;a : (T_rec,T_rec,T_rec);
-</panel_attributes>
+--</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

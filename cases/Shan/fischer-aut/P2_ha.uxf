@@ -129,7 +129,7 @@ T22:x2&lt;=3;[x2:=0,id2:=2]</panel_attributes>
       <h>160</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T-rec:;[id2:=0]</panel_attributes>
+T_rec:;[id2:=0]</panel_attributes>
     <additional_attributes>420.0;140.0;10.0;10.0</additional_attributes>
   </element>
   <element>
@@ -141,7 +141,7 @@ T-rec:;[id2:=0]</panel_attributes>
       <h>360</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-T-send:x2&gt;3&amp;&amp;id2==2;</panel_attributes>
+T_send:x2&gt;3&amp;&amp;id2==2;</panel_attributes>
     <additional_attributes>10.0;10.0;800.0;340.0</additional_attributes>
   </element>
   <element>
@@ -220,5 +220,16 @@ forward3:x2&gt;=0&amp;&amp;id2&gt;=2;</panel_attributes>
     <panel_attributes>lt=-&gt;
 forward4:x2&gt;=0&amp;&amp;id2&gt;=2;</panel_attributes>
     <additional_attributes>10.0;200.0;180.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>1320</x>
+      <y>60</y>
+      <w>200</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>(id6,reachable)</panel_attributes>
+    <additional_attributes/>
   </element>
 </diagram>

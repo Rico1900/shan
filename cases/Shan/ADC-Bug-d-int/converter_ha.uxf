@@ -191,7 +191,7 @@ valign=top
       <h>150</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-error1:index&lt;=3;</panel_attributes>
+error1:index&gt;=10;</panel_attributes>
     <additional_attributes>10.0;130.0;130.0;10.0</additional_attributes>
   </element>
   <element>
@@ -203,7 +203,7 @@ error1:index&lt;=3;</panel_attributes>
       <h>90</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-error2:index&lt;=3;</panel_attributes>
+error2:index&gt;=100;</panel_attributes>
     <additional_attributes>10.0;70.0;590.0;10.0</additional_attributes>
   </element>
   <element>
@@ -215,7 +215,7 @@ error2:index&lt;=3;</panel_attributes>
       <h>200</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-error3:index&lt;=3;</panel_attributes>
+error3:index&gt;=10;</panel_attributes>
     <additional_attributes>10.0;10.0;600.0;180.0</additional_attributes>
   </element>
   <element>
@@ -227,7 +227,7 @@ error3:index&lt;=3;</panel_attributes>
       <h>160</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-error4:index&lt;=3;</panel_attributes>
+error4:index&gt;=10;</panel_attributes>
     <additional_attributes>10.0;10.0;180.0;140.0</additional_attributes>
   </element>
   <element>

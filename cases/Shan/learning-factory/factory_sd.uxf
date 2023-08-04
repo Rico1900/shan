@@ -9,7 +9,7 @@
       <w>1020</w>
       <h>560</h>
     </coordinates>
-    <panel_attributes>title=ADC
+    <panel_attributes>title=Factory
 obj=belt~a
 obj=station~b
 obj=warehouse~c
