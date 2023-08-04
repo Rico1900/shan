@@ -24,7 +24,6 @@ import Text.Megaparsec (MonadParsec (try), choice, errorBundlePretty, manyTill, 
 import Text.Megaparsec.Char (alphaNumChar)
 import Text.Megaparsec.Char.Lexer (decimal)
 import Control.Arrow (second)
-import Data.List.Split (chunksOf)
 import Shan.Analysis.Offset (segmentLength)
 
 instance Show CVal where
@@ -140,17 +139,33 @@ renderTransitionsOfHan b =
 
 renderTransitions :: Bound -> Transitions -> String
 renderTransitions b ts =
-  if null chunks
+  if null ts
     then ""
-    else renderFirstChunk (head chunks) ++ renderRestChunks
+    else render "" (segmentLength b) indexedTs
   where
+    render acc _ [] = acc
+    render acc tryLen remains = 
+      case tryChunk (take tryLen remains) of
+        Left len -> render acc len remains
+        Right r -> render (acc ++ r) (segmentLength b) (drop tryLen remains)
+    indexedTs = zip ts [1 ..]
+    renderChunk c = 
+      let (_, i) = head c
+       in if i == 1
+            then foldl renderAndConcat emptyBox c
+            else foldl renderAndConcat invisibleBox c
     renderAndConcat acc t = acc |++| renderTransition t
-    renderFirstChunk = foldl renderAndConcat emptyBox
-    renderOtherChunk c = foldl renderAndConcat (invisibleBox |++| renderSyncTransition (head c)) (tail c)
-    renderRestChunks = foldl (\acc c -> acc ++ renderOtherChunk c) "" (tail chunks)
-    chunks = chunksOf (segmentLength b) ts
-    renderTransition (Transition _ arrow state) = renderArrow arrow |++| renderState state
-    renderSyncTransition (Transition _ arrow state) = renderSyncArrow arrow |++| renderState state
+    maxWidth = 170
+    tryChunk :: [(Transition, Int)] -> Either Int String
+    tryChunk c = 
+      let r = renderChunk c
+          w = length . head . lines $ r
+       in if w > maxWidth
+            then Left (length c - 1)
+            else Right r
+    renderTransition (Transition _ arrow state, i) = if (i /= 1) && (i `mod` segmentLength b == 1)
+                                                      then renderSyncArrow arrow |++| renderState state
+                                                      else renderArrow arrow |++| renderState state
     renderArrow Jumping = arrowStr
     renderArrow (Timing d) = arrowWithInfoStr (show d)
     renderSyncArrow Jumping = syncArrorStr
