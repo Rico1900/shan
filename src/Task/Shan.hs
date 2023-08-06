@@ -155,7 +155,7 @@ parallelBenchmarkSingle1 :: [Benchmark]
 parallelBenchmarkSingle1 =
   [ bgroup
       "altitude display int, checking in parallel"
-      [ parallelBenchLiteratureCase waterTanks
+      [ parallelBenchLiteratureCase altitudeDisplay
       ]
   ]
 

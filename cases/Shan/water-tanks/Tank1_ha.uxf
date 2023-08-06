@@ -203,7 +203,7 @@ T14</panel_attributes>
       <w>180</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>empty-flow1
+    <panel_attributes>empty_flow1
 --
 'q1=('inq1-'outq1)
 'inq1&gt;0

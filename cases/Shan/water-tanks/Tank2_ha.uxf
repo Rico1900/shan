@@ -73,7 +73,7 @@ valign=top
       <w>180</w>
       <h>120</h>
     </coordinates>
-    <panel_attributes>empty-unflow2
+    <panel_attributes>empty_unflow2
 --
 'q2=0
 'inq2=0

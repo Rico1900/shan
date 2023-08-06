@@ -73,7 +73,7 @@ consume:;[d1:=1]</panel_attributes>
       <w>200</w>
       <h>130</h>
     </coordinates>
-    <panel_attributes>(success, reachable)</panel_attributes>
+    <panel_attributes>(consuming, reachable)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
