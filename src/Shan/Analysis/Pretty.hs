@@ -16,7 +16,7 @@ where
 
 import Data.SBV.Internals (SMTModel (modelAssocs))
 import Shan.Analysis.Trace (Trace)
-import Shan.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram, Automaton, nodeCount, edgeCount, Bound)
+import Shan.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram, Automaton (Automaton), nodeCount, edgeCount, Bound)
 import Text.Printf (printf)
 
 modelValues :: SMTModel -> String
@@ -37,6 +37,7 @@ printIsdStatistics :: Bound -> [SequenceDiagram] -> [Trace] -> [Automaton] -> IO
 printIsdStatistics b sds ts han = do
   printBound b
   printComponentCount han
+  printNumOfProperties han
   printHanNodesAndEdges han
   printIntCount sds
   printTraceCount (length ts)
@@ -48,6 +49,12 @@ printBound b = do
 printComponentCount :: [Automaton] -> IO ()
 printComponentCount han = do
   putStrLn $ "component count: " ++ show (length han)
+
+printNumOfProperties :: [Automaton] -> IO ()
+printNumOfProperties han = do 
+  putStrLn $ "number of properties: " ++ show (sum (numOfSingle <$> han))
+  where 
+    numOfSingle (Automaton _ _ _ _ ps) = length ps 
 
 printHanNodesAndEdges :: [Automaton] -> IO ()
 printHanNodesAndEdges han = do
