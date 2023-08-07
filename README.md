@@ -1,4 +1,10 @@
-# shan
+<h1 align="center">
+  shan
+</h1>
+
+<p align="center">
+  <img src="./img/logo.jpg" width="200" />
+</p>
 
 `shan` is a verification tool for verifying scenario-controlled hybrid automata network, which combines interrupt sequence diagrams and hybrid automata networks to facilitate modelling of distributed hybrid systems.
 
