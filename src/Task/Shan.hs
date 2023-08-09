@@ -22,7 +22,7 @@ basePath :: FilePath
 basePath = "./cases/Shan"
 
 defaultBound :: Int
-defaultBound = 5
+defaultBound = 3
 
 synthesisConfig :: SynthesisConfig
 synthesisConfig =
@@ -30,22 +30,21 @@ synthesisConfig =
     { _caseNum = 10,
       _initialSeed = 2023,
       _checkingBound = defaultBound,
-      _componentRange = (5, 10), -- key parameter
-      _nodeRange = (10, 20), -- key parameter
-      _edgeRange = (15, 30), -- key parameter
+      _componentRange = (5, 10), -- key parameter, baseline: (5,10)
+      _nodeRange = (4, 10), -- key parameter, baseline: (10,20)
+      _edgeRange = (10, 20), -- key parameter, baseline: (15,30)
       _initialEdgeRange = (1, 4),
-      _variableCountRange = (4, 10), -- key parameter
+      _variableCountRange = (2, 5), -- key parameter, baseline: (4,10)
       _variableCountWithinNodeRange = (1, 3),
-      _variableCountWithinGuardRange = (1, 3),
       _variableCountWithinAssignmentRange = (1, 3),
-      _propertyCountRange = (0, 3),
-      _constantRange = (0.0, 100.0),
-      _itemCountRange = (2, 4),
+      _propertyCountRange = (0, 2),
+      _constantRange = (0.0, 10.0),
+      _itemCountRange = (1, 3),
       _loopBoundRange = (1, 3),
-      _intCountRange = (1, 3), -- key parameter
+      _intCountRange = (1, 3), -- key parameter, baseline: (1,3)
       _intBoundRange = (1, 3),
       _priorityRange = (1, 10),
-      _maxLayer = 3 -- key parameter
+      _maxLayer = 2 -- key parametern, baseline: 2
     }
 
 constructCase :: String -> Int -> LiteratureCase

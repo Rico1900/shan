@@ -1,27 +1,27 @@
 module Shan.Analysis.ParallelVerification
   ( parallelAnalyze,
     parallelAnalyzeLiteratureCase,
-    parallelAnalyzeSynthesizedCase
+    parallelAnalyzeSynthesizedCase,
   )
 where
 
-import Shan.Analysis.Pretty (printIsdStatistics, printCaseName)
-import Shan.Analysis.Trace (Trace, traces)
+import Control.Concurrent (getNumCapabilities)
+import Control.Concurrent.Async (async)
+import Control.Concurrent.STM (TQueue, atomically, newTQueueIO, readTQueue, writeTQueue)
+import Control.Monad (forever, replicateM_)
+import Data.Either (partitionEithers)
+import Data.List (isInfixOf)
+import Shan.Analysis.Guided (analyzeHanGuidedByTrace)
+import Shan.Analysis.Pretty (printCaseName, printIsdStatistics)
+import Shan.Analysis.Trace (Trace, traces, showTrace)
+import Shan.Analysis.UnsatCore (unsatCoreToFragment)
 import Shan.Analysis.Validation (validateDiagrams)
 import Shan.Ast.Diagram (Automaton, Bound, Diagrams, Message)
-import Control.Concurrent.STM (newTQueueIO, TQueue, readTQueue, atomically, writeTQueue)
-import Shan.Analysis.Guided ( analyzeHanGuidedByTrace )
-import Shan.Analysis.UnsatCore ( unsatCoreToFragment )
-import Control.Concurrent (getNumCapabilities)
-import Data.List (isInfixOf)
-import Control.Monad (forever, replicateM_)
-import Shan.Util (LiteratureCase (name, path, bound))
 import Shan.Parser (parseShan)
-import Data.Either (partitionEithers)
+import Shan.Pretty (blank)
 import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
 import Shan.Synthesis.Synthesizer qualified as Synth
-import Control.Concurrent.Async (async)
-import Shan.Pretty (blank)
+import Shan.Util (LiteratureCase (bound, name, path))
 
 parallelAnalyzeLiteratureCase :: LiteratureCase -> IO ()
 parallelAnalyzeLiteratureCase c = do
@@ -76,9 +76,11 @@ pruner processingTasks tasks taskQueue checkResultQueue = do
       case checkResult of
         Left fragment -> do
           let filtered = filter (not . isInfixOf fragment) tasks
-          let remaining = if null filtered
-                            then processingTasks - 1
-                            else processingTasks
+          -- print ("prune tasks: " ++ show (length tasks - length filtered))
+          let remaining =
+                if null filtered
+                  then processingTasks - 1
+                  else processingTasks
           mapM_ (atomically . writeTQueue taskQueue) (take 1 filtered)
           pruner remaining (drop 1 filtered) taskQueue checkResultQueue
         Right counterExample -> do
@@ -109,6 +111,8 @@ worker b han taskQueue checkResultQueue = forever $ do
   res <- analyzeHanGuidedByTrace b han trace
   case res of
     Left unsatCore -> do
+      putStrLn $ showTrace trace
+      print unsatCore
       let fragment = unsatCoreToFragment trace unsatCore
       atomically $ writeTQueue checkResultQueue (Left fragment)
     Right counterExample -> do

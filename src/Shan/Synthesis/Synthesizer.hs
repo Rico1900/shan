@@ -21,7 +21,7 @@ import Data.List (nub, (\\), delete)
 import Data.Set qualified as S
 import Data.Map qualified as M
 import Data.Text (pack)
-import Shan.Ast.Diagram (Assignment (Assignment), Automaton (Automaton), Dexpr (Dnumber), Diagrams, Differential (Differential), Edge (Edge), Event (Event), Expr (Number, Var), Fragment (..), Instance (Instance), IntFragment (..), Item (..), JudgeOp (..), Judgement (AndJ, SimpleJ), Message (Message), Name, Node (Node), NodeType (Common, Initial), Property (Property), Reachability (Reachable, Unreachable), SequenceDiagram (SequenceDiagram), Variable, aname, automatonVars, edgesToNodes, ename, nonInitEdges)
+import Shan.Ast.Diagram (Assignment (Assignment), Automaton (Automaton), Dexpr (Dnumber), Diagrams, Differential (Differential), Edge (Edge), Event (Event), Expr (Number, Var), Fragment (..), Instance (Instance), IntFragment (..), Item (..), JudgeOp (..), Judgement (SimpleJ), Message (Message), Name, Node (Node), NodeType (Common, Initial), Property (Property), Reachability (Reachable, Unreachable), SequenceDiagram (SequenceDiagram), Variable, aname, edgesToNodes, ename, nonInitEdges)
 import System.Random (StdGen, UniformRange, mkStdGen, uniform, uniformR)
 import Text.Printf (printf)
 import Data.List.NonEmpty (groupBy)
@@ -41,7 +41,6 @@ data SynthesisConfig = SynthesisConfig
     _initialEdgeRange :: (Int, Int),
     _variableCountRange :: (Int, Int),
     _variableCountWithinNodeRange :: (Int, Int),
-    _variableCountWithinGuardRange :: (Int, Int),
     _variableCountWithinAssignmentRange :: (Int, Int),
     _propertyCountRange :: (Int, Int),
     _constantRange :: (Double, Double),
@@ -182,34 +181,15 @@ genMessage context = do
   (s, t) <- randomSelectTwoUnique (context ^. instances)
   sevent <- genEvent context s
   tevent <- genEvent context t
-  pairs <- selectionSyncVariables context s t
-  let assignments = genSyncAssignments pairs
-  return $ Message (pack (printf "m%d" msgIdx)) sevent tevent assignments
-
-selectionSyncVariables ::
-  Context ->
-  Instance ->
-  Instance ->
-  Synthesis [(Variable, Variable)]
-selectionSyncVariables context s t = do
-  count <- randomSyncAssignmentCount
-  svars <- randomSelect (S.toList $ search s) count
-  tvars <- randomSelect (S.toList $ search t) count
-  return (zip svars tvars)
-  where
-    search (Instance n _) = automatonVars . head . filter (\a -> aname a == n) $ context ^. automata
+  -- pairs <- selectionSyncVariables context s t
+  -- let assignments = genSyncAssignments pairs
+  return $ Message (pack (printf "m%d" msgIdx)) sevent tevent []
 
 genEvent :: Context -> Instance -> Synthesis Event
 genEvent c ins = do
   let names = getEventByInstance c ins
   eventName <- randomSelectOne names
   return $ Event eventName ins
-
-genSyncAssignments :: [(Variable, Variable)] -> [Assignment]
-genSyncAssignments pairs = uncurry genSyncAssignment <$> pairs
-
-genSyncAssignment :: Variable -> Variable -> Assignment
-genSyncAssignment lv rv = Assignment rv (Var lv)
 
 genInstances :: [Automaton] -> [Instance]
 genInstances han =
@@ -325,15 +305,15 @@ genOutSupplementEdges deadends nodes vars = do
 
 genEdge :: Name -> Node -> Node -> [Variable] -> Synthesis Edge
 genEdge edgeName source target vars = do
-      guardVarCount <- randomVarCountWithinGuard
-      varsInGuard <- randomSelect vars guardVarCount
-      guard <- genGuard varsInGuard
+      -- guardVarCount <- randomVarCountWithinGuard
+      -- varsInGuard <- randomSelect vars guardVarCount
+      -- guard <- genGuard varsInGuard
       assignVarCount <- randomVarCountWithinAssignment
       varsInAssign <- randomSelect vars assignVarCount
       let invars = invariantVars target
       let assignVars = nub (varsInAssign ++ invars)
       assignments <- genAssignments assignVars target
-      return $ Edge edgeName source target guard assignments
+      return $ Edge edgeName source target Nothing assignments
 
 -- In synthesized automaton, it's possible that the previous state breaks the invariant of the target node,
 -- so we use assignments at the edge to ensure the invariants of target node are satisfied.
@@ -370,21 +350,6 @@ invariantVars (Node _ _ _ _ js) = extract <$> js
   where
     extract (SimpleJ (Var v) _ _) = v
     extract _ = error "impossible"
-
-genGuard :: [Variable] -> Synthesis (Maybe Judgement)
-genGuard [] = return Nothing
-genGuard (v : vars) = do
-  op <- randomJudgeOp
-  constant <- randomConstant
-  let guard = SimpleJ (Var v) op (Number constant)
-  guards <- genGuard vars
-  return $ concatGuards (Just guard) guards
-
-concatGuards :: Maybe Judgement -> Maybe Judgement -> Maybe Judgement
-concatGuards Nothing Nothing = Nothing
-concatGuards Nothing (Just j) = Just j
-concatGuards (Just j) Nothing = Just j
-concatGuards (Just j1) (Just j2) = Just $ AndJ j1 j2
 
 genInitialNode :: Node
 genInitialNode = Node Initial "" S.empty [] []
@@ -472,9 +437,6 @@ randomInitialEdgeCount = randomByRange initialEdgeRange
 randomVariableCount :: Synthesis Int
 randomVariableCount = randomByRange variableCountRange
 
-randomVarCountWithinGuard :: Synthesis Int
-randomVarCountWithinGuard = randomByRange variableCountWithinGuardRange
-
 randomVarCountWithinAssignment :: Synthesis Int
 randomVarCountWithinAssignment = randomByRange variableCountWithinAssignmentRange
 
@@ -501,18 +463,6 @@ randomByRange rangeLens = do
   let (val, g) = uniformR range (sstate ^. seed)
   put (sstate & seed .~ g)
   return val
-
-randomSyncAssignmentCount :: Synthesis Int
-randomSyncAssignmentCount = do
-  sstate <- get
-  let (val, g) = uniformR (1 :: Int, 10) (sstate ^. seed)
-  put (sstate & seed .~ g)
-  return $ distribute val
-  where
-    distribute i
-      | i <= 6 = 0
-      | i <= 8 = 1
-      | otherwise = 2
 
 randomLoopBounds :: Synthesis (Int, Int)
 randomLoopBounds = do
