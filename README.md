@@ -8,6 +8,24 @@
 
 `shan` is a verification tool for verifying scenario-controlled hybrid automata network, which combines interrupt sequence diagrams and hybrid automata networks to facilitate modelling of distributed hybrid systems.
 
+### Preliminary
+
+Install z3 SMT solver on your computer.
+
+#### Ubuntu
+```bash
+sudo apt update
+sudo apt -y install z3
+```
+
+#### macOS
+```bash
+brew install z3
+```
+
+#### Windows
+Follow the official [installation guide](https://github.com/Z3Prover/z3).
+
 ### Installation
 
 To run `shan`, follow these steps:
