@@ -41,8 +41,11 @@ module Shan.Ast.Diagram
     selectEdgeByName,
     nonInitialEdges,
     edgesToNodes,
+    nodes,
+    edges,
     nodeCount,
     edgeCount,
+    nonInitEdges,
   )
 where
 
@@ -277,23 +280,23 @@ judgements :: SequenceDiagram -> [Judgement]
 judgements (SequenceDiagram _ _ _ js) = js
 
 automatonVars :: Automaton -> Set Variable
-automatonVars (Automaton _ _ nodes edges _) =
-  S.unions ((nodeVars <$> nodes) ++ (edgeVars <$> edges))
+automatonVars (Automaton _ _ ns es _) =
+  S.unions ((nodeVars <$> ns) ++ (edgeVars <$> es))
   where
     nodeVars (Node _ _ vars _ _) = vars
     edgeVars (Edge _ _ _ _ as) = S.unions (assignmentVars <$> as)
 
 automatonInitialEdges :: Automaton -> [Edge]
-automatonInitialEdges (Automaton _ _ _ edges _) =
-  filter isInitialEdge edges
+automatonInitialEdges (Automaton _ _ _ es _) =
+  filter isInitialEdge es
   where
     isInitial (Node Initial _ _ _ _) = True
     isInitial _ = False
     isInitialEdge (Edge _ s _ _ _) = isInitial s
 
 selectEdgeByName :: Name -> Automaton -> Edge
-selectEdgeByName n (Automaton _ _ _ edges _) =
-  let searchRes = filter (\(Edge n' _ _ _ _) -> n == n') edges
+selectEdgeByName n (Automaton _ _ _ es _) =
+  let searchRes = filter (\(Edge n' _ _ _ _) -> n == n') es
    in case searchRes of
         [] -> error (printf "No edge with name %s" n)
         [e] -> e
@@ -312,8 +315,21 @@ edgesToNodes =
   where
     edgeToNodes (Edge _ n1 n2 _ _) = [n1, n2]
 
+nodes :: Automaton -> [Node]
+nodes (Automaton _ _ ns _ _) = ns
+
+edges :: Automaton -> [Edge]
+edges (Automaton _ _ _ es _) = es
+
 nodeCount :: Automaton -> Int
-nodeCount (Automaton _ _ nodes _ _) = length nodes
+nodeCount = length . nodes
 
 edgeCount :: Automaton -> Int
-edgeCount (Automaton _ _ _ edges _) = length edges
+edgeCount = length . edges
+
+nonInitEdges :: Automaton -> [Edge]
+nonInitEdges = filter (not . isInitialEdge) . edges
+  where
+    isInitial (Node Initial _ _ _ _) = True
+    isInitial _ = False
+    isInitialEdge (Edge _ s _ _ _) = isInitial s

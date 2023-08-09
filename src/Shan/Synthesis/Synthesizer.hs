@@ -17,12 +17,15 @@ where
 import Control.Lens (Lens', makeLenses, (%~), (&), (.~), (^.))
 import Control.Monad.Reader (ReaderT (runReaderT), ask, replicateM)
 import Control.Monad.State (MonadState (get), State, evalState, put)
-import Data.List (nub)
+import Data.List (nub, (\\), delete)
 import Data.Set qualified as S
+import Data.Map qualified as M
 import Data.Text (pack)
-import Shan.Ast.Diagram (Assignment (Assignment), Automaton (Automaton), Dexpr (Dnumber), Diagrams, Differential (Differential), Edge (Edge), Event (Event), Expr (Number, Var), Fragment (..), Instance (Instance), IntFragment (..), Item (..), JudgeOp (..), Judgement (AndJ, SimpleJ), Message (Message), Node (Node), NodeType (Common, Initial), Property (Property), Reachability (Reachable, Unreachable), SequenceDiagram (SequenceDiagram), Variable, aname, automatonVars, edgesToNodes)
+import Shan.Ast.Diagram (Assignment (Assignment), Automaton (Automaton), Dexpr (Dnumber), Diagrams, Differential (Differential), Edge (Edge), Event (Event), Expr (Number, Var), Fragment (..), Instance (Instance), IntFragment (..), Item (..), JudgeOp (..), Judgement (AndJ, SimpleJ), Message (Message), Name, Node (Node), NodeType (Common, Initial), Property (Property), Reachability (Reachable, Unreachable), SequenceDiagram (SequenceDiagram), Variable, aname, automatonVars, edgesToNodes, ename, nonInitEdges)
 import System.Random (StdGen, UniformRange, mkStdGen, uniform, uniformR)
 import Text.Printf (printf)
+import Data.List.NonEmpty (groupBy)
+import Data.List.NonEmpty qualified as N
 
 type Seed = StdGen
 
@@ -67,7 +70,6 @@ data Context = Context
 data SynthesisState = SynthesisState
   { _seed :: Seed,
     _layer :: Int,
-    _eventIdx :: Index,
     _messageIdx :: Index
   }
   deriving (Show, Eq)
@@ -84,13 +86,12 @@ synthesizeCases config =
    in (\i -> genCase i config) <$> [1 .. caseCount]
 
 genCase :: Index -> SynthesisConfig -> SynthesizedCase
-genCase i config = 
+genCase i config =
   let caseSeed = (config ^. initialSeed) + i
-      sstate = SynthesisState (mkStdGen caseSeed) 0 0 0
+      sstate = SynthesisState (mkStdGen caseSeed) 0 0
       diagram = evalState (runReaderT genDiagram config) sstate
       b = config ^. checkingBound
    in SynthesizedCase (printf "gen%d" i) diagram b
-
 
 genDiagram :: Synthesis Diagrams
 genDiagram = do
@@ -98,7 +99,7 @@ genDiagram = do
   isds <- genSequenceDiagrams han
   return (isds, han)
 
--- this version of synthesizer only generates one sequence diagram
+-- this synthesizer only generates one sequence diagram
 genSequenceDiagrams :: [Automaton] -> Synthesis [SequenceDiagram]
 genSequenceDiagrams han = do
   isd <- genSequenceDiagram 1 han
@@ -179,8 +180,8 @@ genMessage :: Context -> Synthesis Message
 genMessage context = do
   msgIdx <- genMessageIdx
   (s, t) <- randomSelectTwoUnique (context ^. instances)
-  sevent <- genEvent s
-  tevent <- genEvent t
+  sevent <- genEvent context s
+  tevent <- genEvent context t
   pairs <- selectionSyncVariables context s t
   let assignments = genSyncAssignments pairs
   return $ Message (pack (printf "m%d" msgIdx)) sevent tevent assignments
@@ -198,10 +199,11 @@ selectionSyncVariables context s t = do
   where
     search (Instance n _) = automatonVars . head . filter (\a -> aname a == n) $ context ^. automata
 
-genEvent :: Instance -> Synthesis Event
-genEvent ins = do
-  evIdx <- genEventIdx
-  return $ Event (pack (printf "e%d" evIdx)) ins
+genEvent :: Context -> Instance -> Synthesis Event
+genEvent c ins = do
+  let names = getEventByInstance c ins
+  eventName <- randomSelectOne names
+  return $ Event eventName ins
 
 genSyncAssignments :: [(Variable, Variable)] -> [Assignment]
 genSyncAssignments pairs = uncurry genSyncAssignment <$> pairs
@@ -230,13 +232,39 @@ genAutomaton i = do
   let automatonName = pack $ printf "automaton%d" i
   let initialNode = genInitialNode
   vars <- genVariablesWithinAutomaton
-  unlinkedNodes <- genCommonNodes vars
-  commonEdges <- genEdges unlinkedNodes vars
-  initialEdges <- genInitialEdges initialNode unlinkedNodes vars
-  let edges = initialEdges ++ commonEdges
-  let nodes = filter (/= initialNode) (edgesToNodes edges)
-  properties <- genProperties nodes
-  return $ Automaton automatonName initialNode nodes edges properties
+  commonNodes <- genCommonNodes vars
+  commonEdges <- genEdges commonNodes vars
+  let zeroOuts = zeroOutDegree commonEdges
+  outSupplementEdges <- genOutSupplementEdges zeroOuts commonNodes vars
+  let zeroIns = zeroInDegree commonEdges
+  inSupplementEdges <- genInSupplementEdges zeroIns commonNodes vars
+  initialEdges <- genInitialEdges initialNode commonNodes vars
+  let es = initialEdges ++ filterReduntantEdges (commonEdges ++ outSupplementEdges ++ inSupplementEdges)
+  let ns = filter (/= initialNode) (edgesToNodes es)
+  properties <- genProperties ns
+  return $ Automaton automatonName initialNode ns es properties
+
+filterReduntantEdges :: [Edge] -> [Edge]
+filterReduntantEdges = map N.head . groupBy sameEndpoints
+  where
+    sameEndpoints (Edge _ s t _ _) (Edge _ s' t' _ _) = s == s' && t == t'
+
+zeroInDegree :: [Edge] -> [Node]
+zeroInDegree es =
+  let target (Edge _ _ t _ _) = t
+      allNodes = nub $ concatMap endpoints es
+      targets = nub $ target <$> es
+   in allNodes \\ targets
+
+zeroOutDegree :: [Edge] -> [Node]
+zeroOutDegree es =
+  let source (Edge _ s _ _ _) = s
+      allNodes = nub $ concatMap endpoints es
+      sources = nub $ source <$> es
+   in allNodes \\ sources
+
+endpoints :: Edge -> [Node]
+endpoints (Edge _ s t _ _) = [s, t]
 
 genCommonNodes :: [Variable] -> Synthesis [Node]
 genCommonNodes vars = do
@@ -262,40 +290,86 @@ genInitialEdges initialNode nodes vars = do
 genInitialEdge :: Index -> Node -> [Node] -> [Variable] -> Synthesis Edge
 genInitialEdge i initialNode nodes vars = do
   let edgeName = pack $ printf "ie%d" i
-  ss <- randomSelect nodes 1
-  let target = head ss
-  assignments <- genAssignments vars
+  target <- randomSelectOne nodes
+  assignments <- genAssignments vars target
   return $ Edge edgeName initialNode target Nothing assignments
 
 genEdges :: [Node] -> [Variable] -> Synthesis [Edge]
 genEdges nodes vars = do
   edgeCount <- randomEdgeCount
-  traverse (\i -> genEdge' i nodes vars) [1 .. edgeCount]
+  traverse genIthEdge [1 .. edgeCount]
+  where
+    genIthEdge i = do
+      (source, target) <- randomSelectTwoUnique nodes
+      genEdge (pack $ printf "e%d" i) source target vars
 
-genEdge' :: Index -> [Node] -> [Variable] -> Synthesis Edge
-genEdge' i nodes vars = do
-  source <- randomSelect nodes 1
-  target <- randomSelect nodes 1
-  genEdge i (head source) (head target) vars
+genInSupplementEdges :: [Node] -> [Node] -> [Variable] -> Synthesis [Edge]
+genInSupplementEdges initialNodes nodes vars = do
+  traverse genIthSupplement (zip [1::Integer ..] initialNodes)
+  where
+    genIthSupplement (i, n) = do
+      let rest = delete n nodes
+      s <- randomSelectOne rest
+      let edgeName = pack $ printf "te%d" i
+      genEdge edgeName s n vars
 
-genEdge :: Index -> Node -> Node -> [Variable] -> Synthesis Edge
-genEdge i source target vars = do
-  let edgeName = pack $ printf "e%d" i
-  guardVarCount <- randomVarCountWithinGuard
-  varsInGuard <- randomSelect vars guardVarCount
-  guard <- genGuard varsInGuard
-  assignVarCount <- randomVarCountWithinAssignment
-  varsInAssign <- randomSelect vars assignVarCount
-  assignments <- genAssignments varsInAssign
-  return $ Edge edgeName source target guard assignments
+genOutSupplementEdges :: [Node] -> [Node] -> [Variable] -> Synthesis [Edge]
+genOutSupplementEdges deadends nodes vars = do
+  traverse genIthSupplement (zip [1::Integer ..] deadends)
+  where
+    genIthSupplement (i, n) = do
+      let rest = delete n nodes
+      t <- randomSelectOne rest
+      let edgeName = pack $ printf "se%d" i
+      genEdge edgeName n t vars
 
-genAssignments :: [Variable] -> Synthesis [Assignment]
-genAssignments = traverse genAssignment
+genEdge :: Name -> Node -> Node -> [Variable] -> Synthesis Edge
+genEdge edgeName source target vars = do
+      guardVarCount <- randomVarCountWithinGuard
+      varsInGuard <- randomSelect vars guardVarCount
+      guard <- genGuard varsInGuard
+      assignVarCount <- randomVarCountWithinAssignment
+      varsInAssign <- randomSelect vars assignVarCount
+      let invars = invariantVars target
+      let assignVars = nub (varsInAssign ++ invars)
+      assignments <- genAssignments assignVars target
+      return $ Edge edgeName source target guard assignments
 
-genAssignment :: Variable -> Synthesis Assignment
-genAssignment v = do
-  constant <- randomConstant
-  return $ Assignment v (Number constant)
+-- In synthesized automaton, it's possible that the previous state breaks the invariant of the target node,
+-- so we use assignments at the edge to ensure the invariants of target node are satisfied.
+genAssignments :: [Variable] -> Node -> Synthesis [Assignment]
+genAssignments vs n = traverse genInitialAssignment vs
+  where
+    cmap = constraintMap n
+    genInitialAssignment v = do
+      config <- ask
+      let (l, u) = config ^. constantRange
+      let val = M.lookup v cmap
+      case val of
+        Nothing -> do
+          constant <- randomDouble (l, u)
+          return $ Assignment v (Number constant)
+        Just (Left d) -> do
+          constant <- randomDouble (l, d)
+          return $ Assignment v (Number constant)
+        Just (Right d) -> do
+          constant <- randomDouble (d, u)
+          return $ Assignment v (Number constant)
+
+constraintMap :: Node -> M.Map Variable (Either Double Double)
+constraintMap (Node _ _ _ _ js) = M.fromList $ extract <$> js
+  where
+    extract (SimpleJ (Var v) Ge (Number d)) = (v, Right d)
+    extract (SimpleJ (Var v) Gt (Number d)) = (v, Right d)
+    extract (SimpleJ (Var v) Le (Number d)) = (v, Left d)
+    extract (SimpleJ (Var v) Lt (Number d)) = (v, Left d)
+    extract _ = error "impossible"
+
+invariantVars :: Node -> [Variable]
+invariantVars (Node _ _ _ _ js) = extract <$> js
+  where
+    extract (SimpleJ (Var v) _ _) = v
+    extract _ = error "impossible"
 
 genGuard :: [Variable] -> Synthesis (Maybe Judgement)
 genGuard [] = return Nothing
@@ -338,10 +412,9 @@ genDifferentialEquations = traverse genDifferentialEquation
 
 genDifferentialEquation :: Variable -> Synthesis Differential
 genDifferentialEquation v = do
-  op <- randomJudgeOp
   constant <- randomConstant
   let simpleExpr = Dnumber constant
-  return $ Differential v op simpleExpr
+  return $ Differential v Eq simpleExpr
 
 selectVariablesWithinAutomaton :: [Variable] -> Synthesis [Variable]
 selectVariablesWithinAutomaton vars = do
@@ -356,6 +429,11 @@ genVariablesWithinAutomaton = do
 
 genAutomataVariable :: Int -> Variable
 genAutomataVariable = pack . printf "x%d"
+
+randomSelectOne :: [a] -> Synthesis a
+randomSelectOne lst = do
+  selection <- randomSelect lst 1
+  return $ head selection
 
 randomSelect :: [a] -> Int -> Synthesis [a]
 randomSelect lst n = do
@@ -456,12 +534,12 @@ randomIntBounds = do
   put (sstate & seed .~ g2)
   return (val2, val1)
 
-genEventIdx :: Synthesis Index
-genEventIdx = do
+randomDouble :: (Double, Double) -> Synthesis Double
+randomDouble range = do
   sstate <- get
-  let idx = sstate ^. eventIdx
-  put (sstate & eventIdx %~ (+ 1))
-  return idx
+  let (val, g) = uniformR range (sstate ^. seed)
+  put (sstate & seed .~ g)
+  return val
 
 genLayer :: Synthesis Int
 genLayer = do
@@ -485,7 +563,7 @@ genMessageIdx = do
 randomJudgeOp :: Synthesis JudgeOp
 randomJudgeOp = do
   sstate <- get
-  let (val, g) = uniformR (1 :: Int, 6) (sstate ^. seed)
+  let (val, g) = uniformR (1 :: Int, 4) (sstate ^. seed)
   put (sstate & seed .~ g)
   return $ intToOp val
   where
@@ -494,8 +572,6 @@ randomJudgeOp = do
       2 -> Gt
       3 -> Le
       4 -> Lt
-      5 -> Eq
-      6 -> Neq
       _ -> error "impossible"
 
 randomReachability :: Synthesis Reachability
@@ -535,3 +611,9 @@ randomBool = do
   let (val, g) = uniform (sstate ^. seed)
   put (sstate & seed .~ g)
   return val
+
+getEventByInstance :: Context -> Instance -> [Name]
+getEventByInstance c (Instance n _) =
+  let automaton = head $ filter (\a -> aname a == n) (c ^. automata)
+      events = ename <$> nonInitEdges automaton
+   in events
