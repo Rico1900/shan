@@ -10,7 +10,7 @@
 
 ### Preliminary
 
-Install z3 SMT solver on your computer.
+Install Z3 SMT solver on your computer.
 
 #### Ubuntu
 ```bash
