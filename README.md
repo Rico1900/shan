@@ -44,18 +44,25 @@ cd shan
 
 ### Reproducing experimental results
 
+#### Observing the experimental results
+
+- Run the first experiment with the following command.
 ```bash
-stack run +RTS -N -- parallel single1 --output single1.html
+stack run +RTS -N -- observe experiment1
 ```
 
+- Run the second experiment with the following command.
 ```bash
-stack run +RTS -N -- parallel single2 --output single2.html
+stack run +RTS -N -- observe experiment2
 ```
-- Run the first experiment with the following command.
+
+#### Measuring the performance of `shan`
+
+- Run the following command that measures the verification time of the experiment 1.
 ```bash
 stack run +RTS -N -- parallel experiment1 --output experiment1.html
 ```
-- Run the second experiment with the following command.
+- Run the following command that measures the verification time of the experiment2.
 ```bash
 stack run +RTS -N -- parallel experiment2 --output experiment2.html
 ```
