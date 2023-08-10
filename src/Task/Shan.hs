@@ -7,6 +7,7 @@ module Task.Shan
     runSingle2,
     parallelRunSingle1,
     parallelRunSingle2,
+    observeExperiment2
   )
 where
 
@@ -203,6 +204,10 @@ parallelRunExperiment2 :: IO ()
 parallelRunExperiment2 = do
   banner2
   defaultMain parallelBenchmark2
+
+observeExperiment2 :: IO ()
+observeExperiment2 = do
+  mapM_ parallelAnalyzeSynthesizedCase (synthesizeCases synthesisConfig)
 
 singleBanner1 :: IO ()
 singleBanner1 = banner "|  single case: altitude display int  |"
