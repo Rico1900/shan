@@ -31,10 +31,10 @@ synthesisConfig =
       _initialSeed = 2023,
       _checkingBound = defaultBound,
       _componentRange = (5, 10), -- key parameter, baseline: (5,10)
-      _nodeRange = (4, 10), -- key parameter, baseline: (10,20)
-      _edgeRange = (10, 20), -- key parameter, baseline: (15,30)
+      _nodeRange = (4, 10), -- key parameter, baseline: (4,10)
+      _edgeRange = (10, 20), -- key parameter, baseline: (10,20)
       _initialEdgeRange = (1, 4),
-      _variableCountRange = (2, 5), -- key parameter, baseline: (4,10)
+      _variableCountRange = (4, 8), -- key parameter, baseline: (4,10)
       _variableCountWithinNodeRange = (1, 3),
       _variableCountWithinAssignmentRange = (1, 3),
       _propertyCountRange = (0, 2),
@@ -44,7 +44,7 @@ synthesisConfig =
       _intCountRange = (1, 3), -- key parameter, baseline: (1,3)
       _intBoundRange = (1, 3),
       _priorityRange = (1, 10),
-      _maxLayer = 2 -- key parametern, baseline: 2
+      _maxLayer = 2 
     }
 
 constructCase :: String -> Int -> LiteratureCase

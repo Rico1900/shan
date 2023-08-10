@@ -13,7 +13,7 @@ import Data.Either (partitionEithers)
 import Data.List (isInfixOf)
 import Shan.Analysis.Guided (analyzeHanGuidedByTrace)
 import Shan.Analysis.Pretty (printCaseName, printIsdStatistics)
-import Shan.Analysis.Trace (Trace, traces, showTrace)
+import Shan.Analysis.Trace (Trace, traces)
 import Shan.Analysis.UnsatCore (unsatCoreToFragment)
 import Shan.Analysis.Validation (validateDiagrams)
 import Shan.Ast.Diagram (Automaton, Bound, Diagrams, Message)
@@ -22,6 +22,7 @@ import Shan.Pretty (blank)
 import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
 import Shan.Synthesis.Synthesizer qualified as Synth
 import Shan.Util (LiteratureCase (bound, name, path))
+import Text.Printf (printf)
 
 parallelAnalyzeLiteratureCase :: LiteratureCase -> IO ()
 parallelAnalyzeLiteratureCase c = do
@@ -76,7 +77,11 @@ pruner processingTasks tasks taskQueue checkResultQueue = do
       case checkResult of
         Left fragment -> do
           let filtered = filter (not . isInfixOf fragment) tasks
-          -- print ("prune tasks: " ++ show (length tasks - length filtered))
+          let pruned = length tasks - length filtered
+          let prompt = if pruned == 0
+                        then "complete 1 task"
+                        else printf "complete 1 task, prune %d tasks" pruned
+          putStrLn prompt
           let remaining =
                 if null filtered
                   then processingTasks - 1
@@ -111,8 +116,6 @@ worker b han taskQueue checkResultQueue = forever $ do
   res <- analyzeHanGuidedByTrace b han trace
   case res of
     Left unsatCore -> do
-      putStrLn $ showTrace trace
-      print unsatCore
       let fragment = unsatCoreToFragment trace unsatCore
       atomically $ writeTQueue checkResultQueue (Left fragment)
     Right counterExample -> do
