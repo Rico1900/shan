@@ -7,17 +7,18 @@ module Task.Shan
     runSingle2,
     parallelRunSingle1,
     parallelRunSingle2,
-    observeExperiment2
+    observeExperiment1,
+    observeExperiment2,
   )
 where
 
 import Criterion.Main (Benchmark, bench, bgroup, defaultMain, nfIO)
 import Shan.Analysis.Guided (analyzeLiteratureCase, analyzeSynthesizedCase)
+import Shan.Analysis.ParallelVerification (parallelAnalyzeLiteratureCase, parallelAnalyzeSynthesizedCase)
 import Shan.Pretty (banner)
 import Shan.Synthesis.Synthesizer (SynthesisConfig (..), SynthesizedCase (caseId), synthesizeCases)
 import Shan.Util (LiteratureCase (..))
 import System.FilePath ((</>))
-import Shan.Analysis.ParallelVerification (parallelAnalyzeLiteratureCase, parallelAnalyzeSynthesizedCase)
 
 basePath :: FilePath
 basePath = "./cases/Shan"
@@ -45,7 +46,7 @@ synthesisConfig =
       _intCountRange = (1, 3), -- key parameter, baseline: (1,3)
       _intBoundRange = (1, 3),
       _priorityRange = (1, 10),
-      _maxLayer = 2 
+      _maxLayer = 2
     }
 
 constructCase :: String -> Int -> LiteratureCase
@@ -95,6 +96,21 @@ medicalMonitor = "medical-monitor"
 waterTanks :: String
 waterTanks = "water-tanks"
 
+literatureCaseNames :: [String]
+literatureCaseNames =
+  [ adcBugDInt,
+    adcBugInt,
+    altitudeDisplay,
+    altitudeDisplayInt,
+    carController,
+    csmaAut,
+    fischerAut,
+    hddi,
+    learningFactory,
+    medicalMonitor,
+    waterTanks
+  ]
+
 benchLiteratureCase :: String -> Benchmark
 benchLiteratureCase s = bench s $ nfIO $ analyzeLiteratureCase $ yield s
 
@@ -109,38 +125,14 @@ parallelBenchSynthesizedCase sc = bench (caseId sc) $ nfIO $ parallelAnalyzeSynt
 
 benchmark1 :: [Benchmark]
 benchmark1 =
-  [ bgroup
-      "experiment 1"
-      [ benchLiteratureCase adcBugDInt,
-        benchLiteratureCase adcBugInt,
-        benchLiteratureCase altitudeDisplay,
-        benchLiteratureCase altitudeDisplayInt,
-        benchLiteratureCase carController,
-        benchLiteratureCase csmaAut,
-        benchLiteratureCase fischerAut,
-        benchLiteratureCase hddi,
-        benchLiteratureCase learningFactory,
-        benchLiteratureCase medicalMonitor,
-        benchLiteratureCase waterTanks
-      ]
+  [ bgroup "experiment 1" (benchLiteratureCase <$> literatureCaseNames)
   ]
 
 parallelBenchmark1 :: [Benchmark]
 parallelBenchmark1 =
   [ bgroup
       "experiment 1"
-      [ parallelBenchLiteratureCase adcBugDInt,
-        parallelBenchLiteratureCase adcBugInt,
-        parallelBenchLiteratureCase altitudeDisplay,
-        parallelBenchLiteratureCase altitudeDisplayInt,
-        parallelBenchLiteratureCase carController,
-        parallelBenchLiteratureCase csmaAut,
-        parallelBenchLiteratureCase fischerAut,
-        parallelBenchLiteratureCase hddi,
-        parallelBenchLiteratureCase learningFactory,
-        parallelBenchLiteratureCase medicalMonitor,
-        parallelBenchLiteratureCase waterTanks
-      ]
+      (parallelBenchLiteratureCase <$> literatureCaseNames)
   ]
 
 benchmarkSingle1 :: [Benchmark]
@@ -204,6 +196,10 @@ parallelRunExperiment2 :: IO ()
 parallelRunExperiment2 = do
   banner2
   defaultMain parallelBenchmark2
+
+observeExperiment1 :: IO ()
+observeExperiment1 = do
+  mapM_ parallelAnalyzeLiteratureCase (yield <$> literatureCaseNames)
 
 observeExperiment2 :: IO ()
 observeExperiment2 = do

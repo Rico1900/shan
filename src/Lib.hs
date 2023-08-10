@@ -4,7 +4,7 @@ module Lib
 where
 
 import System.Environment (getArgs, withArgs)
-import Task.Shan (parallelRunExperiment1, parallelRunExperiment2, parallelRunSingle1, parallelRunSingle2, runExperiment1, runExperiment2, runSingle1, runSingle2, observeExperiment2)
+import Task.Shan (observeExperiment1, observeExperiment2, parallelRunExperiment1, parallelRunExperiment2, parallelRunSingle1, parallelRunSingle2, runExperiment1, runExperiment2, runSingle1, runSingle2)
 
 entry :: IO ()
 entry = do
@@ -22,6 +22,7 @@ entry = do
 obaserveExperiment :: [String] -> IO ()
 obaserveExperiment args = do
   case head args of
+    "experiment1" -> withArgs (drop 1 args) observeExperiment1
     "experiment2" -> withArgs (drop 1 args) observeExperiment2
     _ -> error "invalid arguments"
 
