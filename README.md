@@ -69,3 +69,8 @@ stack run +RTS -N -- parallel experiment2 --output experiment2.html
 
 Once you execute these two commands, `shan` will produce two HTML files named `experiment1.html` and `experiment2.html`, which depict the experimental results.
 To visualize these experimental results, open these files using a web browser.
+
+### Raw Data
+
+The raw data of the experimental results are available in the `data` directory.
+The execution time reports for the experiments can be accessed online through the following links: [experiment1](https://rico1900.github.io/shan/experiment1) and [experiment2](https://rico1900.github.io/shan/experiment2).
