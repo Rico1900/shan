@@ -1,4 +1,4 @@
-module Task.Shan
+module Task.Hant
   ( runExperiment1,
     runExperiment2,
     parallelRunExperiment1,
@@ -13,11 +13,11 @@ module Task.Shan
 where
 
 import Criterion.Main (Benchmark, bench, bgroup, defaultMain, nfIO)
-import Shan.Analysis.Guided (analyzeLiteratureCase, analyzeSynthesizedCase)
-import Shan.Analysis.ParallelVerification (parallelAnalyzeLiteratureCase, parallelAnalyzeSynthesizedCase)
-import Shan.Pretty (banner)
-import Shan.Synthesis.Synthesizer (SynthesisConfig (..), SynthesizedCase (caseId), synthesizeCases)
-import Shan.Util (LiteratureCase (..))
+import Hant.Analysis.Guided (analyzeLiteratureCase, analyzeSynthesizedCase)
+import Hant.Analysis.ParallelVerification (parallelAnalyzeLiteratureCase, parallelAnalyzeSynthesizedCase)
+import Hant.Pretty (banner)
+import Hant.Synthesis.Synthesizer (SynthesisConfig (..), SynthesizedCase (caseId), synthesizeCases)
+import Hant.Util (LiteratureCase (..))
 import System.FilePath ((</>))
 
 basePath :: FilePath

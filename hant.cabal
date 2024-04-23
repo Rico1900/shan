@@ -4,14 +4,14 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           shan
+name:           hant
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/shan#readme>
-homepage:       https://github.com/githubuser/shan#readme
-bug-reports:    https://github.com/githubuser/shan/issues
-author:         lull
-maintainer:     lull.scholar@gmail.com
-copyright:      lull
+description:    Please see the README on GitHub at <>
+homepage:       https://github.com/FM24-Hant/Hant#readme
+bug-reports:    https://github.com/FM24-Hant/Hant/issues
+author:         anonymous
+maintainer:     anonymous
+copyright:      anonymous
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -21,33 +21,33 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/shan
+  location: https://github.com/FM24-Hant/Hant
 
 library
   exposed-modules:
+      Hant.Analysis.Decoder
+      Hant.Analysis.Encoder
+      Hant.Analysis.Guided
+      Hant.Analysis.LocMap
+      Hant.Analysis.Memo
+      Hant.Analysis.Offset
+      Hant.Analysis.ParallelVerification
+      Hant.Analysis.Pretty
+      Hant.Analysis.Trace
+      Hant.Analysis.UnsatCore
+      Hant.Analysis.Validation
+      Hant.Ast.Diagram
+      Hant.Ast.Diagram.Parser
+      Hant.Parser
+      Hant.Pretty
+      Hant.Synthesis.Synthesizer
+      Hant.Util
+      Hant.Uxf.HtmlProcessor
+      Hant.Uxf.Uxf
       Lib
-      Shan.Analysis.Decoder
-      Shan.Analysis.Encoder
-      Shan.Analysis.Guided
-      Shan.Analysis.LocMap
-      Shan.Analysis.Memo
-      Shan.Analysis.Offset
-      Shan.Analysis.ParallelVerification
-      Shan.Analysis.Pretty
-      Shan.Analysis.Trace
-      Shan.Analysis.UnsatCore
-      Shan.Analysis.Validation
-      Shan.Ast.Diagram
-      Shan.Ast.Diagram.Parser
-      Shan.Parser
-      Shan.Pretty
-      Shan.Synthesis.Synthesizer
-      Shan.Util
-      Shan.Uxf.HtmlProcessor
-      Shan.Uxf.Uxf
-      Task.Shan
+      Task.Hant
   other-modules:
-      Paths_shan
+      Paths_hant
   hs-source-dirs:
       src
   default-extensions:
@@ -77,10 +77,10 @@ library
     , xeno
   default-language: Haskell2010
 
-executable shan-exe
+executable hant-exe
   main-is: Main.hs
   other-modules:
-      Paths_shan
+      Paths_hant
   hs-source-dirs:
       app
   default-extensions:
@@ -97,13 +97,13 @@ executable shan-exe
     , criterion
     , directory
     , filepath
+    , hant
     , lens
     , megaparsec
     , mtl
     , parser-combinators
     , random
     , sbv
-    , shan
     , split
     , stm
     , text
@@ -111,12 +111,12 @@ executable shan-exe
     , xeno
   default-language: Haskell2010
 
-test-suite shan-test
+test-suite hant-test
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
       ParseSpec
-      Paths_shan
+      Paths_hant
   hs-source-dirs:
       test
   default-extensions:
@@ -133,13 +133,13 @@ test-suite shan-test
     , criterion
     , directory
     , filepath
+    , hant
     , lens
     , megaparsec
     , mtl
     , parser-combinators
     , random
     , sbv
-    , shan
     , split
     , stm
     , sydtest

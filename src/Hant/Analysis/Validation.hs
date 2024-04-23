@@ -1,11 +1,11 @@
-module Shan.Analysis.Validation
+module Hant.Analysis.Validation
   ( validateDiagrams,
   )
 where
 
 import Data.Set ((\\))
 import Data.Set qualified as S
-import Shan.Ast.Diagram (Automaton, Diagrams, SequenceDiagram (SequenceDiagram), judgementVars, judgements, messages, mname, aname, iname)
+import Hant.Ast.Diagram (Automaton, Diagrams, SequenceDiagram (SequenceDiagram), judgementVars, judgements, messages, mname, aname, iname)
 import Text.Printf (printf)
 
 validateDiagrams :: Diagrams -> [String]

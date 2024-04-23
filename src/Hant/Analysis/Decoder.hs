@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-module Shan.Analysis.Decoder
+module Hant.Analysis.Decoder
   ( explain,
   )
 where
@@ -13,18 +13,18 @@ import Data.Map (Map, fromList, toList)
 import Data.Maybe (mapMaybe)
 import Data.SBV.Internals (AlgReal (..), CV (cvVal), CVal (..), SMTModel (modelAssocs))
 import Data.Text (pack, unpack)
-import Shan.Analysis.Encoder (durationVarStr, moduleSeparation, nodeVarStr, syncTimeVarStr, syncValueVarStr)
-import Shan.Analysis.LocMap (ReverseMap, constructMap, reverseMap, rlookup)
-import Shan.Analysis.Pretty (arrowStr, arrowWithInfoStr, emptyBox, padding, seal, (|++|), invisibleBox, syncArrorStr, syncArrowWithInfoStr)
-import Shan.Analysis.Trace (Index)
-import Shan.Ast.Diagram (Automaton, Name, Variable, Bound)
-import Shan.Ast.Diagram.Parser (nameParser, variableParser)
-import Shan.Util (Parser, symbolS)
+import Hant.Analysis.Encoder (durationVarStr, moduleSeparation, nodeVarStr, syncTimeVarStr, syncValueVarStr)
+import Hant.Analysis.LocMap (ReverseMap, constructMap, reverseMap, rlookup)
+import Hant.Analysis.Pretty (arrowStr, arrowWithInfoStr, emptyBox, padding, seal, (|++|), invisibleBox, syncArrorStr, syncArrowWithInfoStr)
+import Hant.Analysis.Trace (Index)
+import Hant.Ast.Diagram (Automaton, Name, Variable, Bound)
+import Hant.Ast.Diagram.Parser (nameParser, variableParser)
+import Hant.Util (Parser, symbolS)
 import Text.Megaparsec (MonadParsec (try), choice, errorBundlePretty, manyTill, parse)
 import Text.Megaparsec.Char (alphaNumChar)
 import Text.Megaparsec.Char.Lexer (decimal)
 import Control.Arrow (second)
-import Shan.Analysis.Offset (segmentLength)
+import Hant.Analysis.Offset (segmentLength)
 
 instance Show CVal where
   show (CAlgReal _) = "CAlgReal"

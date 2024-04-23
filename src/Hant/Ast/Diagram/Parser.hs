@@ -2,7 +2,7 @@
 
 {-# HLINT ignore "Use <$>" #-}
 
-module Shan.Ast.Diagram.Parser
+module Hant.Ast.Diagram.Parser
   ( parseDiagram,
     parseSequenceDiagram,
     parseAutomaton,
@@ -26,7 +26,7 @@ import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Void (Void)
-import Shan.Ast.Diagram
+import Hant.Ast.Diagram
   ( Assignment (Assignment),
     Automaton (Automaton),
     Bound,
@@ -53,8 +53,8 @@ import Shan.Ast.Diagram
     differentialVars,
     judgementVars,
   )
-import Shan.Util (Parser, symbolS, symbolW)
-import Shan.Uxf.Uxf (Basic, DiagramType (..), Element (BasicE, RelationE), RawDiagram (..), Relation, UMLType (..), content, element, elementType, h, sourceX, sourceY, targetX, targetY, w, x, y, (=?))
+import Hant.Util (Parser, symbolS, symbolW)
+import Hant.Uxf.Uxf (Basic, DiagramType (..), Element (BasicE, RelationE), RawDiagram (..), Relation, UMLType (..), content, element, elementType, h, sourceX, sourceY, targetX, targetY, w, x, y, (=?))
 import Text.Megaparsec (MonadParsec (eof, try), anySingle, between, choice, manyTill, optional, parse, single, (<?>))
 import Text.Megaparsec qualified as Mega
 import Text.Megaparsec.Char (alphaNumChar, char, letterChar, newline, space)

@@ -1,4 +1,4 @@
-module Shan.Util
+module Hant.Util
   ( LiteratureCase (..),
     Parser,
     symbolS,
@@ -10,7 +10,7 @@ import Control.Applicative.Combinators (many)
 import Control.Monad (void)
 import Data.Text (Text)
 import Data.Void (Void)
-import Shan.Ast.Diagram (Bound)
+import Hant.Ast.Diagram (Bound)
 import Text.Megaparsec (single)
 import Text.Megaparsec qualified as Mega
 import Text.Megaparsec.Char (space)

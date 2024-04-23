@@ -1,4 +1,4 @@
-module Shan.Analysis.Trace
+module Hant.Analysis.Trace
   ( Trace,
     Direction (..),
     LMessage,
@@ -16,7 +16,7 @@ import Data.Map ((!))
 import Data.Map qualified as M
 import Data.Text qualified as T
 import Data.Universe.Helpers (cartesianProduct)
-import Shan.Ast.Diagram (Automaton (Automaton), Event (Event), Fragment (..), Instance (Instance), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, ename, splitSequenceDiagram)
+import Hant.Ast.Diagram (Automaton (Automaton), Event (Event), Fragment (..), Instance (Instance), IntFragment (IntFragment), Item (ItemF, ItemM), Message (Message), Priority, SequenceDiagram, ename, splitSequenceDiagram)
 
 type Trace = [Message]
 

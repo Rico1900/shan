@@ -6,7 +6,7 @@ module ParseSpec(
 ) where
 
 import Test.Syd (Spec, describe, it)
-import Shan.Ast.Diagram.Parser (parseJudgement)
+import Hant.Ast.Diagram.Parser (parseJudgement)
 
 parseSpec :: Spec
 parseSpec = do

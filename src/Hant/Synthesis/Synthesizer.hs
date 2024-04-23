@@ -6,7 +6,7 @@
 {-# HLINT ignore "Use head" #-}
 {-# HLINT ignore "Avoid lambda using `infix`" #-}
 
-module Shan.Synthesis.Synthesizer
+module Hant.Synthesis.Synthesizer
   ( SynthesisConfig (..),
     SynthesizedCase (..),
     genCase,
@@ -21,7 +21,7 @@ import Data.List (nub, (\\), delete)
 import Data.Set qualified as S
 import Data.Map qualified as M
 import Data.Text (pack)
-import Shan.Ast.Diagram (Assignment (Assignment), Automaton (Automaton), Dexpr (Dnumber), Diagrams, Differential (Differential), Edge (Edge), Event (Event), Expr (Number, Var), Fragment (..), Instance (Instance), IntFragment (..), Item (..), JudgeOp (..), Judgement (SimpleJ), Message (Message), Name, Node (Node), NodeType (Common, Initial), Property (Property), Reachability (Reachable, Unreachable), SequenceDiagram (SequenceDiagram), Variable, aname, edgesToNodes, ename, nonInitEdges)
+import Hant.Ast.Diagram (Assignment (Assignment), Automaton (Automaton), Dexpr (Dnumber), Diagrams, Differential (Differential), Edge (Edge), Event (Event), Expr (Number, Var), Fragment (..), Instance (Instance), IntFragment (..), Item (..), JudgeOp (..), Judgement (SimpleJ), Message (Message), Name, Node (Node), NodeType (Common, Initial), Property (Property), Reachability (Reachable, Unreachable), SequenceDiagram (SequenceDiagram), Variable, aname, edgesToNodes, ename, nonInitEdges)
 import System.Random (StdGen, UniformRange, mkStdGen, uniform, uniformR)
 import Text.Printf (printf)
 import Data.List.NonEmpty (groupBy)

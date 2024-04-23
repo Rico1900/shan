@@ -2,7 +2,7 @@
 
 {-# HLINT ignore "Redundant bracket" #-}
 
-module Shan.Analysis.Guided
+module Hant.Analysis.Guided
   ( analyzeLiteratureCase,
     analyzeSynthesizedCase,
     analyzeHanGuidedByTrace
@@ -15,23 +15,23 @@ import Data.SBV (OrdSymbolic, SBool, SReal, SWord8, SymVal (literal), namedConst
 import Data.SBV.Control (CheckSatResult (..), SMTOption (..), checkSat, getUnknownReason, getUnsatCore, query, getModel)
 import Data.Set (Set, (\\))
 import Data.Set qualified as S
-import Shan.Analysis.LocMap (LocMap, llookup)
-import Shan.Analysis.Memo (Memo (locLiteralMap), SymMemo, emptyMemo, insertDuration, insertLocation, insertSyncTime, insertSyncValue, insertVariable, lookupDuration, lookupLocation, lookupSyncTime, lookupSyncValue, lookupVariable)
-import Shan.Analysis.Pretty (printCaseName, printIsdStatistics)
-import Shan.Analysis.Trace (Direction (..), Index, LMessage, LTrace, Trace, projection, selectEvent, showTrace, traces)
-import Shan.Analysis.UnsatCore (initialName, propertiesName, pruneTracesViaUnsatCore, segmentName)
-import Shan.Analysis.Validation (validateDiagrams)
-import Shan.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Diagrams, Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, aname, automatonInitialEdges, automatonVars, nname, nonInitialEdges, selectEdgeByName)
-import Shan.Parser (parseShan)
-import Shan.Pretty (separationLine)
-import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
-import Shan.Synthesis.Synthesizer qualified as Synth
-import Shan.Util (LiteratureCase (..))
+import Hant.Analysis.LocMap (LocMap, llookup)
+import Hant.Analysis.Memo (Memo (locLiteralMap), SymMemo, emptyMemo, insertDuration, insertLocation, insertSyncTime, insertSyncValue, insertVariable, lookupDuration, lookupLocation, lookupSyncTime, lookupSyncValue, lookupVariable)
+import Hant.Analysis.Pretty (printCaseName, printIsdStatistics)
+import Hant.Analysis.Trace (Direction (..), Index, LMessage, LTrace, Trace, projection, selectEvent, showTrace, traces)
+import Hant.Analysis.UnsatCore (initialName, propertiesName, pruneTracesViaUnsatCore, segmentName)
+import Hant.Analysis.Validation (validateDiagrams)
+import Hant.Ast.Diagram (Assignment (..), Automaton (Automaton), Bound, Dexpr (..), Diagrams, Differential (..), Edge (..), Event (Event), Expr (..), JudgeOp (..), Judgement (..), Message (Message), Name, Node (Node), Property (Property), Reachability (..), Variable, aname, automatonInitialEdges, automatonVars, nname, nonInitialEdges, selectEdgeByName)
+import Hant.Parser (parseShan)
+import Hant.Pretty (separationLine)
+import Hant.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
+import Hant.Synthesis.Synthesizer qualified as Synth
+import Hant.Util (LiteratureCase (..))
 import Text.Printf (printf)
-import Shan.Analysis.Offset (segmentStartIndex, segmentEndpoints, locationIndices, indexTrace, oneToEndIdx, initialLocationIndex, initialSegmentIndex)
+import Hant.Analysis.Offset (segmentStartIndex, segmentEndpoints, locationIndices, indexTrace, oneToEndIdx, initialLocationIndex, initialSegmentIndex)
 
-import Shan.Analysis.Encoder (durationVarName, nodeVarName, variableVarName, syncTimeVarName, syncValueVarName)
-import Shan.Analysis.Decoder (explain)
+import Hant.Analysis.Encoder (durationVarName, nodeVarName, variableVarName, syncTimeVarName, syncValueVarName)
+import Hant.Analysis.Decoder (explain)
 
 analyzeLiteratureCase :: LiteratureCase -> IO ()
 analyzeLiteratureCase c = do

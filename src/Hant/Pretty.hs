@@ -1,4 +1,4 @@
-module Shan.Pretty
+module Hant.Pretty
   ( banner,
     line,
     separationLine,

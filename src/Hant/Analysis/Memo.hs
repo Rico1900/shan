@@ -1,4 +1,4 @@
-module Shan.Analysis.Memo
+module Hant.Analysis.Memo
   ( Memo (..),
     SymMemo,
     emptyMemo,
@@ -19,9 +19,9 @@ import Control.Monad.State (StateT)
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.SBV (SReal, SWord8, Symbolic)
-import Shan.Analysis.LocMap (LocMap, constructMap)
-import Shan.Analysis.Trace (Index)
-import Shan.Ast.Diagram (Automaton, Name, Variable)
+import Hant.Analysis.LocMap (LocMap, constructMap)
+import Hant.Analysis.Trace (Index)
+import Hant.Ast.Diagram (Automaton, Name, Variable)
 
 data Memo = Memo
   { durationMap :: Map (Name, Index) SReal,

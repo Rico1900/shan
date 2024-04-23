@@ -1,4 +1,4 @@
-module Shan.Ast.Diagram
+module Hant.Ast.Diagram
   ( JudgeOp (..),
     Name,
     Scope,

@@ -2,7 +2,7 @@
 
 {-# HLINT ignore "Eta reduce" #-}
 
-module Shan.Analysis.Encoder
+module Hant.Analysis.Encoder
   ( moduleSeparation,
     durationVarStr,
     nodeVarStr,
@@ -16,8 +16,8 @@ module Shan.Analysis.Encoder
   )
 where
 
-import Shan.Analysis.Trace (Index)
-import Shan.Ast.Diagram (Name, Variable)
+import Hant.Analysis.Trace (Index)
+import Hant.Ast.Diagram (Name, Variable)
 import Text.Printf (printf)
 
 moduleSeparation :: String

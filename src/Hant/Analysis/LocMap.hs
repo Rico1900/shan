@@ -1,4 +1,4 @@
-module Shan.Analysis.LocMap
+module Hant.Analysis.LocMap
   ( LocMap,
     ReverseMap,
     constructMap,
@@ -12,7 +12,7 @@ import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Text (Text)
 import Data.Word (Word8)
-import Shan.Ast.Diagram (Automaton (Automaton), Node (..))
+import Hant.Ast.Diagram (Automaton (Automaton), Node (..))
 
 type LocMap = Map (Text, Text) Word8
 

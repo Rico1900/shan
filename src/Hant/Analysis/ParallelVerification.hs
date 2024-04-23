@@ -1,4 +1,4 @@
-module Shan.Analysis.ParallelVerification
+module Hant.Analysis.ParallelVerification
   ( parallelAnalyze,
     parallelAnalyzeLiteratureCase,
     parallelAnalyzeSynthesizedCase,
@@ -11,17 +11,17 @@ import Control.Concurrent.STM (TQueue, atomically, newTQueueIO, readTQueue, writ
 import Control.Monad (forever, replicateM_)
 import Data.Either (partitionEithers)
 import Data.List (isInfixOf)
-import Shan.Analysis.Guided (analyzeHanGuidedByTrace)
-import Shan.Analysis.Pretty (printCaseName, printIsdStatistics)
-import Shan.Analysis.Trace (Trace, traces)
-import Shan.Analysis.UnsatCore (unsatCoreToFragment)
-import Shan.Analysis.Validation (validateDiagrams)
-import Shan.Ast.Diagram (Automaton, Bound, Diagrams, Message)
-import Shan.Parser (parseShan)
-import Shan.Pretty (blank)
-import Shan.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
-import Shan.Synthesis.Synthesizer qualified as Synth
-import Shan.Util (LiteratureCase (bound, name, path))
+import Hant.Analysis.Guided (analyzeHanGuidedByTrace)
+import Hant.Analysis.Pretty (printCaseName, printIsdStatistics)
+import Hant.Analysis.Trace (Trace, traces)
+import Hant.Analysis.UnsatCore (unsatCoreToFragment)
+import Hant.Analysis.Validation (validateDiagrams)
+import Hant.Ast.Diagram (Automaton, Bound, Diagrams, Message)
+import Hant.Parser (parseShan)
+import Hant.Pretty (blank)
+import Hant.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
+import Hant.Synthesis.Synthesizer qualified as Synth
+import Hant.Util (LiteratureCase (bound, name, path))
 import Text.Printf (printf)
 
 parallelAnalyzeLiteratureCase :: LiteratureCase -> IO ()

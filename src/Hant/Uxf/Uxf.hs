@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Shan.Uxf.Uxf
+module Hant.Uxf.Uxf
   ( UMLType (..),
     DiagramType (..),
     RawDiagram (..),
@@ -38,7 +38,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Void (Void)
-import Shan.Uxf.HtmlProcessor (processHtmlEntries)
+import Hant.Uxf.HtmlProcessor (processHtmlEntries)
 import System.Directory (listDirectory)
 import System.FilePath (takeFileName, (</>))
 import Text.Megaparsec (MonadParsec (eof), Parsec, (<|>))

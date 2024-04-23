@@ -1,4 +1,4 @@
-module Shan.Analysis.UnsatCore
+module Hant.Analysis.UnsatCore
   ( SmtFormulaTag (..),
     propertiesName,
     initialName,
@@ -13,9 +13,9 @@ import Control.Monad (void)
 import Data.List (groupBy, isInfixOf, sortOn)
 import Data.Maybe (mapMaybe)
 import Data.Text (pack)
-import Shan.Analysis.Trace (Index, Trace)
-import Shan.Ast.Diagram (Automaton, Name, aname, Message)
-import Shan.Util (Parser, symbolS)
+import Hant.Analysis.Trace (Index, Trace)
+import Hant.Ast.Diagram (Automaton, Name, aname, Message)
+import Hant.Util (Parser, symbolS)
 import Text.Megaparsec (choice, many, manyTill, parse, try, (<|>))
 import Text.Megaparsec qualified as Mega
 import Text.Megaparsec.Char (letterChar, numberChar)

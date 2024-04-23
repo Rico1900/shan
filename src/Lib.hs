@@ -4,7 +4,7 @@ module Lib
 where
 
 import System.Environment (getArgs, withArgs)
-import Task.Shan (observeExperiment1, observeExperiment2, parallelRunExperiment1, parallelRunExperiment2, parallelRunSingle1, parallelRunSingle2, runExperiment1, runExperiment2, runSingle1, runSingle2)
+import Task.Hant (observeExperiment1, observeExperiment2, parallelRunExperiment1, parallelRunExperiment2, parallelRunSingle1, parallelRunSingle2, runExperiment1, runExperiment2, runSingle1, runSingle2)
 
 entry :: IO ()
 entry = do

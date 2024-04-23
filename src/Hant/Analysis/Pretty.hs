@@ -1,4 +1,4 @@
-module Shan.Analysis.Pretty
+module Hant.Analysis.Pretty
   ( modelValues,
     printCaseName,
     printIsdStatistics,
@@ -15,8 +15,8 @@ module Shan.Analysis.Pretty
 where
 
 import Data.SBV.Internals (SMTModel (modelAssocs))
-import Shan.Analysis.Trace (Trace)
-import Shan.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram, Automaton (Automaton), nodeCount, edgeCount, Bound)
+import Hant.Analysis.Trace (Trace)
+import Hant.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram, Automaton (Automaton), nodeCount, edgeCount, Bound)
 import Text.Printf (printf)
 
 modelValues :: SMTModel -> String

@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "[Replace {rtype = Expr, pos = SrcSpan {startLine = 26, startCol = 48, endLine = 26, endCol = 65}, subts = [("x",SrcSpan {startLine = 26, startCol = 49, endLine = 26, endCol = 64})], orig = "x"}]" #-}
-module Shan.Analysis.Offset
+module Hant.Analysis.Offset
   ( segmentLength,
     segmentStartIndex,
     segmentEndpoints,
@@ -12,8 +12,8 @@ module Shan.Analysis.Offset
   )
 where
 
-import Shan.Analysis.Trace (Index)
-import Shan.Ast.Diagram (Bound)
+import Hant.Analysis.Trace (Index)
+import Hant.Ast.Diagram (Bound)
 
 segmentLength :: Bound -> Int
 segmentLength b = b + 1

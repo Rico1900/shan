@@ -1,11 +1,11 @@
-module Shan.Parser
+module Hant.Parser
   ( parseShan,
   )
 where
 
-import Shan.Ast.Diagram (Automaton, SequenceDiagram)
-import Shan.Ast.Diagram.Parser (parseDiagram)
-import Shan.Uxf.Uxf (parseUxfFolder)
+import Hant.Ast.Diagram (Automaton, SequenceDiagram)
+import Hant.Ast.Diagram.Parser (parseDiagram)
+import Hant.Uxf.Uxf (parseUxfFolder)
 
 parseShan :: FilePath -> IO [Either SequenceDiagram Automaton]
 parseShan p =
