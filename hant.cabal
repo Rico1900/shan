@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Hant.Analysis.Coverage
       Hant.Analysis.Decoder
       Hant.Analysis.Encoder
       Hant.Analysis.Guided

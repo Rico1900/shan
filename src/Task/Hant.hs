@@ -9,6 +9,8 @@ module Task.Hant
     parallelRunSingle2,
     observeExperiment1,
     observeExperiment2,
+    coverageExperiment1,
+    coverageExperiment2
   )
 where
 
@@ -19,6 +21,7 @@ import Hant.Pretty (banner)
 import Hant.Synthesis.Synthesizer (SynthesisConfig (..), SynthesizedCase (caseId), synthesizeCases)
 import Hant.Util (LiteratureCase (..))
 import System.FilePath ((</>))
+import Hant.Analysis.Coverage (coverageLiteratureCase, coverageSynthesizedCase)
 
 basePath :: FilePath
 basePath = "./cases/Shan"
@@ -204,6 +207,14 @@ observeExperiment1 = do
 observeExperiment2 :: IO ()
 observeExperiment2 = do
   mapM_ parallelAnalyzeSynthesizedCase (synthesizeCases synthesisConfig)
+
+coverageExperiment1 :: IO ()
+coverageExperiment1 = do
+  mapM_ coverageLiteratureCase (yield <$> literatureCaseNames)
+
+coverageExperiment2 :: IO ()
+coverageExperiment2 = do
+  mapM_ coverageSynthesizedCase (synthesizeCases synthesisConfig)
 
 singleBanner1 :: IO ()
 singleBanner1 = banner "|  single case: altitude display int  |"

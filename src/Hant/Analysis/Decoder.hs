@@ -4,6 +4,10 @@
 
 module Hant.Analysis.Decoder
   ( explain,
+    decodeModel,
+    Transition(Transition),
+    Transitions,
+    TransitionState(currentLocation)
   )
 where
 

@@ -43,9 +43,11 @@ module Hant.Ast.Diagram
     edgesToNodes,
     nodes,
     edges,
+    edgeMap,
     nodeCount,
     edgeCount,
     nonInitEdges,
+    namedHan
   )
 where
 
@@ -53,6 +55,8 @@ import Data.List (nub)
 import Data.Maybe (fromMaybe, mapMaybe)
 import Data.Set (Set)
 import Data.Set qualified as S
+import Data.Map (Map)
+import Data.Map qualified as M
 import Data.Text (Text)
 import Text.Printf (printf)
 
@@ -321,6 +325,10 @@ nodes (Automaton _ _ ns _ _) = ns
 edges :: Automaton -> [Edge]
 edges (Automaton _ _ _ es _) = es
 
+edgeMap :: Automaton -> Map (Name, Name) Name
+edgeMap (Automaton _ _ _ es _) =
+  M.fromList [((nname s, nname t), n) | Edge n s t _ _ <- es]
+
 nodeCount :: Automaton -> Int
 nodeCount = length . nodes
 
@@ -333,3 +341,6 @@ nonInitEdges = filter (not . isInitialEdge) . edges
     isInitial (Node Initial _ _ _ _) = True
     isInitial _ = False
     isInitialEdge (Edge _ s _ _ _) = isInitial s
+
+namedHan :: [Automaton] -> Map Name Automaton
+namedHan = M.fromList . map (\a -> (aname a, a))

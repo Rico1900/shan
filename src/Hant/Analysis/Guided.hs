@@ -5,7 +5,8 @@
 module Hant.Analysis.Guided
   ( analyzeLiteratureCase,
     analyzeSynthesizedCase,
-    analyzeHanGuidedByTrace
+    analyzeHanGuidedByTrace,
+    encodeAutomataGuidedByTrace
   )
 where
 
@@ -38,17 +39,17 @@ analyzeLiteratureCase c = do
   printCaseName (name c)
   sdOrAutomaton <- parseShan (path c)
   let diags = partitionEithers sdOrAutomaton
-  analyze (bound c) diags
+  validateThenAnalyze (bound c) diags
 
 analyzeSynthesizedCase :: SynthesizedCase -> IO ()
 analyzeSynthesizedCase c = do
   printCaseName (caseId c)
   let diags = diagrams c
   let b = Synth.bound c
-  analyze b diags
+  validateThenAnalyze b diags
 
-analyze :: Bound -> Diagrams -> IO ()
-analyze b (sds, han) = do
+validateThenAnalyze :: Bound -> Diagrams -> IO ()
+validateThenAnalyze b (sds, han) = do
   let validationRes = validateDiagrams (sds, han)
   case validationRes of
     [] -> let ts = concatMap traces sds

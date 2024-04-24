@@ -4,7 +4,7 @@ module Lib
 where
 
 import System.Environment (getArgs, withArgs)
-import Task.Hant (observeExperiment1, observeExperiment2, parallelRunExperiment1, parallelRunExperiment2, parallelRunSingle1, parallelRunSingle2, runExperiment1, runExperiment2, runSingle1, runSingle2)
+import Task.Hant (observeExperiment1, observeExperiment2, parallelRunExperiment1, parallelRunExperiment2, parallelRunSingle1, parallelRunSingle2, runExperiment1, runExperiment2, runSingle1, runSingle2, coverageExperiment1, coverageExperiment2)
 
 entry :: IO ()
 entry = do
@@ -13,11 +13,19 @@ entry = do
     then case head args of
       "parallel" -> parallelExperiment (drop 1 args)
       "observe" -> obaserveExperiment (drop 1 args)
+      "coverage" -> coverageExperiment (drop 1 args)
       _ -> sequenceExperiment args
     else
       if length args == 1
         then sequenceExperiment args
         else error "invalid arguments"
+
+coverageExperiment :: [String] -> IO ()
+coverageExperiment args = do
+  case head args of
+    "experiment1" -> withArgs (drop 1 args) coverageExperiment1
+    "experiment2" -> withArgs (drop 1 args) coverageExperiment2
+    _ -> error "invalid arguments"
 
 obaserveExperiment :: [String] -> IO ()
 obaserveExperiment args = do

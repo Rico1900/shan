@@ -11,6 +11,7 @@ module Hant.Analysis.Pretty
     seal,
     padding,
     (|++|),
+    countHanModesAndTransitions
   )
 where
 
@@ -41,6 +42,9 @@ printIsdStatistics b sds ts han = do
   printHanNodesAndEdges han
   printIntCount sds
   printTraceCount (length ts)
+
+countHanModesAndTransitions :: [Automaton] -> (Int, Int)
+countHanModesAndTransitions han = (sum (nodeCount <$> han), sum (edgeCount <$> han))
 
 printBound :: Bound -> IO ()
 printBound b = do
