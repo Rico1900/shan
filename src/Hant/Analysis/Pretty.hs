@@ -78,7 +78,7 @@ printIntCount sds = do
 
 printTraceCount :: Int -> IO ()
 printTraceCount n = do
-  putStrLn $ "trace count: " ++ show n
+  putStrLn $ "test cases: " ++ show n
 
 emptyBox :: String
 emptyBox = "┌───┐\n│   │\n└───┘"

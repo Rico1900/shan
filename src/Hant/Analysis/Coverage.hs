@@ -32,7 +32,7 @@ coverageLiteratureCase c = do
   let (sds, automata) = partitionEithers sdOrAutomaton
   let b = bound c
   let (totalModes, totalTransitions) = countHanModesAndTransitions automata
-  let ts = take 2 (concatMap traces sds)
+  let ts = take 100 (concatMap traces sds)
   mapped <- mapM (coverageOfHanPerTrace b automata) ts
   let (modes, transitions) = foldl (\(m, t) (m', t') -> (S.union m m', S.union t t')) (S.empty, S.empty) mapped
   putStrLn $ "Total modes: " ++ show totalModes
