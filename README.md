@@ -1,12 +1,12 @@
 <h1 align="center">
-  shan
+  hant
 </h1>
 
 <p align="center">
   <img src="./img/logo.jpg" width="200" />
 </p>
 
-`shan` is a verification tool for verifying scenario-controlled hybrid automata network, which combines interrupt sequence diagrams and hybrid automata networks to facilitate modelling of distributed hybrid systems.
+`hant` is a testing framework for partially verifying hybrid automata networks. It utilizes event and bound sequences as test cases, encoding both these test cases and the HAN under test as SMT formulas. 
 
 ### Preliminary
 
@@ -28,7 +28,7 @@ Follow the official [installation guide](https://github.com/Z3Prover/z3).
 
 ### Installation
 
-To run `shan`, follow these steps:
+To run `hant`, follow these steps:
 1. Install Haskell toolchains using [GHCup](https://www.haskell.org/ghcup/).
   - GHC 9.2.7
   - cabal 3.10.1.0
@@ -56,7 +56,14 @@ stack run +RTS -N -- observe experiment1
 stack run +RTS -N -- observe experiment2
 ```
 
-#### Measuring the performance of `shan`
+#### Measuring the coverage of `hant`
+
+- Run the following command that measures the coverage of the experiment 1.
+```bash
+stack run +RTS -N -- coverage experiment1
+```
+
+#### Measuring the performance of `hant`
 
 - Run the following command that measures the verification time of the experiment 1.
 ```bash
@@ -67,7 +74,7 @@ stack run +RTS -N -- parallel experiment1 --output experiment1.html
 stack run +RTS -N -- parallel experiment2 --output experiment2.html
 ```
 
-Once you execute these two commands, `shan` will produce two HTML files named `experiment1.html` and `experiment2.html`, which depict the experimental results.
+Once you execute these two commands, `hant` will produce two HTML files named `experiment1.html` and `experiment2.html`, which depict the experimental results.
 To visualize these experimental results, open these files using a web browser.
 
 ### Raw Data
