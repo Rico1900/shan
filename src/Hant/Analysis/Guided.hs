@@ -6,7 +6,8 @@ module Hant.Analysis.Guided
   ( analyzeLiteratureCase,
     analyzeSynthesizedCase,
     analyzeHanGuidedByTrace,
-    encodeAutomataGuidedByTrace
+    encodeAutomataGuidedByTrace,
+    tickLiteratureCase
   )
 where
 
@@ -33,6 +34,37 @@ import Hant.Analysis.Offset (segmentStartIndex, segmentEndpoints, locationIndice
 
 import Hant.Analysis.Encoder (durationVarName, nodeVarName, variableVarName, syncTimeVarName, syncValueVarName)
 import Hant.Analysis.Decoder (explain)
+import Data.Time (getCurrentTime, UTCTime, diffUTCTime)
+
+tickLiteratureCase :: LiteratureCase -> IO ()
+tickLiteratureCase c = do
+  printCaseName (name c)
+  sdOrAutomaton <- parseShan (path c)
+  let (sds, han) = partitionEithers sdOrAutomaton
+  let ts = take 100 (concatMap traces sds)
+  let b = bound c
+  startTime <- getCurrentTime
+  mapM_ (\t -> oneTick b han t startTime) ts
+
+oneTick :: Bound -> [Automaton] -> Trace -> UTCTime -> IO ()
+oneTick b han t startTime = do 
+  runSMT verificationQuery
+  endTime <- getCurrentTime
+  let diff = diffUTCTime endTime startTime
+  putStrLn $ "Time consumption: " ++ show diff
+  where
+    verificationQuery = do
+      evalStateT (encodeAutomataWithProperties b han t) (emptyMemo han)
+      query $ do
+        satRes <- checkSat
+        case satRes of
+          Unsat -> return ()
+          Sat -> error "sat"
+          DSat Nothing -> error "delta satisfiable"
+          DSat (Just s) -> error $ "delta satisfiable: " ++ show s
+          Unk -> do
+            reason <- getUnknownReason
+            error $ "unknown: " ++ show reason
 
 analyzeLiteratureCase :: LiteratureCase -> IO ()
 analyzeLiteratureCase c = do

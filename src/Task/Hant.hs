@@ -10,12 +10,15 @@ module Task.Hant
     observeExperiment1,
     observeExperiment2,
     coverageExperiment1,
-    coverageExperiment2
+    coverageExperiment2,
+    altitudeDisplayTick,
+    carControllerTick,
+    learningFactoryTick,
   )
 where
 
 import Criterion.Main (Benchmark, bench, bgroup, defaultMain, nfIO)
-import Hant.Analysis.Guided (analyzeLiteratureCase, analyzeSynthesizedCase)
+import Hant.Analysis.Guided (analyzeLiteratureCase, analyzeSynthesizedCase, tickLiteratureCase)
 import Hant.Analysis.ParallelVerification (parallelAnalyzeLiteratureCase, parallelAnalyzeSynthesizedCase)
 import Hant.Pretty (banner)
 import Hant.Synthesis.Synthesizer (SynthesisConfig (..), SynthesizedCase (caseId), synthesizeCases)
@@ -216,11 +219,27 @@ coverageExperiment2 :: IO ()
 coverageExperiment2 = do
   mapM_ coverageSynthesizedCase (synthesizeCases synthesisConfig)
 
+tick :: String -> IO ()
+tick name = do
+  tickLiteratureCase $ yield name
+
+altitudeDisplayTick :: IO ()
+altitudeDisplayTick = tick altitudeDisplay
+
+carControllerTick :: IO ()
+carControllerTick = tick carController
+
+learningFactoryTick :: IO ()
+learningFactoryTick = tick learningFactory
+
+singleBanner :: String -> IO ()
+singleBanner s = banner ("|  single case: " ++ s ++ "  |")
+
 singleBanner1 :: IO ()
-singleBanner1 = banner "|  single case: altitude display int  |"
+singleBanner1 = singleBanner "altitude display int"
 
 singleBanner2 :: IO ()
-singleBanner2 = banner "|  single case: synthesized case  |"
+singleBanner2 = singleBanner "synthesized case"
 
 runSingle1 :: IO ()
 runSingle1 = do

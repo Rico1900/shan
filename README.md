@@ -46,19 +46,26 @@ cd shan
 
 #### Observing the experimental results
 
-- Run the first experiment with the following command.
+- Reproduce RQ1 with the following command.
 ```bash
 stack run +RTS -N -- observe experiment1
 ```
 
-- Run the second experiment with the following command.
+- Reproduce RQ2 with the following command.
 ```bash
-stack run +RTS -N -- observe experiment2
+stack run -- observe altitude-display
+stack run -- observe car-controller
+stack run -- observe learning-factory
+```
+
+- Reproduce RQ3 with the following command.
+```bash
+stack run +RTS -N -- observe experiment3
 ```
 
 #### Measuring the coverage of `hant`
 
-- Run the following command that measures the coverage of the experiment 1.
+- Run the following command that measures the coverage of RQ1.
 ```bash
 stack run +RTS -N -- coverage experiment1
 ```

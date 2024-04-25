@@ -38,6 +38,7 @@ dependencies:
 - criterion
 - async
 - stm
+- time
 
 ghc-options:
 - -Wall
