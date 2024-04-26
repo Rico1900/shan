@@ -17,7 +17,7 @@ where
 
 import Data.SBV.Internals (SMTModel (modelAssocs))
 import Hant.Analysis.Trace (Trace)
-import Hant.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram, Automaton (Automaton), nodeCount, edgeCount, Bound)
+import Hant.Ast.Diagram (SequenceDiagram, sdname, splitSequenceDiagram, Automaton (Automaton), nodeCount, edgeCount, Bound, variables)
 import Text.Printf (printf)
 
 modelValues :: SMTModel -> String
@@ -40,6 +40,7 @@ printIsdStatistics b sds ts han = do
   printComponentCount han
   printNumOfProperties han
   printHanNodesAndEdges han
+  printHanVariables han
   printIntCount sds
   printTraceCount (length ts)
 
@@ -55,10 +56,10 @@ printComponentCount han = do
   putStrLn $ "component count: " ++ show (length han)
 
 printNumOfProperties :: [Automaton] -> IO ()
-printNumOfProperties han = do 
+printNumOfProperties han = do
   putStrLn $ "number of properties: " ++ show (sum (numOfSingle <$> han))
-  where 
-    numOfSingle (Automaton _ _ _ _ ps) = length ps 
+  where
+    numOfSingle (Automaton _ _ _ _ ps) = length ps
 
 printHanNodesAndEdges :: [Automaton] -> IO ()
 printHanNodesAndEdges han = do
@@ -66,6 +67,11 @@ printHanNodesAndEdges han = do
   let edges = sum (edgeCount <$> han)
   putStrLn $ "han node count: " ++ show nodes
   putStrLn $ "han edge count: " ++ show edges
+
+printHanVariables :: [Automaton] -> IO ()
+printHanVariables han = do
+  let vars = concatMap variables han
+  putStrLn $ "han variable count: " ++ show (length vars)
 
 printIntCount :: [SequenceDiagram] -> IO ()
 printIntCount sds = do
@@ -127,15 +133,15 @@ left |++| right =
             sideHeight = length sideLines
             topPaddingNum = (targetHeight - sideHeight) `div` 2
             bottomPaddingNum = targetHeight - sideHeight - topPaddingNum
-        in replicate topPaddingNum paddingLine 
-           ++ sideLines 
+        in replicate topPaddingNum paddingLine
+           ++ sideLines
            ++ replicate bottomPaddingNum paddingLine
       leftLines = lines left
       rightLines = lines right
       leftLen = maximum $ map length leftLines
       rightLen = maximum $ map length rightLines
       maxHeight = max (length leftLines) (length rightLines)
-      lines' = zipWith (++) 
-                (padLines leftLines leftLen maxHeight) 
+      lines' = zipWith (++)
+                (padLines leftLines leftLen maxHeight)
                 (padLines rightLines rightLen maxHeight)
    in unlines lines'

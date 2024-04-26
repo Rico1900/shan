@@ -24,14 +24,14 @@ coverageExperiment :: [String] -> IO ()
 coverageExperiment args = do
   case head args of
     "experiment1" -> withArgs (drop 1 args) coverageExperiment1
-    "experiment3" -> withArgs (drop 1 args) coverageExperiment2
+    "experiment2" -> withArgs (drop 1 args) coverageExperiment2
     _ -> error "invalid arguments"
 
 obaserveExperiment :: [String] -> IO ()
 obaserveExperiment args = do
   case head args of
     "experiment1" -> withArgs (drop 1 args) observeExperiment1
-    "experiment3" -> withArgs (drop 1 args) observeExperiment2
+    "experiment2" -> withArgs (drop 1 args) observeExperiment2
     "altitude-display" -> altitudeDisplayTick
     "car-controller" -> carControllerTick
     "learning-factory" -> learningFactoryTick
@@ -41,7 +41,7 @@ parallelExperiment :: [String] -> IO ()
 parallelExperiment args = do
   case head args of
     "experiment1" -> withArgs (drop 1 args) parallelRunExperiment1
-    "experiment3" -> withArgs (drop 1 args) parallelRunExperiment2
+    "experiment2" -> withArgs (drop 1 args) parallelRunExperiment2
     "single1" -> withArgs (drop 1 args) parallelRunSingle1
     "single2" -> withArgs (drop 1 args) parallelRunSingle2
     _ -> error "invalid arguments"
@@ -50,7 +50,7 @@ sequenceExperiment :: [String] -> IO ()
 sequenceExperiment args = do
   case head args of
     "experiment1" -> withArgs (drop 1 args) runExperiment1
-    "experiment3" -> withArgs (drop 1 args) runExperiment2
+    "experiment2" -> withArgs (drop 1 args) runExperiment2
     "single1" -> withArgs (drop 1 args) runSingle1
     "single2" -> withArgs (drop 1 args) runSingle2
     _ -> error "invalid arguments"

@@ -60,7 +60,7 @@ stack run -- observe learning-factory
 
 - Reproduce RQ3 with the following command.
 ```bash
-stack run +RTS -N -- observe experiment3
+stack run +RTS -N -- observe experiment2
 ```
 
 #### Measuring the coverage of `hant`

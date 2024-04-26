@@ -360,8 +360,8 @@ genCommonNode i vars = do
   let nodeName = pack $ printf "node%d" i
   selectedVars <- selectVariablesWithinAutomaton vars
   diffs <- genDifferentialEquations selectedVars
-  -- invs <- genInvariants selectedVars
-  return $ Node nodeType nodeName (S.fromList selectedVars) diffs []
+  invs <- genInvariants selectedVars
+  return $ Node nodeType nodeName (S.fromList selectedVars) diffs invs
 
 genInvariants :: [Variable] -> Synthesis [Judgement]
 genInvariants = traverse genInvariant

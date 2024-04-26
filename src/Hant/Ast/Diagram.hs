@@ -47,7 +47,8 @@ module Hant.Ast.Diagram
     nodeCount,
     edgeCount,
     nonInitEdges,
-    namedHan
+    namedHan,
+    variables
   )
 where
 
@@ -321,6 +322,12 @@ edgesToNodes =
 
 nodes :: Automaton -> [Node]
 nodes (Automaton _ _ ns _ _) = ns
+
+variables :: Automaton -> [Variable]
+variables a = 
+  S.toList $ foldl S.union S.empty $ variablesOfNode <$> nodes a
+  where
+    variablesOfNode (Node _ _ vs _ _) = vs
 
 edges :: Automaton -> [Edge]
 edges (Automaton _ _ _ es _) = es

@@ -68,17 +68,25 @@ oneTick b han t startTime = do
 
 analyzeLiteratureCase :: LiteratureCase -> IO ()
 analyzeLiteratureCase c = do
+  startTime <- getCurrentTime
   printCaseName (name c)
   sdOrAutomaton <- parseShan (path c)
   let diags = partitionEithers sdOrAutomaton
   validateThenAnalyze (bound c) diags
+  endTime <- getCurrentTime
+  let diff = diffUTCTime endTime startTime
+  putStrLn $ "Time consumption: " ++ show diff
 
 analyzeSynthesizedCase :: SynthesizedCase -> IO ()
 analyzeSynthesizedCase c = do
+  startTime <- getCurrentTime
   printCaseName (caseId c)
   let diags = diagrams c
   let b = Synth.bound c
   validateThenAnalyze b diags
+  endTime <- getCurrentTime
+  let diff = diffUTCTime endTime startTime
+  putStrLn $ "Time consumption: " ++ show diff
 
 validateThenAnalyze :: Bound -> Diagrams -> IO ()
 validateThenAnalyze b (sds, han) = do

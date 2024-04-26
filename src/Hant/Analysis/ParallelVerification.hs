@@ -23,20 +23,29 @@ import Hant.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
 import Hant.Synthesis.Synthesizer qualified as Synth
 import Hant.Util (LiteratureCase (bound, name, path))
 import Text.Printf (printf)
+import Data.Time (getCurrentTime, UTCTime, diffUTCTime)
 
 parallelAnalyzeLiteratureCase :: LiteratureCase -> IO ()
 parallelAnalyzeLiteratureCase c = do
+  startTime <- getCurrentTime
   printCaseName (name c)
   sdOrAutomaton <- parseShan (path c)
   let diags = partitionEithers sdOrAutomaton
   parallelAnalyze (bound c) diags
+  endTime <- getCurrentTime
+  let diff = diffUTCTime endTime startTime
+  putStrLn $ "Time consumption: " ++ show diff
 
 parallelAnalyzeSynthesizedCase :: SynthesizedCase -> IO ()
 parallelAnalyzeSynthesizedCase c = do
+  startTime <- getCurrentTime
   printCaseName (caseId c)
   let diags = diagrams c
   let b = Synth.bound c
   parallelAnalyze b diags
+  endTime <- getCurrentTime
+  let diff = diffUTCTime endTime startTime
+  putStrLn $ "Time consumption: " ++ show diff
 
 parallelAnalyze :: Bound -> Diagrams -> IO ()
 parallelAnalyze b (sds, han) = do
