@@ -23,7 +23,7 @@ import Hant.Synthesis.Synthesizer (SynthesizedCase (caseId, diagrams))
 import Hant.Synthesis.Synthesizer qualified as Synth
 import Hant.Util (LiteratureCase (bound, name, path))
 import Text.Printf (printf)
-import Data.Time (getCurrentTime, UTCTime, diffUTCTime)
+import Data.Time (getCurrentTime, diffUTCTime)
 
 parallelAnalyzeLiteratureCase :: LiteratureCase -> IO ()
 parallelAnalyzeLiteratureCase c = do
